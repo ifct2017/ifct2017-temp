@@ -1,7 +1,6 @@
 const pgconfig = require('pg-connection-string');
 const bodyParser = require('body-parser');
 const express = require('express');
-const uuidv1 = require('uuid/v1');
 const pg = require('pg');
 const data = require('./data');
 const sql = require('./sql');
@@ -30,11 +29,9 @@ X.all('/bot', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(JSON.stringify({ "speech": txt, "displayText": txt}));
 });
-X.all('/sql/:txt', (req, res) => {
-  sql(db, req.params.txt).then((ans) => db.query(ans)).then((ans) => {
-    res.json({sql: ans, result: ans.rows});
-  });
-});
+X.all('/sql/:txt', (req, res) => sql(db, req.params.txt).then((sql) => {
+  db.query({text: sql}).then((ans) => res.json({sql, ans: ans.rows}));
+}));
 X.use((err, req, res, next) => {
   res.status(400).send(err.message);
   console.error(err);
