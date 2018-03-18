@@ -44,6 +44,15 @@ server.on('listening', () => {
 
 X.use(bodyParser.json());
 X.use(bodyParser.urlencoded({'extended': true}));
+X.use((req, res, next) => {
+  console.log();
+  var {port, family, address} = req.socket.address();
+  var from = req.headers['x-forwarded-for']||`${address}:${port} (${family})`;
+  var proto = req.headers['x-forwarded-proto']||'http';
+  var length = req.headers['content-length']||'?';
+  console.log(`${from} -> ${proto} ${req.method} ${req.url} length:${length}`);
+  next();
+});
 X.all('/bot', (req, res) => {
   console.log('req.headers', req.headers);
   console.log('req.params', req.params);
