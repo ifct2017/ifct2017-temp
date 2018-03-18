@@ -27,7 +27,7 @@ const VALUE = [
   {c: ['operator', '+', 'text', 'type', 'column', null], a: (s, t, i) => token('column', `sum: ${t[i+2].value}`)},
   {c: ['function', 'avg', 'text', 'type', 'column', null], a: (s, t, i) => token('column', `avg: ${t[i+2].value}`)},
   {c: ['column', null, 'text', 'per', 'number/cardinal', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"*${t[i+2].value/100})`); }},
-  {c: ['column', null, 'text', 'per', 'unit', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"*${t[i+2].value/100}")`); }},
+  {c: ['column', null, 'text', 'per', 'unit', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"*${t[i+2].value/100})`); }},
   {c: ['column', null, 'keyword', 'AS', 'unit', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"/${t[i+1].value})`); }},
   {c: ['column', null, 'keyword', 'IN', 'unit', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"/${t[i+1].value})`); }},
   {c: ['column', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `"${t[i].value}"`); }},
@@ -146,17 +146,17 @@ function process(tkns) {
   var sta = {columns: [], from: [], groupBy: [], orderBy: [], where: '', having: '', limit: 0, columnsUsed: [], reverse: false};
   tkns = stageRun(NULLORDER, sta, tkns);
   tkns = stageRun(NUMBER, sta, tkns, true);
-  console.log(tkns, sta);
-  return '';
   tkns = stageRun(LIMIT, sta, tkns);
   tkns = stageRun(VALUE, sta, tkns);
   tkns = stageRun(EXPRESSION, sta, tkns, true);
   tkns = stageRun(ORDERBY, sta, tkns, true);
   tkns = stageRun(GROUPBY, sta, tkns, true);
   tkns = stageRun(HAVING, sta, tkns);
+  console.log('before where', tkns);
   tkns = stageRun(WHERE, sta, tkns);
   tkns = stageRun(FROM, sta, tkns);
   tkns = stageRun(COLUMN, sta, tkns);
+  console.log(sta);
   if(sta.having.startsWith('AND ')) sta.having = sta.having.substring(4);
   if(sta.where.startsWith('AND ')) sta.where = sta.where.substring(4);
   var i = sta.columns.indexOf(`"*"`);

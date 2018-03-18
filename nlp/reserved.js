@@ -2,13 +2,43 @@ const natural = require('natural');
 
 const LANCASTER = /^(equal|below|small|less|low|above|great|high|more|large|big|boolean).*/;
 const IGNORE = /^(a|an|the|i|he|him|she|her|they|their|as|at|if|in|is|it|of|on|to|by|want|well|than|then|thus|however|ok|okay)$/;
-const OPERATOR = new Map([
+const UNARYOPERATOR = new Map([
+  ['bool not', 'NOT'],
+  ['not', 'NOT'],
+  ['is null', 'IS NULL'],
+  ['is not null', 'IS NOT NULL'],
+  ['is true', 'IS TRUE'],
+  ['is not true', 'IS NOT TRUE'],
+  ['false is', 'IS FALSE'],
+  ['false is not', 'IS NOT FALSE'],
+  ['is unknown', 'IS UNKNOWN'],
+  ['is not unknown', 'IS NOT UNKNOWN'],
+  ['root squar', '|/'],
+  ['root', '|/'],
+  ['| /', '|/'],
+  ['cube root', '|/'],
+  ['| | /', '||/'],
+  ['factori', '!'],
+  ['! !', '!'],
+  ['!', '!'],
+  ['absolut valu', '@'],
+  ['absolut', '@'],
+  ['abs', '@'],
+  ['@', '@'],
+  ['bitwis not', '~'],
+  ['bit not', '~'],
+  ['~', '~'],
+  ['escape', 'ESCAPE'],
+  ['negat', '!!'],
+  ['empti not', 'EXISTS'],
+  ['not noth', 'EXISTS'],
+  ['exist', 'EXISTS'],
+]);
+const BINARYOPERATOR = new Map([
   ['and bool', 'AND'],
   ['and', 'AND'],
   ['bool or', 'OR'],
   ['or', 'OR'],
-  ['bool not', 'NOT'],
-  ['not', 'NOT'],
   ['abov not same', '<'],
   ['gre not same', '<'],
   ['high not same', '<'],
@@ -135,18 +165,6 @@ const OPERATOR = new Map([
   ['distinct from not', 'IS NOT DISTINCT FROM'],
   ['diff from is not', 'IS NOT DISTINCT FROM'],
   ['distinct from is not', 'IS NOT DISTINCT FROM'],
-  ['between not', 'NOT BETWEEN SYMMETRIC'],
-  ['not within', 'NOT BETWEEN SYMMETRIC'],
-  ['between', 'BETWEEN SYMMETRIC'],
-  ['within', 'BETWEEN SYMMETRIC'],
-  ['is null', 'IS NULL'],
-  ['is not null', 'IS NOT NULL'],
-  ['is true', 'IS TRUE'],
-  ['is not true', 'IS NOT TRUE'],
-  ['false is', 'IS FALSE'],
-  ['false is not', 'IS NOT FALSE'],
-  ['is unknown', 'IS UNKNOWN'],
-  ['is not unknown', 'IS NOT UNKNOWN'],
   ['addit', '+'],
   ['plu', '+'],
   ['sum', '+'],
@@ -174,18 +192,6 @@ const OPERATOR = new Map([
   ['power', '^'],
   ['pow', '^'],
   ['^', '^'],
-  ['root squar', '|/'],
-  ['root', '|/'],
-  ['| /', '|/'],
-  ['cube root', '|/'],
-  ['| | /', '||/'],
-  ['factori', '!'],
-  ['! !', '!'],
-  ['!', '!'],
-  ['absolut valu', '@'],
-  ['absolut', '@'],
-  ['abs', '@'],
-  ['@', '@'],
   ['and bitwis', '&'],
   ['and bit', '&'],
   ['&', '&'],
@@ -195,9 +201,6 @@ const OPERATOR = new Map([
   ['bitwis xor', '#'],
   ['bit xor', '#'],
   ['#', '#'],
-  ['bitwis not', '~'],
-  ['bit not', '~'],
-  ['~', '~'],
   ['bitwis left shift', '<<'],
   ['bit left shift', '<<'],
   ['left shift', '<<'],
@@ -216,14 +219,12 @@ const OPERATOR = new Map([
   ['express match not regular', '!~'],
   ['case express insensit match not regular', '!~*'],
   ['express insensit match not regular', '!~*'],
-  ['escape', 'ESCAPE'],
   ['like', 'LIKE'],
   ['like not', 'NOT LIKE'],
   ['similar to', 'SIMILAR TO'],
   ['not similar to', 'NOT SIMILAR TO'],
   ['match', '@@'],
   ['@ @', '@@'],
-  ['negat', '!!'],
   ['concaten', '||'],
   ['concat', '||'],
   ['| |', '||'],
@@ -300,9 +301,6 @@ const OPERATOR = new Map([
   ['complement rel', '-'],
   ['comp rel', '-'],
   ['differ', '-'],
-  ['empti not', 'EXISTS'],
-  ['not noth', 'EXISTS'],
-  ['exist', 'EXISTS'],
   ['in', 'IN'],
   ['on', 'IN'],
   ['in not', 'NOT IN'],
@@ -318,6 +316,12 @@ const OPERATOR = new Map([
   ['everi', 'ALL'],
   ['each everi', 'ALL'],
   ['all', 'ALL']
+]);
+const TERNARYOPERATOR = new Map([
+  ['between not', 'NOT BETWEEN SYMMETRIC'],
+  ['not within', 'NOT BETWEEN SYMMETRIC'],
+  ['between', 'BETWEEN SYMMETRIC'],
+  ['within', 'BETWEEN SYMMETRIC'],
 ]);
 const FUNCTION = new Map([
   ['absolut valu', 'abs'],
@@ -658,7 +662,9 @@ function findLast(tkns, bgn, typ) {
 };
 
 function processTxt(txt) {
-  if(OPERATOR.has(txt)) return {type: 'operator', value: OPERATOR.get(txt)};
+  if(TERNARYOPERATOR.has(txt)) return {type: 'operator/ternary', value: TERNARYOPERATOR.get(txt)};
+  if(BINARYOPERATOR.has(txt)) return {type: 'operator/binary', value: BINARYOPERATOR.get(txt)};
+  if(UNARYOPERATOR.has(txt)) return {type: 'operator/unary', value: UNARYOPERATOR.get(txt)};
   if(FUNCTION.has(txt)) return {type: 'function', value: FUNCTION.get(txt)};
   if(KEYWORD.has(txt)) return {type: 'keyword', value: KEYWORD.get(txt)};
   return null;
