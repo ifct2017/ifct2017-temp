@@ -49,6 +49,25 @@ const EXPRESSION = [
   {c: ['function', null, 'expression', null], a: (s, t, i) => token('expression', `${t[i].value}(${t[i+1].value})`)},
   {c: ['bracket/open', null, 'expression', null, 'bracket/close', null], a: (s, t, i) => token('expression', `(${t[i+1].value})`)},
 ];
+const ORDERBY = [
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'DESC', 'keyword', 'NULLS FIRST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'} NULLS FIRST`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'DESC', 'keyword', 'NULLS LAST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'} NULLS LAST`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'ASC', 'keyword', 'NULLS FIRST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS FIRST`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'ASC', 'keyword', 'NULLS LAST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS LAST`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'DESC'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'}`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'DESC'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'}`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'ASC'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'NULLS FIRST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS FIRST`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'NULLS LAST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS LAST`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return t[i]; }},
+  {c: ['expression', null, 'keyword', 'DESC'], a: (s, t, i) => { s.orderBy.push(`${t[i].value} ${s.reverse? 'ASC':'DESC'}`); return null; }},
+  {c: ['keyword', 'DESC', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'}`); return null; }},
+  {c: ['expression', null, 'keyword', 'ASC'], a: (s, t, i) => { s.orderBy.push(`${t[i].value} ${s.reverse? 'DESC':'ASC'}`); return null; }},
+  {c: ['keyword', 'ASC', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return null; }},
+];
+const GROUPBY = [
+  {c: ['keyword', 'GROUP BY', 'expression', null], a: (s, t, i) => { s.groupBy.push(`${t[i+1].value}`); return t[i]; }},
+];
 const HAVING = [
   {c: ['operator', 'AND', 'operator', 'NOT', 'keyword', 'HAVING', 'expression', null], a: (s, t, i) => { s.having += `AND (NOT ${t[i].value})`; return null; }},
   {c: ['operator', 'OR', 'operator', 'NOT', 'keyword', 'HAVING', 'expression', null], a: (s, t, i) => { s.having += `OR (NOT ${t[i].value})`; return null; }},
@@ -64,21 +83,6 @@ const WHERE = [
   {c: ['operator', 'AND', 'keyword', 'WHERE', 'expression', null], a: (s, t, i) => { s.where += `AND (${t[i].value})`; return null; }},
   {c: ['operator', 'OR', 'keyword', 'WHERE', 'expression', null], a: (s, t, i) => { s.where += `OR (${t[i].value})`; return null; }},
   {c: ['keyword', 'WHERE', 'expression', null], a: (s, t, i) => { s.where += `AND (${t[i].value})`; return null; }},
-];
-const ORDERBY = [
-  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'DESC', 'keyword', 'NULLS FIRST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'} NULLS FIRST`); return t[i]; }},
-  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'DESC', 'keyword', 'NULLS LAST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'} NULLS LAST`); return t[i]; }},
-  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'ASC', 'keyword', 'NULLS FIRST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS FIRST`); return t[i]; }},
-  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'ASC', 'keyword', 'NULLS LAST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS LAST`); return t[i]; }},
-  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'DESC'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'}`); return t[i]; }},
-  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'DESC'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'}`); return t[i]; }},
-  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'ASC'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return t[i]; }},
-  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'NULLS FIRST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS FIRST`); return t[i]; }},
-  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'NULLS LAST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS LAST`); return t[i]; }},
-  {c: ['keyword', 'ORDER BY', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return t[i]; }},
-];
-const GROUPBY = [
-  {c: ['keyword', 'GROUP BY', 'expression', null], a: (s, t, i) => { s.groupBy.push(`${t[i+1].value}`); return t[i]; }},
 ];
 const FROM = [
   {c: ['table', null], a: (s, t, i) => { s.from.push(`"${t[i].value}"`); return null; }},
@@ -125,10 +129,10 @@ function process(tkns) {
   tkns = stageRun(LIMIT, sta, tkns);
   tkns = stageRun(VALUE, sta, tkns);
   tkns = stageRun(EXPRESSION, sta, tkns, true);
-  tkns = stageRun(HAVING, sta, tkns);
-  tkns = stageRun(WHERE, sta, tkns);
   tkns = stageRun(ORDERBY, sta, tkns, true);
   tkns = stageRun(GROUPBY, sta, tkns, true);
+  tkns = stageRun(HAVING, sta, tkns);
+  tkns = stageRun(WHERE, sta, tkns);
   tkns = stageRun(FROM, sta, tkns);
   tkns = stageRun(COLUMN, sta, tkns);
   if(sta.having.startsWith('AND ')) sta.having = sta.having.substring(4);
