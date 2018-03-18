@@ -21,7 +21,7 @@ server.on('listening', () => {
 
 X.use(bodyParser.json());
 X.use(bodyParser.urlencoded({'extended': true}));
-X.all('/sql', (req, res) => {
+X.all('/bot', (req, res) => {
   console.log('req.headers', req.headers);
   console.log('req.params', req.params);
   console.log('req.query', req.query);
@@ -29,6 +29,15 @@ X.all('/sql', (req, res) => {
   txt = "I like Indian Food Composition Tables!";
   res.setHeader('Content-Type', 'application/json');
   res.send(JSON.stringify({ "speech": txt, "displayText": txt}));
+});
+X.all('/sql/:txt', (req, res) => {
+  sql(db, req.params.txt).then((ans) => db.query(ans)).then((ans) => {
+    res.json({sql: ans, result: ans.rows});
+  });
+});
+X.use((err, req, res, next) => {
+  res.status(400).send(err.message);
+  console.error(err);
 });
 
 data(db).then(
