@@ -27,18 +27,18 @@ function column(db, wrds) {
   var stm = natural.PorterStemmer.stem(wrds[0]);
   if(COLUMN.has(stm)) return Promise.resolve(COLUMN.get(stm));
   for(var i=wrds.length, j=1, sql='', args=[]; i>0; i--, j++) {
-    sql += `SELECT "code", $${j}::TEXT AS x FROM "columns_tsvector" WHERE "tsvector" @@ plainto_tsquery($${j}) UNION `;
+    sql += `SELECT "code", $${j}::TEXT AS x FROM "columns_tsvector" WHERE "tsvector" @@ plainto_tsquery($${j}) UNION ALL `;
     args[j-1] = wrds.slice(0, i).join(' ');
   }
-  return db.query(sql.substring(0, sql.length-7), args).then((ans) => ans.rowCount>0? ans.rows[0].x:null);
+  return db.query(sql.substring(0, sql.length-11), args).then((ans) => ans.rowCount>0? ans.rows[0].x:null);
 };
 
 function row(db, wrds) {
   for(var i=wrds.length, j=1, sql='', args=[]; i>0; i--, j++) {
-    sql += `SELECT "code", $${j}::TEXT AS x FROM "compositions_tsvector" WHERE "tsvector" @@ plainto_tsquery($${j}) UNION `;
+    sql += `SELECT "code", $${j}::TEXT AS x FROM "compositions_tsvector" WHERE "tsvector" @@ plainto_tsquery($${j}) UNION ALL `;
     args[j-1] = wrds.slice(0, i).join(' ');
   }
-  return db.query(sql.substring(0, sql.length-7), args).then((ans) => ans.rowCount>0? ans.rows[0].x:null);
+  return db.query(sql.substring(0, sql.length-11), args).then((ans) => ans.rowCount>0? ans.rows[0].x:null);
 };
 
 function findLast(tkns, bgn, typ) {
@@ -66,7 +66,8 @@ async function entity(db, tkns) {
     if(J<0) { z.push(tkns[i]); continue; }
     var wrds = tkns.slice(i, J+1).map((v) => v.value.toLowerCase());
     var ent = await process(db, wrds);
-    if(ent!=null) z.push(ent);
+    console.log('entity', wrds, ent);
+    if(ent!=null) { z.push(ent); i += wrds.length-1; }
     else z.push(tkns[i]);
   }
   return z;

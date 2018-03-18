@@ -26,8 +26,8 @@ const VALUE = [
   {c: ['operator', 'ALL', 'text', 'type', 'column', null], a: (s, t, i) => token('column', `all: ${t[i+2].value}`)},
   {c: ['operator', '+', 'text', 'type', 'column', null], a: (s, t, i) => token('column', `sum: ${t[i+2].value}`)},
   {c: ['function', 'avg', 'text', 'type', 'column', null], a: (s, t, i) => token('column', `avg: ${t[i+2].value}`)},
-  {c: ['column', null, 'text', 'per', 'number/cardinal', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"*${t[i+2].value/100})`); }},
-  {c: ['column', null, 'text', 'per', 'unit', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"*${t[i+2].value/100})`); }},
+  {c: ['column', null, 'keyword', 'PER', 'number/cardinal', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"*${t[i+2].value/100})`); }},
+  {c: ['column', null, 'keyword', 'PER', 'unit', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"*${t[i+2].value/100})`); }},
   {c: ['column', null, 'keyword', 'AS', 'unit', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"/${t[i+1].value})`); }},
   {c: ['column', null, 'keyword', 'IN', 'unit', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"/${t[i+1].value})`); }},
   {c: ['column', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `"${t[i].value}"`); }},
@@ -184,24 +184,24 @@ function process(tkns) {
 // one crore four hundred fifty three thousand two seventy six
 // nine four three seven one four five two three six
 async function nlp(db) {
-  var txt = 'which food has highest protein per gram';
+  var txt = 'which food has highest protein per 10 grams where vitamin c is more than 50 grams';
   var wrds = new natural.WordTokenizer().tokenize(txt), tkns = [];
   for(var w of wrds)
     tkns.push({type: 'text', value: w});
-  console.log('tokens', tkns);
-  console.log();
+  // console.log('tokens', tkns);
+  // console.log();
   var stg1 = number(tkns);
-  console.log('stage1', stg1);
-  console.log();
+  // console.log('stage1', stg1);
+  // console.log();
   var stg2 = unit(stg1);
-  console.log('stage2', stg2);
-  console.log();
+  // console.log('stage2', stg2);
+  // console.log();
   var stg3 = reserved(stg2);
-  console.log('stage3', stg3);
-  console.log();
+  // console.log('stage3', stg3);
+  // console.log();
   var stg4 = await entity(db, stg3);
-  console.log('stage4', stg4);
-  console.log();
+  // console.log('stage4', stg4);
+  // console.log();
   var sql = process(stg4);
   console.log('sql', sql);
   return sql;
