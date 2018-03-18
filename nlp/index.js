@@ -81,20 +81,20 @@ const GROUPBY = [
   {c: ['keyword', 'GROUP BY', 'expression', null], a: (s, t, i) => { s.groupBy.push(`${t[i+1].value}`); return t[i]; }},
 ];
 const HAVING = [
-  {c: ['operator', 'AND', 'operator', 'NOT', 'keyword', 'HAVING', 'expression', null], a: (s, t, i) => { s.having += `AND (NOT ${t[i].value})`; return null; }},
-  {c: ['operator', 'OR', 'operator', 'NOT', 'keyword', 'HAVING', 'expression', null], a: (s, t, i) => { s.having += `OR (NOT ${t[i].value})`; return null; }},
-  {c: ['operator', 'NOT', 'keyword', 'HAVING', 'expression', null], a: (s, t, i) => { s.having += `AND (NOT ${t[i].value})`; return null; }},
-  {c: ['operator', 'AND', 'keyword', 'HAVING', 'expression', null], a: (s, t, i) => { s.having += `AND (${t[i].value})`; return null; }},
-  {c: ['operator', 'OR', 'keyword', 'HAVING', 'expression', null], a: (s, t, i) => { s.having += `OR (${t[i].value})`; return null; }},
-  {c: ['keyword', 'HAVING', 'expression', null], a: (s, t, i) => { s.having += `AND (${t[i].value})`; return null; }},
+  {c: ['operator', 'AND', 'operator', 'NOT', 'keyword', 'HAVING', 'expression', null], a: (s, t, i) => { s.having += `AND (NOT ${t[i+3].value})`; return null; }},
+  {c: ['operator', 'OR', 'operator', 'NOT', 'keyword', 'HAVING', 'expression', null], a: (s, t, i) => { s.having += `OR (NOT ${t[i+3].value})`; return null; }},
+  {c: ['operator', 'NOT', 'keyword', 'HAVING', 'expression', null], a: (s, t, i) => { s.having += `AND (NOT ${t[i+2].value})`; return null; }},
+  {c: ['operator', 'AND', 'keyword', 'HAVING', 'expression', null], a: (s, t, i) => { s.having += `AND (${t[i+2].value})`; return null; }},
+  {c: ['operator', 'OR', 'keyword', 'HAVING', 'expression', null], a: (s, t, i) => { s.having += `OR (${t[i+2].value})`; return null; }},
+  {c: ['keyword', 'HAVING', 'expression', null], a: (s, t, i) => { s.having += `AND (${t[i+1].value})`; return null; }},
 ];
 const WHERE = [
-  {c: ['operator', 'AND', 'operator', 'NOT', 'keyword', 'WHERE', 'expression', null], a: (s, t, i) => { s.where += `AND (NOT ${t[i].value})`; return null; }},
-  {c: ['operator', 'OR', 'operator', 'NOT', 'keyword', 'WHERE', 'expression', null], a: (s, t, i) => { s.where += `OR (NOT ${t[i].value})`; return null; }},
-  {c: ['operator', 'NOT', 'keyword', 'WHERE', 'expression', null], a: (s, t, i) => { s.where += `AND (NOT ${t[i].value})`; return null; }},
-  {c: ['operator', 'AND', 'keyword', 'WHERE', 'expression', null], a: (s, t, i) => { s.where += `AND (${t[i].value})`; return null; }},
-  {c: ['operator', 'OR', 'keyword', 'WHERE', 'expression', null], a: (s, t, i) => { s.where += `OR (${t[i].value})`; return null; }},
-  {c: ['keyword', 'WHERE', 'expression', null], a: (s, t, i) => { s.where += `AND (${t[i].value})`; return null; }},
+  {c: ['operator', 'AND', 'operator', 'NOT', 'keyword', 'WHERE', 'expression', null], a: (s, t, i) => { s.where += `AND (NOT ${t[i+3].value})`; return null; }},
+  {c: ['operator', 'OR', 'operator', 'NOT', 'keyword', 'WHERE', 'expression', null], a: (s, t, i) => { s.where += `OR (NOT ${t[i+3].value})`; return null; }},
+  {c: ['operator', 'NOT', 'keyword', 'WHERE', 'expression', null], a: (s, t, i) => { s.where += `AND (NOT ${t[i+2].value})`; return null; }},
+  {c: ['operator', 'AND', 'keyword', 'WHERE', 'expression', null], a: (s, t, i) => { s.where += `AND (${t[i+2].value})`; return null; }},
+  {c: ['operator', 'OR', 'keyword', 'WHERE', 'expression', null], a: (s, t, i) => { s.where += `OR (${t[i+2].value})`; return null; }},
+  {c: ['keyword', 'WHERE', 'expression', null], a: (s, t, i) => { s.where += `AND (${t[i+1].value})`; return null; }},
 ];
 const FROM = [
   {c: ['table', null], a: (s, t, i) => { s.from.push(`"${t[i].value}"`); return null; }},
@@ -184,7 +184,7 @@ function process(tkns) {
 // one crore four hundred fifty three thousand two seventy six
 // nine four three seven one four five two three six
 async function nlp(db) {
-  var txt = 'which food has highest protein per gram where sugar is less than twenty milligrams';
+  var txt = 'which food has highest protein per gram';
   var wrds = new natural.WordTokenizer().tokenize(txt), tkns = [];
   for(var w of wrds)
     tkns.push({type: 'text', value: w});
