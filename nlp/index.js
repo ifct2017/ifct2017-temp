@@ -4,9 +4,11 @@ const unit = require('./unit');
 const reserved = require('./reserved');
 const entity = require('./entity');
 
-const STAGE1 = [
+const NUMBER = [
   {c: ['number/cardinal', null, 'number/ordinal', null], a: (s, t, i) => token('number/cardinal', t[i].value/t[i+1].value)},
   {c: ['number/cardinal', null, 'unit', null], a: (s, t, i) => token('number/cardinal', t[i].value*t[i+1].value)},
+];
+const LIMIT = [
   {c: ['keyword', 'LIMIT', 'number', null], a: (s, t, i) => { s.limit = t[i+1].value; s.limitType = 'ASC'; }},
   {c: ['number', null, 'keyword', 'LIMIT'], a: (s, t, i) => { s.limit = t[i+1].value; s.limitType = 'ASC'; }},
   {c: ['keyword', 'ASC', 'number', null], a: (s, t, i) => { s.limit = t[i+1].value; s.limitType = 'ASC'; }},
