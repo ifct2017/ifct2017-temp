@@ -101,12 +101,12 @@ const FROM = [
   {c: ['row', null], a: (s, t, i) => { s.from.push(`"${t[i].value}"`); return null; }},
 ];
 const COLUMN = [
-  {c: ['keyword', 'DISTINCT', 'expression', null, 'keyword', 'AS', 'expression', null], a: (s, t, i) => { s.columns.push(`DISTINCT ${t[i+1].value} AS ${t[i+3].value}`); return null; }},
-  {c: ['keyword', 'ALL', 'expression', null, 'keyword', 'AS', 'expression', null], a: (s, t, i) => { s.columns.push(`ALL ${t[i+1].value} AS ${t[i+3].value}`); return null; }},
-  {c: ['keyword', 'DISTINCT', 'expression', null], a: (s, t, i) => { s.columns.push(`DISTINCT ${t[i+1].value}`); return null; }},
-  {c: ['keyword', 'ALL', 'expression', null], a: (s, t, i) => { s.columns.push(`ALL ${t[i+1].value}`); return null; }},
-  {c: ['expression', null, 'keyword', 'AS', 'expression', null], a: (s, t, i) => { s.columns.push(`${t[i].value} AS ${t[i+2].value}`); return null; }},
-  {c: ['expression', null], a: (s, t, i) => { s.columns.push(t[i].value); return null; }},
+  {c: ['keyword', 'SELECT', 'keyword', 'DISTINCT', 'expression', null, 'keyword', 'AS', 'expression', null], a: (s, t, i) => { s.columns.push(`DISTINCT ${t[i+2].value} AS ${t[i+4].value}`); return t[i]; }},
+  {c: ['keyword', 'SELECT', 'keyword', 'ALL', 'expression', null, 'keyword', 'AS', 'expression', null], a: (s, t, i) => { s.columns.push(`ALL ${t[i+2].value} AS ${t[i+4].value}`); return t[i]; }},
+  {c: ['keyword', 'SELECT', 'keyword', 'DISTINCT', 'expression', null], a: (s, t, i) => { s.columns.push(`DISTINCT ${t[i+2].value}`); return t[i]; }},
+  {c: ['keyword', 'SELECT', 'keyword', 'ALL', 'expression', null], a: (s, t, i) => { s.columns.push(`ALL ${t[i+2].value}`); return t[i]; }},
+  {c: ['keyword', 'SELECT', 'expression', null, 'keyword', 'AS', 'expression', null], a: (s, t, i) => { s.columns.push(`${t[i+1].value} AS ${t[i+3].value}`); return t[i]; }},
+  {c: ['keyword', 'SELECT', 'expression', null], a: (s, t, i) => { s.columns.push(t[i+1].value); return t[i]; }},
 ];
 
 function token(type, value) {
@@ -155,7 +155,7 @@ function process(tkns) {
   console.log('before where', tkns);
   tkns = stageRun(WHERE, sta, tkns);
   tkns = stageRun(FROM, sta, tkns);
-  tkns = stageRun(COLUMN, sta, tkns);
+  tkns = stageRun(COLUMN, sta, tkns, true);
   console.log(sta);
   if(sta.having.startsWith('AND ')) sta.having = sta.having.substring(4);
   if(sta.where.startsWith('AND ')) sta.where = sta.where.substring(4);
@@ -184,7 +184,7 @@ function process(tkns) {
 // one crore four hundred fifty three thousand two seventy six
 // nine four three seven one four five two three six
 async function nlp(db) {
-  var txt = 'which food has highest protein per 10 grams where vitamin c is more than 50 grams';
+  var txt = 'show vitamin b2 food has highest protein per 10 grams where vitamin c is more than 50 grams, 20 grams greater than 10';
   var wrds = new natural.WordTokenizer().tokenize(txt), tkns = [];
   for(var w of wrds)
     tkns.push({type: 'text', value: w});
