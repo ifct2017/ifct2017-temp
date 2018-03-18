@@ -89,6 +89,31 @@ const COLUMN = [
   {c: ['expression', null], a: (s, t, i) => { s.columns.push(t[i].value); return null; }},
 ];
 
+function stageRunAt(stg, sta, tkns, i) {
+  stgi: for(var i=0, I=stg.length, T=tkns.length; i<I; i++) {
+    var c = stg[i].c, a = stg[i].a, C = c.length/2;
+    if(i+C>T) continue stgi;
+    for(var j=0, J=C*2; j<J; j+=2)
+      if(!tkns[i].type.startsWith(c[j]) || (c[j+1]!=null && !tkns.value.startsWith(c[j+1]))) continue stgi;
+    return a(sta, tkns, i);
+  }
+  return null;
+};
+
+function stageRun(stg, sta, tkn, rpt=false) {
+  var del = false, z = [];
+  do {
+    for(var i=0, I=tkns.length; i<I; i++) {
+      var ans = stageRunAt(stg, sta, tkns, i);
+      if(ans==null) continue;
+      if(Array.isArray(ans)) z.push.apply(z, ans);
+      else z.push(ans);
+      del = true;
+    }
+  } while(rpt && del);
+  return z;
+};
+
 function argument(tkn) {
   if(tkn.type==='column') return `"${tkn.value}"`;
   else if(tkn.type==='row') return `'${tkn.value}'`;
