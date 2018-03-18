@@ -109,13 +109,18 @@ const COLUMN = [
   {c: ['expression', null], a: (s, t, i) => { s.columns.push(t[i].value); return null; }},
 ];
 
+function token(type, value) {
+  return {type, value};
+};
+
 function stageRunAt(stg, sta, tkns, i) {
-  stgi: for(var i=0, I=stg.length, T=tkns.length; i<I; i++) {
-    var c = stg[i].c, a = stg[i].a, C = c.length/2;
-    if(i+C>T) continue stgi;
-    for(var j=0, J=C*2; j<J; j+=2)
-      if(!tkns[i].type.startsWith(c[j]) || (c[j+1]!=null && !tkns[i].value.startsWith(c[j+1]))) continue stgi;
-    return a(sta, tkns, i);
+  stgs: for(var s=0, S=stg.length, T=tkns.length; s<S; s++) {
+    var c = stg[s].c, a = stg[s].a, C = c.length/2;
+    if(i+C>T) continue stgs;
+    for(var j=0; j<C; j++) {
+      if(!tkns[i+j].type.startsWith(c[j*2]) || (c[j*2+1]!=null && !tkns[i+j].value.startsWith(c[j*2+1]))) continue stgs;
+    }
+    return {tokens: a(sta, tkns, i)||[], length: C};
   }
   return null;
 };
@@ -123,13 +128,16 @@ function stageRunAt(stg, sta, tkns, i) {
 function stageRun(stg, sta, tkns, rpt=false) {
   var del = false, z = [];
   do {
-    for(var i=0, I=tkns.length; i<I; i++) {
+    for(var i=0, I=tkns.length; i<I;) {
       var ans = stageRunAt(stg, sta, tkns, i);
-      del = ans!=null? true:del;
-      ans = ans!=null? ans:tkns[i];
-      if(Array.isArray(ans)) z.push.apply(z, ans);
-      else z.push(ans);
+      if(ans==null) { z.push(tkns[i++]); continue; }
+      if(!Array.isArray(ans.tokens)) z.push(ans.tokens);
+      else z.push.apply(z, ans.tokens);
+      i += ans.length;
+      del = true;
     }
+    del = false;
+    tkns = z;
   } while(rpt && del);
   return z;
 };
@@ -137,9 +145,9 @@ function stageRun(stg, sta, tkns, rpt=false) {
 function process(tkns) {
   var sta = {columns: [], from: [], groupBy: [], orderBy: [], where: '', having: '', limit: 0, columnsUsed: [], reverse: false};
   tkns = stageRun(NULLORDER, sta, tkns);
-  console.log('NULLORDER', tkns, sta);
-  return '';
   tkns = stageRun(NUMBER, sta, tkns, true);
+  console.log(tkns, sta);
+  return '';
   tkns = stageRun(LIMIT, sta, tkns);
   tkns = stageRun(VALUE, sta, tkns);
   tkns = stageRun(EXPRESSION, sta, tkns, true);
@@ -176,7 +184,7 @@ function process(tkns) {
 // one crore four hundred fifty three thousand two seventy six
 // nine four three seven one four five two three six
 async function nlp(db) {
-  var txt = 'which food has highest protein per gram';
+  var txt = 'which food has highest protein per gram where sugar is less than twenty milligrams';
   var wrds = new natural.WordTokenizer().tokenize(txt), tkns = [];
   for(var w of wrds)
     tkns.push({type: 'text', value: w});
