@@ -23,9 +23,9 @@ const LIMIT = [
   {c: ['number', null, 'keyword', 'DESC'], a: (s, t, i) => { s.limit = t[i+1].value; s.reverse = true; }},
 ];
 const VALUE = [
-  {c: ['operator', 'ALL', 'text', 'type', 'column', null], a: (s, t, i) => token('column', `all: ${t[i+2].value}`)},
-  {c: ['operator', '+', 'text', 'type', 'column', null], a: (s, t, i) => token('column', `sum: ${t[i+2].value}`)},
-  {c: ['function', 'avg', 'text', 'type', 'column', null], a: (s, t, i) => token('column', `avg: ${t[i+2].value}`)},
+  {c: ['operator', 'ALL', 'keyword', 'TYPE', 'column', null], a: (s, t, i) => token('column', `all: ${t[i+2].value}`)},
+  {c: ['operator', '+', 'keyword', 'TYPE', 'column', null], a: (s, t, i) => token('column', `sum: ${t[i+2].value}`)},
+  {c: ['function', 'avg', 'keyword', 'TYPE', 'column', null], a: (s, t, i) => token('column', `avg: ${t[i+2].value}`)},
   {c: ['column', null, 'keyword', 'PER', 'number/cardinal', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"*${t[i+2].value/100})`); }},
   {c: ['column', null, 'keyword', 'PER', 'unit', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"*${t[i+2].value/100})`); }},
   {c: ['column', null, 'keyword', 'AS', 'unit', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"/${t[i+1].value})`); }},
@@ -126,8 +126,8 @@ function stageRunAt(stg, sta, tkns, i) {
 };
 
 function stageRun(stg, sta, tkns, rpt=false) {
-  var del = false, z = [];
   do {
+    var del = false, z = [];
     for(var i=0, I=tkns.length; i<I;) {
       var ans = stageRunAt(stg, sta, tkns, i);
       if(ans==null) { z.push(tkns[i++]); continue; }
@@ -136,7 +136,6 @@ function stageRun(stg, sta, tkns, rpt=false) {
       i += ans.length;
       del = true;
     }
-    del = false;
     tkns = z;
   } while(rpt && del);
   return z;
@@ -147,16 +146,14 @@ function process(tkns) {
   tkns = stageRun(NULLORDER, sta, tkns);
   tkns = stageRun(NUMBER, sta, tkns, true);
   tkns = stageRun(LIMIT, sta, tkns);
-  tkns = stageRun(VALUE, sta, tkns);
+  tkns = stageRun(VALUE, sta, tkns, true);
   tkns = stageRun(EXPRESSION, sta, tkns, true);
   tkns = stageRun(ORDERBY, sta, tkns, true);
   tkns = stageRun(GROUPBY, sta, tkns, true);
   tkns = stageRun(HAVING, sta, tkns);
-  console.log('before where', tkns);
   tkns = stageRun(WHERE, sta, tkns);
   tkns = stageRun(FROM, sta, tkns);
   tkns = stageRun(COLUMN, sta, tkns, true);
-  console.log(sta);
   if(sta.having.startsWith('AND ')) sta.having = sta.having.substring(4);
   if(sta.where.startsWith('AND ')) sta.where = sta.where.substring(4);
   var i = sta.columns.indexOf(`"*"`);
@@ -165,6 +162,7 @@ function process(tkns) {
     for(var i=0, I=sta.columnsUsed.length; i<I; i++)
       if(!sta.columns.includes(sta.columnsUsed[i])) sta.columns.push(sta.columnsUsed[i]);
   }
+  if(!sta.columnsUsed.includes(`"name"`) && !sta.columns.includes(`"name"`)) sta.columns.unshift(`"name"`);
   if(sta.columns.length===0) sta.columns.push(`*`);
   if(sta.from.length===0) sta.from.push(`"food"`);
   var z = `SELECT ${sta.columns.join(', ')} FROM ${sta.from.join(', ')}`;
@@ -183,8 +181,7 @@ function process(tkns) {
 // one crore four fifty three thousand two seven six
 // one crore four hundred fifty three thousand two seventy six
 // nine four three seven one four five two three six
-async function nlp(db) {
-  var txt = 'show vitamin b2 food has highest protein per 10 grams where vitamin c is more than 50 grams, 20 grams greater than 10';
+async function nlp(db, txt) {
   var wrds = new natural.WordTokenizer().tokenize(txt), tkns = [];
   for(var w of wrds)
     tkns.push({type: 'text', value: w});
@@ -203,7 +200,8 @@ async function nlp(db) {
   // console.log('stage4', stg4);
   // console.log();
   var sql = process(stg4);
-  console.log('sql', sql);
+  // console.log('sql', sql);
+  // console.log();
   return sql;
 };
 module.exports = nlp;

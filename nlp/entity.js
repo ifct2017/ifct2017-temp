@@ -66,7 +66,6 @@ async function entity(db, tkns) {
     if(J<0) { z.push(tkns[i]); continue; }
     var wrds = tkns.slice(i, J+1).map((v) => v.value.toLowerCase());
     var ent = await process(db, wrds);
-    console.log('entity', wrds, ent);
     if(ent!=null) { z.push(ent); i += wrds.length-1; }
     else z.push(tkns[i]);
   }

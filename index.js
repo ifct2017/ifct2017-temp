@@ -7,10 +7,34 @@ const sql = require('./sql');
 const nlp = require('./nlp');
 const http = require('http');
 
+function rowsZip(rows) {
+  var z = {};
+  for(var k in rows[0]||{}) {
+    for(var i=0, I=rows.length, y=[]; i<I; i++)
+      y[i] = rows[i][k];
+    z[k] = y;
+  }
+  return z;
+};
+
+function sqlRun(db, txt) {
+  console.log(`AQL: ${txt}`);
+  return sql(db, txt).then((sql) => {
+    console.log(`SQL: ${sql}`);
+    return db.query(sql).then((ans) => ({rows: rowsZip(ans.rows||[]), sql}));
+  });
+};
+
+function nlpRun(db, txt) {
+  console.log(`NLP: ${txt}`);
+  return nlp(db, txt).then((aql) => sqlRun(db, aql).then((ans) => Object.assign(ans, {aql})));
+};
+
 var E = process.env;
 var X = express();
 var server = http.createServer(X);
 var db = new pg.Pool(pgconfig(E.DATABASE_URL));
+data(db).then(() => console.log('data: ready'));
 
 server.listen(E.PORT||80);
 server.on('listening', () => {
@@ -29,17 +53,10 @@ X.all('/bot', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(JSON.stringify({ "speech": txt, "displayText": txt}));
 });
-X.all('/sql/:txt', (req, res) => sql(db, req.params.txt).then((sql) => {
-  db.query({text: sql}).then((ans) => res.json({sql, ans: ans.rows}));
-}));
+
+X.all('/sql/:txt', (req, res) => sqlRun(db, req.params.txt).then((ans) => res.json(ans)));
+X.all('/nlp/:txt', (req, res) => nlpRun(db, req.params.txt).then((ans) => res.json(ans)));
 X.use((err, req, res, next) => {
   res.status(400).send(err.message);
   console.error(err);
 });
-
-data(db).then(
-  () => console.log('data: ready')).then(
-  () => sql(db, `SELECT "title", "all: vitamin" FROM "apples" WHERE ("proximates">0 and "soluble fibre">0)`)).then(
-  (ans) => console.log(ans)).then(
-  () => nlp(db)
-);

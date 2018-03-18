@@ -642,6 +642,7 @@ const KEYWORD = new Map([
   ['true', 'TRUE'],
   ['null', 'NULL'],
   ['per', 'PER'],
+  ['type', 'TYPE'],
 ]);
 const STEP = [
   (wrds) => wrds.slice(),
