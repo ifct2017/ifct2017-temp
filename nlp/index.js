@@ -4,6 +4,10 @@ const unit = require('./unit');
 const reserved = require('./reserved');
 const entity = require('./entity');
 
+const NULLORDER = [
+  {c: ['keyword', 'SELECT', 'keyword', 'NULL', 'number/ordinal', 1], a: (s, t, i) => token('keyword', 'NULLS FIRST')},
+  {c: ['keyword', 'SELECT', 'keyword', 'NULL', 'text', 'last'], a: (s, t, i) => token('keyword', 'NULLS LAST')},
+];
 const NUMBER = [
   {c: ['number/cardinal', null, 'number/ordinal', null], a: (s, t, i) => token('number/cardinal', t[i].value/t[i+1].value)},
   {c: ['number/cardinal', null, 'unit', null], a: (s, t, i) => token('number/cardinal', t[i].value*t[i+1].value)},
@@ -27,6 +31,7 @@ const VALUE = [
   {c: ['column', null], a: (s, t, i) => token('expression', `"${t[i].value}"`)},
   {c: ['number', null], a: (s, t, i) => token('expression', `${t[i].value}`)},
   {c: ['text', null], a: (s, t, i) => token('expression', `'${t[i].value}'`)},
+  {c: ['keyword', 'NULL'], a: (s, t, i) => token('expression', `NULL`)},
 ];
 const EXPRESSION = [
   {c: ['expression', null, 'operator/binary', null, 'expression', null, 'operator', 'ESCAPE', 'expression', null], a: (s, t, i) => token('expression', `${t[i].value} ${t[i+1].value} ${t[i+2].value} ESCAPE ${t[i+4].value}`)},
@@ -70,6 +75,10 @@ const ORDERBY = [
 ];
 const GROUPBY = [
   {c: ['keyword', 'GROUP BY', 'expression', null], a: (s, t, i) => { s.groupBy.push(`${t[i+1].value}`); return t[i]; }},
+];
+const FROM = [
+  {c: ['table', null], a: (s, t, i) => { s.from.push(t[i].value); return null; }},
+  {c: ['row', null], a: (s, t, i) => { s.from.push(t[i].value); return null; }},
 ];
 
 
