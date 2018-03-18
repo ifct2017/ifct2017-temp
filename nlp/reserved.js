@@ -634,6 +634,8 @@ const KEYWORD = new Map([
   ['limit', 'LIMIT'],
   ['top', 'LIMIT'],
   ['bottom', 'DESC LIMIT'],
+  ['false', 'FALSE'],
+  ['true', 'TRUE'],
   ['null', 'NULL'],
 ]);
 const STEP = [

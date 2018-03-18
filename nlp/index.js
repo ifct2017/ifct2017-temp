@@ -31,6 +31,8 @@ const VALUE = [
   {c: ['column', null], a: (s, t, i) => { token('expression', `"${t[i].value}"`); s.columnsUsed.push(t[i].value); return null; }},
   {c: ['number', null], a: (s, t, i) => token('expression', `${t[i].value}`)},
   {c: ['text', null], a: (s, t, i) => token('expression', `'${t[i].value}'`)},
+  {c: ['keyword', 'FALSE'], a: (s, t, i) => token('expression', `FALSE`)},
+  {c: ['keyword', 'TRUE'], a: (s, t, i) => token('expression', `TRUE`)},
   {c: ['keyword', 'NULL'], a: (s, t, i) => token('expression', `NULL`)},
 ];
 const EXPRESSION = [
@@ -77,8 +79,8 @@ const GROUPBY = [
   {c: ['keyword', 'GROUP BY', 'expression', null], a: (s, t, i) => { s.groupBy.push(`${t[i+1].value}`); return t[i]; }},
 ];
 const FROM = [
-  {c: ['table', null], a: (s, t, i) => { s.from.push(t[i].value); return null; }},
-  {c: ['row', null], a: (s, t, i) => { s.from.push(t[i].value); return null; }},
+  {c: ['table', null], a: (s, t, i) => { s.from.push(`"${t[i].value}"`); return null; }},
+  {c: ['row', null], a: (s, t, i) => { s.from.push(`"${t[i].value}"`); return null; }},
 ];
 const COLUMN = [
   {c: ['keyword', 'DISTINCT', 'expression', null, 'keyword', 'AS', 'expression', null], a: (s, t, i) => { s.columns.push(`DISTINCT ${t[i+1].value} AS ${t[i+3].value}`); return null; }},
@@ -100,7 +102,7 @@ function stageRunAt(stg, sta, tkns, i) {
   return null;
 };
 
-function stageRun(stg, sta, tkn, rpt=false) {
+function stageRun(stg, sta, tkns, rpt=false) {
   var del = false, z = [];
   do {
     for(var i=0, I=tkns.length; i<I; i++) {
@@ -114,61 +116,35 @@ function stageRun(stg, sta, tkn, rpt=false) {
   return z;
 };
 
-function argument(tkn) {
-  if(tkn.type==='column') return `"${tkn.value}"`;
-  else if(tkn.type==='row') return `'${tkn.value}'`;
-  return `${tkn.value}`;
-};
-
-function processValue(tkns) {
-  var z = [];
-  for(var i=0, I=tkns.length-1; i<I; i++) {
-    if(tkns[i].type!=='number/cardinal' || tkns[i+1].type!=='unit/mass') y.push(tkns[i]);
-    else { y.push({type: 'quantity/mass', value: tkns[i].value*tkns[i+1].value}); i++; }
-  }
-  return z;
-};
-
 function process(tkns) {
-  var columns = [], from = [], y = [], z = '';
-  for(var i=0, I=tkns.length; i<I; i++)
-    if(tkns[i].type!=='text') y.push(tkns[i]);
-  tkns = processValue(tkns);
-  for(var i=0, I=tkns.length; i<I; i++){
-    if(tkns[i].type==='keyword' && tkns[i].value!=='SELECT' && tkns[i].value!=='FROM') break;
-    if(tkns[i].type==='column') columns.push(tkns[i].value);
-    else if(tkns[i].type==='row') from.push(tkns[i].value);
+  var sta = {columns: [], from: [], groupBy: [], orderBy: [], where: '', having: '', limit: 0, columnsUsed: [], reverse: false};
+  tkns = stageRun(NULLORDER, sta, tkns);
+  tkns = stageRun(NUMBER, sta, tkns, true);
+  tkns = stageRun(LIMIT, sta, tkns);
+  tkns = stageRun(VALUE, sta, tkns);
+  tkns = stageRun(EXPRESSION, sta, tkns, true);
+  tkns = stageRun(HAVING, sta, tkns, true);
+  tkns = stageRun(WHERE, sta, tkns, true);
+  tkns = stageRun(ORDERBY, sta, tkns, true);
+  tkns = stageRun(GROUPBY, sta, tkns, true);
+  tkns = stageRun(FROM, sta, tkns);
+  tkns = stageRun(COLUMN, sta, tkns);
+  if(sta.having.startsWith('AND ')) sta.having = sta.having.substring(4);
+  if(sta.where.startsWith('AND ')) sta.where = sta.where.substring(4);
+  var i = sta.columns.indexOf(`"*"`);
+  if(i>=0) sta.columns[i] = `*`;
+  if(sta.columns.length===0 || !sta.columns.includes('*')) {
+    for(var i=0, I=sta.columnsUsed.length; i<I; i++)
+      if(!sta.columns.includes(sta.columnsUsed[i])) sta.columns.push(sta.columnsUsed[i]);
   }
-  y.push(tkns[i++]);
-  for(; i<I; i++){
-    if((tkns[i].type==='keyword' && tkns[i].value==='WHERE') || tkns[i].type==='table') continue;
-    y.push(tkns[i]);
-  }
-  console.log('y', y);
-  tkns = y; y = [];
-  if(columns.length===0) columns.push('*');
-  if(from.length===0) from.push('compositions');
-  z += `SELECT `;
-  for(var col of columns)
-    z += col!=='*'? `"${col}", `:`*, `;
-  z = z.substring(0, z.length-2);
-  z += ` FROM `;
-  for(var frm of from)
-    z += `"${frm}", `;
-  z = z.substring(0, z.length-2);
-  for(var i=0, I=tkns.length; i<I; i++) {
-    if(tkns[i].type!=='function') {
-      var arg = tkns[i].value;
-      if(tkns[i].type==='column') arg = `"${arg}"`;
-      else if(tkns[i].type==='row') arg = `'${arg}'`;
-      z += ` ${arg}`;
-      continue;
-    }
-    var arg = tkns[i+1].value;
-    if(tkns[i+1].type==='column') arg = `"${arg}"`;
-    else if(tkns[i+1].type==='row') arg = `'${arg}'`;
-    z += ` ${tkns[i].value}(${arg})`; i++;
-  }
+  if(sta.columns.length===0) sta.columns.push(`*`);
+  if(sta.from.length===0) sta.from.push(`"food"`);
+  var z = `SELECT ${sta.columns.join(', ')} FROM ${sta.from.join(', ')}`;
+  if(sta.groupBy.length>0) z += ` GROUP BY ${sta.groupBy.join(', ')}`;
+  if(sta.orderBy.length>0) z += ` ORDER BY ${sta.orderBy.join(', ')}`;
+  if(sta.where.length>0) z += ` WHERE ${sta.where}`;
+  if(sta.having.length>0) z += ` HAVING ${sta.having}`;
+  if(sta.limit>0) z += ` LIMIT ${sta.limit}`;
   return z;
 };
 
