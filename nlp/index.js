@@ -123,8 +123,8 @@ function process(tkns) {
   tkns = stageRun(LIMIT, sta, tkns);
   tkns = stageRun(VALUE, sta, tkns);
   tkns = stageRun(EXPRESSION, sta, tkns, true);
-  tkns = stageRun(HAVING, sta, tkns, true);
-  tkns = stageRun(WHERE, sta, tkns, true);
+  tkns = stageRun(HAVING, sta, tkns);
+  tkns = stageRun(WHERE, sta, tkns);
   tkns = stageRun(ORDERBY, sta, tkns, true);
   tkns = stageRun(GROUPBY, sta, tkns, true);
   tkns = stageRun(FROM, sta, tkns);
