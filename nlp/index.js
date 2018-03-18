@@ -26,9 +26,11 @@ const VALUE = [
   {c: ['operator', 'ALL', 'text', 'type', 'column', null], a: (s, t, i) => token('column', `all: ${t[i+2].value}`)},
   {c: ['operator', '+', 'text', 'type', 'column', null], a: (s, t, i) => token('column', `sum: ${t[i+2].value}`)},
   {c: ['function', 'avg', 'text', 'type', 'column', null], a: (s, t, i) => token('column', `avg: ${t[i+2].value}`)},
-  {c: ['column', null, 'keyword', 'AS', 'unit/mass', null], a: (s, t, i) => token('expression', `("${t[i].value}/${t[i+1].value}")`)},
-  {c: ['column', null, 'keyword', 'IN', 'unit/mass', null], a: (s, t, i) => token('expression', `("${t[i].value}/${t[i+1].value}")`)},
-  {c: ['column', null], a: (s, t, i) => { token('expression', `"${t[i].value}"`); s.columnsUsed.push(t[i].value); return null; }},
+  {c: ['column', null, 'text', 'per', 'number/cardinal', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"*${t[i+2].value/100})`); }},
+  {c: ['column', null, 'text', 'per', 'unit', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"*${t[i+2].value/100}")`); }},
+  {c: ['column', null, 'keyword', 'AS', 'unit', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"/${t[i+1].value})`); }},
+  {c: ['column', null, 'keyword', 'IN', 'unit', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"/${t[i+1].value})`); }},
+  {c: ['column', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `"${t[i].value}"`); }},
   {c: ['number', null], a: (s, t, i) => token('expression', `${t[i].value}`)},
   {c: ['text', null], a: (s, t, i) => token('expression', `'${t[i].value}'`)},
   {c: ['keyword', 'FALSE'], a: (s, t, i) => token('expression', `FALSE`)},
@@ -160,22 +162,22 @@ async function nlp(db) {
   var wrds = new natural.WordTokenizer().tokenize(txt), tkns = [];
   for(var w of wrds)
     tkns.push({type: 'text', value: w});
-  console.log(tkns);
+  console.log('tokens', tkns);
   console.log();
   var stg1 = number(tkns);
-  console.log(stg1);
+  console.log('stage1', stg1);
   console.log();
   var stg2 = unit(stg1);
-  console.log(stg2);
+  console.log('stage2', stg2);
   console.log();
   var stg3 = reserved(stg2);
-  console.log(stg3);
+  console.log('stage3', stg3);
   console.log();
   var stg4 = await entity(db, stg3);
-  console.log(stg4);
+  console.log('stage4', stg4);
   console.log();
-  var sql = process(stg4);
-  console.log(sql);
+  var sql = ''; // process(stg4);
+  console.log('sql', sql);
   return sql;
 };
 module.exports = nlp;
