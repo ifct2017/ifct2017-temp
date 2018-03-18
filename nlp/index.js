@@ -35,10 +35,13 @@ const EXPRESSION = [
   {c: ['expression', null, 'operator/binary', null, 'expression', null], a: (s, t, i) => token('expression', `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
   {c: ['expression', null, 'operator/unary', null], a: (s, t, i) => token('expression', `(${t[i].value} ${t[i+1].value})`)},
   {c: ['operator/unary', null, 'expression', null], a: (s, t, i) => token('expression', `(${t[i].value} ${t[i+1].value})`)},
-  {c: ['expression', null, 'expression', null, 'bracket/close', null], a: (s, t, i) => token('expression', `${t[i].value}, ${t[i+1].value}${t[i+2].value}`)},
+  {c: ['expression', null, 'expression', null, 'bracket/close', null], a: (s, t, i) => [token('expression', `${t[i].value}, ${t[i+1].value}`), t[i+2]]},
   {c: ['function', null, 'bracket/open', null, 'expression', null, 'bracket/close', null], a: (s, t, i) => token('expression', `${t[i].value}(${t[i+2].value})`)},
   {c: ['function', null, 'expression', null], a: (s, t, i) => token('expression', `${t[i].value}(${t[i+1].value})`)},
   {c: ['bracket/open', null, 'expression', null, 'bracket/close', null], a: (s, t, i) => token('expression', `(${t[i+1].value})`)},
+];
+const COLUMN = [
+  {c: ['function', null, 'expression', null], a: (s, t, i) => token('expression', `${t[i].value}(${t[i+1].value})`)},
 ];
 
 function argument(tkn) {
