@@ -177,7 +177,7 @@ function number(tkns) {
   var dec = false, pre = NaN, p = false, z = [];
   var s = {arr: [], end: false, ord: false, exp: 1};
   for(var tkn of tkns) {
-    var txt = tkn.type==='text'? tkn.value.toLowerCase().replace(',', ''):null;
+    var txt = tkn.type==='text'? tkn.value.toLowerCase().replace(/[\s,]/g, ''):null;
     if(txt!=null && (p=process(s, txt)) && !s.end) continue;
     if(DECIMAL.has(txt)) { pre = get(s); dec = true; p =true; }
     else if(dec || has(s)) { z.push(decimal(s, dec, pre)); dec = false; pre = NaN; }

@@ -141,7 +141,7 @@ function sqlRename(db, ast) {
 
 function sqlLimit(ast, val) {
   const lim = ast.limit? ast.limit[1].value : val;
-  ast.limit = [{'type': 'number', 'value': (lim>val? val : lim)}];
+  ast.limit = [{'type': 'number', 'value': (lim>val? val:lim)}];
 };
 
 function sqlUpdate(db, txt, lim) {

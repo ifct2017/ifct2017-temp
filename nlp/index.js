@@ -4,22 +4,61 @@ const unit = require('./unit');
 const reserved = require('./reserved');
 const entity = require('./entity');
 
+const STAGE1 = [
+  {c: ['number/cardinal', null, 'number/ordinal', null], a: (s, t, i) => token('number/cardinal', t[i].value/t[i+1].value)},
+  {c: ['number/cardinal', null, 'unit', null], a: (s, t, i) => token('number/cardinal', t[i].value*t[i+1].value)},
+  {c: ['keyword', 'LIMIT', 'number', null], a: (s, t, i) => { s.limit = t[i+1].value; s.limitType = 'ASC'; }},
+  {c: ['number', null, 'keyword', 'LIMIT'], a: (s, t, i) => { s.limit = t[i+1].value; s.limitType = 'ASC'; }},
+  {c: ['keyword', 'ASC', 'number', null], a: (s, t, i) => { s.limit = t[i+1].value; s.limitType = 'ASC'; }},
+  {c: ['number', null, 'keyword', 'ASC'], a: (s, t, i) => { s.limit = t[i+1].value; s.limitType = 'ASC'; }},
+  {c: ['keyword', 'DESC LIMIT', 'number', null], a: (s, t, i) => { s.limit = t[i+1].value; s.limitType = 'DESC'; }},
+  {c: ['number', null, 'keyword', 'DESC LIMIT'], a: (s, t, i) => { s.limit = t[i+1].value; s.limitType = 'DESC'; }},
+  {c: ['keyword', 'DESC', 'number', null], a: (s, t, i) => { s.limit = t[i+1].value; s.limitType = 'DESC'; }},
+  {c: ['number', null, 'keyword', 'DESC'], a: (s, t, i) => { s.limit = t[i+1].value; s.limitType = 'DESC'; }},
+];
+const VALUE = [
+  {c: ['operator', 'ALL', 'text', 'type', 'column', null], a: (s, t, i) => token('column', `all: ${t[i+2].value}`)},
+  {c: ['operator', '+', 'text', 'type', 'column', null], a: (s, t, i) => token('column', `sum: ${t[i+2].value}`)},
+  {c: ['function', 'avg', 'text', 'type', 'column', null], a: (s, t, i) => token('column', `avg: ${t[i+2].value}`)},
+  {c: ['column', null, 'keyword', 'AS', 'unit/mass', null], a: (s, t, i) => token('expression', `("${t[i].value}/${t[i+1].value}")`)},
+  {c: ['column', null, 'keyword', 'IN', 'unit/mass', null], a: (s, t, i) => token('expression', `("${t[i].value}/${t[i+1].value}")`)},
+  {c: ['column', null], a: (s, t, i) => token('expression', `"${t[i].value}"`)},
+  {c: ['number', null], a: (s, t, i) => token('expression', `${t[i].value}`)},
+  {c: ['text', null], a: (s, t, i) => token('expression', `'${t[i].value}'`)},
+];
+const EXPRESSION = [
+  {c: ['expression', null, 'operator/binary', null, 'expression', null, 'operator', 'ESCAPE', 'expression', null], a: (s, t, i) => token('expression', `${t[i].value} ${t[i+1].value} ${t[i+2].value} ESCAPE ${t[i+4].value}`)},
+  {c: ['expression', null, 'operator/ternary', null, 'expression', null, 'operator', 'AND', 'expression', null], a: (s, t, i) => token('expression', `${t[i].value} ${t[i+1].value} ${t[i+2].value} AND ${t[i+4].value}`)},
+  {c: ['expression', null, 'operator/ternary', null, 'expression', null, 'expression', null], a: (s, t, i) => token('expression', `${t[i].value} ${t[i+1].value} ${t[i+2].value} AND ${t[i+3].value}`)},
+  {c: ['expression', null, 'operator/binary', null, 'expression', null], a: (s, t, i) => token('expression', `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
+  {c: ['expression', null, 'operator/unary', null], a: (s, t, i) => token('expression', `(${t[i].value} ${t[i+1].value})`)},
+  {c: ['operator/unary', null, 'expression', null], a: (s, t, i) => token('expression', `(${t[i].value} ${t[i+1].value})`)},
+  {c: ['expression', null, 'expression', null, 'bracket/close', null], a: (s, t, i) => token('expression', `${t[i].value}, ${t[i+1].value}${t[i+2].value}`)},
+  {c: ['function', null, 'bracket/open', null, 'expression', null, 'bracket/close', null], a: (s, t, i) => token('expression', `${t[i].value}(${t[i+2].value})`)},
+  {c: ['function', null, 'expression', null], a: (s, t, i) => token('expression', `${t[i].value}(${t[i+1].value})`)},
+  {c: ['bracket/open', null, 'expression', null, 'bracket/close', null], a: (s, t, i) => token('expression', `(${t[i+1].value})`)},
+];
+
 function argument(tkn) {
   if(tkn.type==='column') return `"${tkn.value}"`;
   else if(tkn.type==='row') return `'${tkn.value}'`;
   return `${tkn.value}`;
 };
 
-function process(tkns) {
-  var columns = [], from = [], y = [], z = '';
-  for(var i=0, I=tkns.length; i<I; i++)
-    if(tkns[i].type!=='text') y.push(tkns[i]);
-  tkns = y; y  =[];
+function processValue(tkns) {
+  var z = [];
   for(var i=0, I=tkns.length-1; i<I; i++) {
     if(tkns[i].type!=='number/cardinal' || tkns[i+1].type!=='unit/mass') y.push(tkns[i]);
     else { y.push({type: 'quantity/mass', value: tkns[i].value*tkns[i+1].value}); i++; }
   }
-  tkns = y; y = [];
+  return z;
+};
+
+function process(tkns) {
+  var columns = [], from = [], y = [], z = '';
+  for(var i=0, I=tkns.length; i<I; i++)
+    if(tkns[i].type!=='text') y.push(tkns[i]);
+  tkns = processValue(tkns);
   for(var i=0, I=tkns.length; i<I; i++){
     if(tkns[i].type==='keyword' && tkns[i].value!=='SELECT' && tkns[i].value!=='FROM') break;
     if(tkns[i].type==='column') columns.push(tkns[i].value);
