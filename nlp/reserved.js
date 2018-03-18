@@ -619,6 +619,8 @@ const KEYWORD = new Map([
   ['order', 'ORDER BY'],
   ['group', 'GROUP BY'],
   ['classifi', 'GROUP BY'],
+  ['on uniqu', 'DISTINCT'],
+  ['distinct on', 'DISTINCT'],
   ['uniqu', 'DISTINCT'],
   ['distinct', 'DISTINCT'],
   ['ascend', 'ASC'],

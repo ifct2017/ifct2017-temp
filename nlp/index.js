@@ -28,7 +28,7 @@ const VALUE = [
   {c: ['function', 'avg', 'text', 'type', 'column', null], a: (s, t, i) => token('column', `avg: ${t[i+2].value}`)},
   {c: ['column', null, 'keyword', 'AS', 'unit/mass', null], a: (s, t, i) => token('expression', `("${t[i].value}/${t[i+1].value}")`)},
   {c: ['column', null, 'keyword', 'IN', 'unit/mass', null], a: (s, t, i) => token('expression', `("${t[i].value}/${t[i+1].value}")`)},
-  {c: ['column', null], a: (s, t, i) => token('expression', `"${t[i].value}"`)},
+  {c: ['column', null], a: (s, t, i) => { token('expression', `"${t[i].value}"`); s.columnsUsed.push(t[i].value); return null; }},
   {c: ['number', null], a: (s, t, i) => token('expression', `${t[i].value}`)},
   {c: ['text', null], a: (s, t, i) => token('expression', `'${t[i].value}'`)},
   {c: ['keyword', 'NULL'], a: (s, t, i) => token('expression', `NULL`)},
@@ -80,7 +80,14 @@ const FROM = [
   {c: ['table', null], a: (s, t, i) => { s.from.push(t[i].value); return null; }},
   {c: ['row', null], a: (s, t, i) => { s.from.push(t[i].value); return null; }},
 ];
-
+const COLUMN = [
+  {c: ['keyword', 'DISTINCT', 'expression', null, 'keyword', 'AS', 'expression', null], a: (s, t, i) => { s.columns.push(`DISTINCT ${t[i+1].value} AS ${t[i+3].value}`); return null; }},
+  {c: ['keyword', 'ALL', 'expression', null, 'keyword', 'AS', 'expression', null], a: (s, t, i) => { s.columns.push(`ALL ${t[i+1].value} AS ${t[i+3].value}`); return null; }},
+  {c: ['keyword', 'DISTINCT', 'expression', null], a: (s, t, i) => { s.columns.push(`DISTINCT ${t[i+1].value}`); return null; }},
+  {c: ['keyword', 'ALL', 'expression', null], a: (s, t, i) => { s.columns.push(`ALL ${t[i+1].value}`); return null; }},
+  {c: ['expression', null, 'keyword', 'AS', 'expression', null], a: (s, t, i) => { s.columns.push(`${t[i].value} AS ${t[i+2].value}`); return null; }},
+  {c: ['expression', null], a: (s, t, i) => { s.columns.push(t[i].value); return null; }},
+];
 
 function argument(tkn) {
   if(tkn.type==='column') return `"${tkn.value}"`;
