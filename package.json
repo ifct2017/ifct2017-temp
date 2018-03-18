@@ -1,0 +1,28 @@
+{
+  "name": "ifct2017",
+  "version": "0.0.480",
+  "description": "Website for Indian Food Composition Tables 2017.",
+  "main": "index.js",
+  "scripts": {
+    "test": "exit"
+  },
+  "keywords": [
+    "ifct",
+    "2017"
+  ],
+  "author": "wolfram77@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "@ifct2017/compositions": "^0.1.11",
+    "@ifct2017/descriptions": "^0.1.10",
+    "@ifct2017/groups": "^0.1.1",
+    "body-parser": "^1.18.2",
+    "csv": "^2.0.0",
+    "express": "^4.16.2",
+    "flora-sql-parser": "^0.7.7",
+    "natural": "^0.5.6",
+    "pg": "^7.4.1",
+    "pg-connection-string": "^2.0.0",
+    "uuid": "^3.2.1"
+  }
+}
