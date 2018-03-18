@@ -17,17 +17,20 @@ function rowsZip(rows) {
   return z;
 };
 
-function sqlRun(db, txt) {
+function sqlRun(db, txt, col=false) {
   console.log(`AQL: ${txt}`);
   return sql(db, txt).then((sql) => {
     console.log(`SQL: ${sql}`);
-    return db.query(sql).then((ans) => ({rows: rowsZip(ans.rows||[]), sql}));
+    return db.query(sql).then((ans) => {
+      var rows = ans.rows||[];
+      return {ans: col? rowsZip(rows):rows, sql}
+    });
   });
 };
 
-function nlpRun(db, txt) {
+function nlpRun(db, txt, col=false) {
   console.log(`NLP: ${txt}`);
-  return nlp(db, txt).then((aql) => sqlRun(db, aql).then((ans) => Object.assign(ans, {aql})));
+  return nlp(db, txt).then((aql) => sqlRun(db, aql, col).then((ans) => Object.assign(ans, {aql})));
 };
 
 var E = process.env;
@@ -58,8 +61,8 @@ X.all('/bot', (req, res) => {
   res.send(JSON.stringify({ "speech": txt, "displayText": txt}));
 });
 
-X.all('/sql/:txt', (req, res) => sqlRun(db, req.params.txt).then((ans) => res.json(ans)));
-X.all('/nlp/:txt', (req, res) => nlpRun(db, req.params.txt).then((ans) => res.json(ans)));
+X.all('/sql/:txt', (req, res) => sqlRun(db, req.params.txt, req.query.mode==='column').then((ans) => res.json(ans)));
+X.all('/nlp/:txt', (req, res) => nlpRun(db, req.params.txt, req.query.mode==='column').then((ans) => res.json(ans)));
 X.use((err, req, res, next) => {
   res.status(400).send(err.message);
   console.error(err);
