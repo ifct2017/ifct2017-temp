@@ -2,7 +2,7 @@ const compositions = require('./compositions');
 const columns = require('./columns');
 
 function data(db) {
-  return compositions(db).then(() => columns(db));
+  return Promise.all([compositions(db), columns(db)]);
 };
 data.compositions = compositions;
 data.columns = columns;

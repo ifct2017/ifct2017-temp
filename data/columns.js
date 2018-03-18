@@ -6,7 +6,7 @@ var tsvector = `setweight(to_tsvector('english', "code"), 'A')||`+
   `setweight(to_tsvector('english', "name"), 'B')||`+
   `setweight(to_tsvector('english', "tags"), 'C')`;
 
-  function createTable(db) {
+function createTable(db) {
   var z = `CREATE TABLE IF NOT EXISTS "columns" (`+
     ` "code" TEXT NOT NULL,`+
     ` "name" TEXT NOT NULL,`+

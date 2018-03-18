@@ -1,12 +1,12 @@
-const pg = require('pg');
 const pgconfig = require('pg-connection-string');
+const bodyParser = require('body-parser');
+const express = require('express');
+const uuidv1 = require('uuid/v1');
+const pg = require('pg');
 const data = require('./data');
 const sql = require('./sql');
-const http = require('http');
-const uuidv1 = require('uuid/v1');
-const express = require('express');
-const bodyParser = require('body-parser');
 const nlp = require('./nlp');
+const http = require('http');
 
 var E = process.env;
 var X = express();
