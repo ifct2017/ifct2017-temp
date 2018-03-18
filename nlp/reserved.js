@@ -600,8 +600,10 @@ const FUNCTION = new Map([
   ['sum', 'sum'],
 ]);
 const KEYWORD = new Map([
+  ['displai', 'SELECT'],
   ['show', 'SELECT'],
   ['list', 'SELECT'],
+  ['give', 'SELECT'],
   ['select', 'SELECT'],
   ['from', 'FROM'],
   ['as', 'AS'],
@@ -630,6 +632,19 @@ const KEYWORD = new Map([
   ['limit', 'LIMIT'],
   ['top', 'LIMIT'],
   ['bottom', 'DESC LIMIT'],
+  ['displai first null', 'NULLS FIRST'],
+  ['first null show', 'NULLS FIRST'],
+  ['first list null', 'NULLS FIRST'],
+  ['first give null', 'NULLS FIRST'],
+  ['first null select', 'NULLS FIRST'],
+  ['first null with', 'NULLS FIRST'],
+  ['first have null', 'NULLS FIRST'],
+  ['first has null', 'NULLS FIRST'],
+  ['first null where', 'NULLS FIRST'],
+  ['first null', 'NULLS FIRST'],
+  // no null in database
+  // first, begin, start, top, above (need regex?)
+  // last, end, stop, bottom, below
 ]);
 const STEP = [
   (wrds) => wrds.slice(),

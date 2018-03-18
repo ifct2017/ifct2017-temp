@@ -56,11 +56,22 @@ const WHERE = [
   {c: ['operator', 'OR', 'keyword', 'WHERE', 'expression', null], a: (s, t, i) => { s.where += `OR (${t[i].value})`; return null; }},
   {c: ['keyword', 'WHERE', 'expression', null], a: (s, t, i) => { s.where += `AND (${t[i].value})`; return null; }},
 ];
-const COLUMN = [
-  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'DESC'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'}`); return null; }},
-  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'ASC'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return null; }},
-  {c: ['keyword', 'ORDER BY', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return null; }},
+const ORDERBY = [
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'DESC', 'keyword', 'NULLS FIRST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'} NULLS FIRST`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'DESC', 'keyword', 'NULLS LAST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'} NULLS LAST`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'ASC', 'keyword', 'NULLS FIRST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS FIRST`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'ASC', 'keyword', 'NULLS LAST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS LAST`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'DESC'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'}`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'DESC'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'}`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'ASC'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'NULLS FIRST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS FIRST`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'NULLS LAST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS LAST`); return t[i]; }},
+  {c: ['keyword', 'ORDER BY', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return t[i]; }},
 ];
+const GROUPBY = [
+  {c: ['keyword', 'GROUP BY', 'expression', null], a: (s, t, i) => { s.groupBy.push(`${t[i+1].value}`); return t[i]; }},
+];
+
 
 function argument(tkn) {
   if(tkn.type==='column') return `"${tkn.value}"`;
