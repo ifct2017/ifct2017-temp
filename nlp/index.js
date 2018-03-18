@@ -114,7 +114,7 @@ function stageRunAt(stg, sta, tkns, i) {
     var c = stg[i].c, a = stg[i].a, C = c.length/2;
     if(i+C>T) continue stgi;
     for(var j=0, J=C*2; j<J; j+=2)
-      if(!tkns[i].type.startsWith(c[j]) || (c[j+1]!=null && !tkns.value.startsWith(c[j+1]))) continue stgi;
+      if(!tkns[i].type.startsWith(c[j]) || (c[j+1]!=null && !tkns[i].value.startsWith(c[j+1]))) continue stgi;
     return a(sta, tkns, i);
   }
   return null;
@@ -125,10 +125,10 @@ function stageRun(stg, sta, tkns, rpt=false) {
   do {
     for(var i=0, I=tkns.length; i<I; i++) {
       var ans = stageRunAt(stg, sta, tkns, i);
-      if(ans==null) continue;
+      del = ans!=null? true:del;
+      ans = ans!=null? ans:tkns[i];
       if(Array.isArray(ans)) z.push.apply(z, ans);
       else z.push(ans);
-      del = true;
     }
   } while(rpt && del);
   return z;
@@ -137,6 +137,8 @@ function stageRun(stg, sta, tkns, rpt=false) {
 function process(tkns) {
   var sta = {columns: [], from: [], groupBy: [], orderBy: [], where: '', having: '', limit: 0, columnsUsed: [], reverse: false};
   tkns = stageRun(NULLORDER, sta, tkns);
+  console.log('NULLORDER', tkns, sta);
+  return '';
   tkns = stageRun(NUMBER, sta, tkns, true);
   tkns = stageRun(LIMIT, sta, tkns);
   tkns = stageRun(VALUE, sta, tkns);
@@ -192,7 +194,7 @@ async function nlp(db) {
   var stg4 = await entity(db, stg3);
   console.log('stage4', stg4);
   console.log();
-  var sql = ''; // process(stg4);
+  var sql = process(stg4);
   console.log('sql', sql);
   return sql;
 };
