@@ -10,14 +10,14 @@ const css = require('./css');
 //   return elm;
 // };
 
-// function svgFixXmlns(elm) {
-//   var sub = elm.querySelectorAll('[xmlns]');
-//   for(var i=0, I=sub.length; i<I; i++) {
-//     if(sub[i].getAttribute('xmlns')!=='http://www.w3.org/2000/xmlns/') continue;
-//     sub[i].setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
-//   }
-//   return elm;
-// };
+function svgFixXmlns(elm) {
+  var sub = elm.querySelectorAll('[xmlns]');
+  for(var i=0, I=sub.length; i<I; i++) {
+    if(sub[i].getAttribute('xmlns')!=='http://www.w3.org/2000/xmlns/') continue;
+    sub[i].setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+  }
+  return elm;
+};
 
 var show = true;
 var data = {
@@ -35,6 +35,6 @@ var options = {
 bar = new Chartist.Bar('svg', data, options);
 bar.on('created', (data) => {
   var svg = document.querySelector('svg');
-  css.setComputedStyle(document);
+  svgFixXmlns(css.setComputedStyle(document));
   console.log(svg.outerHTML);
 });
