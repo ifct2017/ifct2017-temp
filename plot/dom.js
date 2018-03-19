@@ -9,6 +9,7 @@ const dom = new JSDOM(HTML, {resources: 'usable'});
 const forEach = Array.prototype.forEach;
 const indexOf = Array.prototype.indexOf;
 matchMedia.setConfig({type: 'screen', width: 1200});
+const cssom = require("cssom");
 
 window = dom.window;
 document = window.document;
@@ -16,6 +17,12 @@ Node = window.Node;
 Element = window.Element;
 CSSStyleDeclaration = window.CSSStyleDeclaration;
 window.matchMedia = matchMedia;
+const implSymbol = Symbol("impl");
+const defaultStyleSheet = cssom.parse(require("jsdom/lib/jsdom/browser/default-stylesheet"));
+
+function implForWrapper(wrapper) {
+  return wrapper ? wrapper[implSymbol] : null;
+}
 
 function cssText() {
   var val = this._values, z = '';
