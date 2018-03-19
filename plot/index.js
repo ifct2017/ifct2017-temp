@@ -42,7 +42,7 @@ var options = {
 bar = new Chartist.Bar('svg', data, options);
 bar.on('created', (data) => {
   var svg = document.querySelector('svg');
-  // css.setComputedStyle(document);
+  css.setComputedStyle(document);
   // svgRemoveClass(svg);
   console.log(svg.outerHTML);
 });
