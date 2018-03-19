@@ -1,7 +1,13 @@
 const dom = require('./dom');
 const Chartist = require('chartist');
 
-
+function domComputedStyle(elm) {
+  var sty = window.getComputedStyle(elm).toString();
+  if(sty.length>0) elm.setAttribute('style', sty+elm.getAttribute('style'));
+  for(var i=0, I=elm.children.length; i<I; i++)
+    domComputedStyle(elm.children[i]);
+  return elm;
+};
 
 var show = true;
 var data = {
@@ -16,11 +22,9 @@ var options = {
   height: 400,
   seriesBarDistance: 30
 };
-line = new Chartist.Bar('body', data, options);
-line.on('created', (data) => {
-  var div = document.querySelector('body');
-  for(var ctGrid of [document.querySelector('.ct-grid')]) {
-    console.log(ctGrid.outerHTML);
-    console.log(window.getComputedStyle(ctGrid).toString());
-  }
+bar = new Chartist.Bar('body', data, options);
+bar.on('created', (data) => {
+  var svg = document.querySelector('body > svg');
+  domComputedStyle(svg);
+  console.log(svg.outerHTML);
 });
