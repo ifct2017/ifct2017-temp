@@ -10,6 +10,13 @@ const css = require('./css');
 //   return elm;
 // };
 
+function svgRemoveClass(elm) {
+  var sub = elm.querySelectorAll('[class]');
+  for(var i=0, I=sub.length; i<I; i++)
+    sub[i].removeAttribute('class');
+  return elm;
+};
+
 function svgFixXmlns(elm) {
   var sub = elm.querySelectorAll('[xmlns]');
   for(var i=0, I=sub.length; i<I; i++) {
@@ -35,6 +42,7 @@ var options = {
 bar = new Chartist.Bar('svg', data, options);
 bar.on('created', (data) => {
   var svg = document.querySelector('svg');
-  svgFixXmlns(css.setComputedStyle(document));
+  css.setComputedStyle(document);
+  svgRemoveClass(svg);
   console.log(svg.outerHTML);
 });
