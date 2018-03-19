@@ -8,7 +8,7 @@ const SELECTOR = [], CONTENT = [];
 function setComputedStyle(doc) {
   for(var i=0, I=SELECTOR.length; i<I; i++) {
     for(var elm of doc.querySelectorAll(SELECTOR[i])) {
-      if(elm.nodeName==='text' && CONTENT[i].includes('flex')) continue;
+      if(elm.nodeName==='text' && (CONTENT[i].includes('flex') || CONTENT[i].includes('anchor'))) continue;
       elm.setAttribute('style', CONTENT[i]+elm.getAttribute('style'));
     }
   }
