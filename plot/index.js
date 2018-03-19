@@ -11,9 +11,9 @@ const css = require('./css');
 // };
 
 function svgRemoveClass(elm) {
-  var sub = elm.querySelectorAll('[class]');
+  var sub = elm.querySelectorAll('text');
   for(var i=0, I=sub.length; i<I; i++)
-    sub[i].removeAttribute('class');
+    sub[i].setAttribute('font-family', 'Verdana');
   return elm;
 };
 
