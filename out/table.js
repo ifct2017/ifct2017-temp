@@ -1,4 +1,3 @@
-// OUT
 function attr(val) {
   var z = '';
   for(var k in val)
