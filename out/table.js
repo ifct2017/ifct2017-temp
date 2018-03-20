@@ -69,16 +69,14 @@ function defaults(nc, nr, x, y, dx, dy, opt) {
 
 function table(nam, dat, x=0, y=0, dx=0, dy=0, opt={}) {
   var nr = dat.length, nc = nr>0? dat[0].length:0;
-  var opt = defaults(nc, nr, x, y, dx, dy, opt);
-  var tw = (nc+1)*dx, th = (nr+1)*dy;
-  opt.tstrip.width = width+(opt.tstrip.to.width||0);
-  opt.tstrip.height = dy+(opt.tstrip.to.height||0);
-  var gv = tstrip(Math.floor(nr/2), x, y+dy, dy*2, opt.tstrip.to);
+  var x0 = x, y0 = y, opt = defaults(nc, nr, x, y, dx, dy, opt);
+  var w = (nc+1)*dx, h = (nr+1)*dy, y = y+dy+opt.title.height;
+  var gv = tstrip(Math.floor(nr/2), x, y+dy, dy*2, w, dy, opt.tstrip);
   gv += thead(opt.head, x, y, dx, opt.thead.to, opt.thead.tho);
   for(var i=0, y=y+dy; i<nr; i++, y+=dy)
     gv += tbody(opt.body[i], dat[i], x, y, dx, opt.tbody.to, opt.tbody.tho, opt.tbody.tro);
   gv = tag('g', gv, ' role="table"', opt.to);
-  gv = tag('title', nam)+gv;
+  gv = title(nam, x, y, h, opt.title)+gv;
   return svg(gv, x, y, w, h, opt.svg);
 };
 module.exports = table;
