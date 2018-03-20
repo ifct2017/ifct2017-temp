@@ -38,20 +38,8 @@ const CUSTOM = {
     }
   },
   "contextOut": [
-    {
-      "name": "context name",
-      "lifespan": 5,
-      "parameters": {
-        "param": "param value"
-      }
-    }
   ],
-  "source": "example.com",
   "followupEvent": {
-    "name": "event name",
-    "parameters": {
-      "param": "param value"
-    }
   }
 };
 
