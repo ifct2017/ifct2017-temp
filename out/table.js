@@ -40,7 +40,7 @@ function tbody(nam, val, x=0, y=0, dx=0, to={}, tho={}, tro={}) {
 
 function defaults(nc, nr, x, y, dx, dy, opt) {
   var nam = new Array(Math.max(nc, nr)).fill('');
-  var def = {title: '', head: nam, body: nam, padx: 0.25*dx, pady: dy};
+  var def = {title: '', head: nam, body: nam};
   var so = Object.assign({}, opt.so||{});
   var to = Object.assign({transform: 'translate(0, 0)'}, opt.to||{});
   var tstrip = opt.tstrip||{}, thead = opt.thead||{}, tbody = opt.tbody||{};
@@ -57,12 +57,12 @@ function table(dat, x=0, y=0, dx=0, dy=0, opt={}) {
   var nr = dat.length, nc = nr>0? dat[0].length:0;
   var opt = defaults(nc, nr, x, y, dx, dy, opt);
   var width = nc*dx, height = nr*dy;
-  opt.so.width = (opt.so.width||width)+2*opt.padx;
-  opt.so.height = (opt.so.height||height)+2*opt.pady;
-  opt.so.viewBox = opt.so.viewBox||`${x} ${y} ${opt.so.width} ${opt.so.height}`;
+  opt.so.width = (opt.so.width||width)+2*x;
+  opt.so.height = (opt.so.height||height)+2*y;
+  opt.so.viewBox = opt.so.viewBox||`0 0 ${opt.so.width} ${opt.so.height}`;
   opt.tstrip.to.width = width+(opt.tstrip.to.width||0);
   opt.tstrip.to.height = height+(opt.tstrip.to.height||0);
-  var gv = tstrip(Math.floor(nr/2), x+=opt.padx, (y+=opt.pady)+dy, dy*2, opt.tstrip.to);
+  var gv = tstrip(Math.floor(nr/2), x, y+dy, dy*2, opt.tstrip.to);
   gv += thead(opt.head, x, y, dx, opt.thead.to, opt.thead.tho);
   for(var i=0, y=y+dy; i<nr; i++, y+=dy)
     gv += tbody(opt.body[i], x, y, dx, opt.tbody.to, opt.tbody.tho, opt.tbody.tro);
@@ -71,3 +71,15 @@ function table(dat, x=0, y=0, dx=0, dy=0, opt={}) {
   return tag('svg', gv, '', opt.so);
 };
 module.exports = table;
+
+
+var data = [
+  [1, 2, 3, 4, 5, 6],
+  [1, 2, 3, 4, 5, 6]
+];
+var opt = {
+  title: 'Hello',
+  head: ['one', 'two', 'three', 'four', 'five', 'six'],
+  body: ['row1', 'row2'],
+};
+console.log(table(data, 25, 20, 100, 20, opt));
