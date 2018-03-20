@@ -39,41 +39,36 @@ function tbody(nam, val, x=0, y=0, dx=0, to={}, tho={}, tro={}) {
   return tag('text', th+tr, ` role="row" y="${y}"`, to);
 };
 
-function defaults(dat, x, y, dx, dy, opt) {
-  var title = opt.title||'';
-  var nr = dat.length, nc = nr>0? dat[0].length:0;
-  var head = opt.head||(new Array(nc)).fill('');
-  var body = opt.body||(new Array(nr)).fill('');
+function defaults(nc, nr, x, y, dx, dy, opt) {
+  var nam = new Array(Math.max(nc, nr)).fill('');
+  var def = {title: '', head: nam, body: nam, padx: 0.25*dx, pady: dy};
+  var so = Object.assign({}, opt.so||{});
   var to = Object.assign({transform: 'translate(0, 0)'}, opt.to||{});
-  var ts_to = Object.assign({x: dx*0.25, y: });
+  var tstrip = opt.tstrip||{}, thead = opt.thead||{}, tbody = opt.tbody||{};
+  tstrip.to = Object.assign({fill: 'gainsboro'}, tstrip.to||{});
+  thead.to = Object.assign({'font-size': `${0.18*dy}px`, 'font-weight': 'bold', fill: 'crimson', 'text-anchor': 'middle'}, thead.to);
+  thead.tho = Object.assign({}, thead.tho||{});
+  tbody.to = Object.assign({'font-size': `${0.18*dy}px`, 'text-anchor': 'middle'}, tbody.to||{});
+  tbody.tho = Object.assign({'font-weight': 'bold', 'fill': 'crimson', 'text-anchor': 'start'}, tbody.tho||{});
+  tbody.tro = Object.assign({}, tbody.tro||{});
+  return Object.assign(def, opt, {so, to, tstrip, thead, tbody});
 };
 
 function table(dat, x=0, y=0, dx=0, dy=0, opt={}) {
-  var gv = tstrip(Math.floor(dat.length/2), x, y, dy*2, opt.tstrip.tso);
-  gv += thead(head, x, y, dx, opt.thead.to, opt.thead.tho);
-  for(var i=0, I=dat.length; i<I; i++)
-    gv += tbody(body[i]||'', x, y+dy, dx, opt.tbody.to, opt.tbody.tho, opt.tbody.tro);
+  var nr = dat.length, nc = nr>0? dat[0].length:0;
+  var opt = defaults(nc, nr, x, y, dx, dy, opt);
+  var width = nc*dx, height = nr*dy;
+  opt.so.width = (opt.so.width||width)+2*opt.padx;
+  opt.so.height = (opt.so.height||height)+2*opt.pady;
+  opt.so.viewBox = opt.so.viewBox||`${x} ${y} ${opt.so.width} ${opt.so.height}`;
+  opt.tstrip.to.width = width+(opt.tstrip.to.width||0);
+  opt.tstrip.to.height = height+(opt.tstrip.to.height||0);
+  var gv = tstrip(Math.floor(nr/2), x+=opt.padx, (y+=opt.pady)+dy, dy*2, opt.tstrip.to);
+  gv += thead(opt.head, x, y, dx, opt.thead.to, opt.thead.tho);
+  for(var i=0, y=y+dy; i<nr; i++, y+=dy)
+    gv += tbody(opt.body[i], x, y, dx, opt.tbody.to, opt.tbody.tho, opt.tbody.tro);
   gv = tag('g', gv, ` role="table"`, opt.to);
-  gv = tag('title', titl)+gv;
+  gv = tag('title', opt.title)+gv;
   return tag('svg', gv, '', opt.so);
-};
-
-
-function tableOld(dat, opt) {
-  var K = Object.keys(dat)
-  if(K.length===0) return null;
-  var z = '<tr>';
-  for(var k of K)
-    z += `<th>${k}</th>`;
-  z += '</tr>';
-  for(var i=0, I=dat[K[0]].length; i<I; i++) {
-    z += '<tr>';
-    for(var k of K)
-      z += `<td>${dat[k][i]}</td>`;
-    z += '</tr>';
-  }
-  z = `<body xmlns="http://www.w3.org/1999/xhtml"><table>${z}</table></body>`;
-  z = `<foreignObject x="10" y="10" width="600" height="400">${z}</foreignObject>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg">${z}</svg>`;
 };
 module.exports = table;
