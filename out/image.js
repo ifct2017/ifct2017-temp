@@ -31,3 +31,4 @@ function image(txt, xsz, ysz, src, tgt) {
     req.end();
   });
 };
+module.exports = image;

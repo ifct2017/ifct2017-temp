@@ -88,4 +88,6 @@ var opt = {
   tstrip: {to: {x: -4, y: 4, width: 8}},
   thead: {to: {'font-family': 'Verdana'}}
 };
-console.log(table(data, 25, 20, 100, 20, opt));
+var svg = table(data, 25, 20, 100, 20, opt);
+var image = require('./image');
+image(svg, 0, 0, 'svg', 'png').then(console.log);
