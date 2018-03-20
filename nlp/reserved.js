@@ -605,9 +605,16 @@ const FUNCTION = new Map([
 ]);
 const KEYWORD = new Map([
   ['displai', 'SELECT'],
+  ['disclos', 'SELECT'],
+  ['discov', 'SELECT'],
+  ['reveal', 'SELECT'],
+  ['inform', 'SELECT'],
+  ['search', 'SELECT'],
+  ['find', 'SELECT'],
   ['show', 'SELECT'],
   ['list', 'SELECT'],
   ['give', 'SELECT'],
+  ['tell', 'SELECT'],
   ['select', 'SELECT'],
   ['from', 'FROM'],
   ['as', 'AS'],
