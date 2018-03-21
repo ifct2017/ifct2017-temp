@@ -20,9 +20,9 @@ function svg(cnt, x=0, y=0, w=0, h=0, o={}) {
   return tag('svg', cnt, ' xmlns="http://www.w3.org/2000/svg"', o);
 };
 
-function title(txt, x=0, y=0, h=0, o={}) {
+function tcaption(txt, x=0, y=0, h=0, o={}) {
   o.x += x; o.y += y;
-  return tag('title', nam)+tag('text', txt, '', a);
+  return tag('title', txt)+tag('text', txt, ' role="caption"', o);
 };
 
 function tstrip(num, x=0, y=0, dy=0, w=0, h=0, o={}) {
@@ -32,52 +32,52 @@ function tstrip(num, x=0, y=0, dy=0, w=0, h=0, o={}) {
   return z;
 };
 
-function thead(val, x=0, y=0, dx=0, to={}, tho={}) {
-  var a = Object.assign({}, to, {y: y+to.y});
-  var ah = Object.assign({}, tho, {x: x+dx+tho.x});
+function thead(val, x=0, y=0, dx=0, o={}) {
+  var a = Object.assign({}, o.root, {y: y+o.root.y});
+  var ah = Object.assign({}, o.head, {x: x+dx+o.head.x});
   for(var i=0, I=val.length, th=''; i<I; i++, ah.x+=dx)
     th += tag('tspan', val[i], ' role="columnheader"', ah);
   return tag('text', th, ' role="row"', a);
 };
 
-function tbody(nam, val, x=0, y=0, dx=0, to={}, tho={}, tro={}) {
-  var a = Object.assign({}, to, {y: y+to.y});
-  var ah = Object.assign({}, tho, {x: x+tho.x});
-  var ar = Object.assign({}, tro, {x: x+dx+tro.x});
+function tbody(nam, val, x=0, y=0, dx=0, o={}) {
+  var a = Object.assign({}, o.root, {y: y+o.root.y});
+  var ah = Object.assign({}, o.head, {x: x+o.head.x});
+  var ar = Object.assign({}, o.row, {x: x+dx+o.row.x});
   var th = tag('tspan', nam, ' role="rowheader"', ah);
   for(var i=0, I=val.length, tr=''; i<I; i++, ar.x+=dx)
     tr += tag('tspan', val[i], ' role="cell"', ar);
   return tag('text', th+tr, ' role="row"', a);
 };
 
-function defaults(nc, nr, x, y, dx, dy, opt) {
+function defaults(nc, nr, x=0, y=0, dx=0, dy=0, o={}) {
   var fsz = 0.6*Math.min(dx, dy);
   var nam = new Array(Math.max(nc, nr)).fill('');
-  var def = {title: '', head: nam, body: nam};
-  var svg = Object.assign({}, opt.svg||{});
-  var title = Object.assign({x: 0, y: 0, height: 0}, opt.title||{});
-  var table = Object.assign({transform: 'translate(0, 0)'}, opt.table||{});
-  var tstrip = Object.assign({x: 0, y: 0, width: 0, height: 0, fill: 'gainsboro'}, opt.tstrip||{});
-  var thead = opt.thead||{}, tbody = opt.tbody||{};
-  thead.to = Object.assign({y: 0, 'font-size': `${fsz}px`, 'font-weight': 'bold', fill: 'crimson', 'text-anchor': 'middle'}, thead.to);
-  thead.tho = Object.assign({x: 0.5*dx}, thead.tho||{});
-  tbody.to = Object.assign({y:0, 'font-size': `${fsz}px`, 'text-anchor': 'middle'}, tbody.to||{});
-  tbody.tho = Object.assign({x:0, 'font-weight': 'bold', 'fill': 'crimson', 'text-anchor': 'start'}, tbody.tho||{});
-  tbody.tro = Object.assign({x: 0.5*dx}, tbody.tro||{});
-  return Object.assign(def, opt, {svg, title, table, tstrip, thead, tbody});
+  var def = {head: nam, body: nam};
+  var svg = Object.assign({}, o.svg);
+  var tcaption = Object.assign({x: 0, y: 0, height: 0, 'font-size': `${fsz}px`, 'font-weight': 'bold', fill: 'crimson', 'text-anchor': 'middle'}, o.tcaption);
+  var table = Object.assign({transform: 'translate(0, 0)'}, o.table);
+  var tstrip = Object.assign({x: 0, y: 0, width: 0, height: 0, fill: 'gainsboro'}, o.tstrip);
+  var thead = o.thead||{}, tbody = o.tbody||{};
+  thead.root = Object.assign({y: 0, 'font-size': `${fsz}px`, 'font-weight': 'bold', fill: 'crimson', 'text-anchor': 'middle'}, thead.root);
+  thead.head = Object.assign({x: 0.5*dx}, thead.head);
+  tbody.root = Object.assign({y:0, 'font-size': `${fsz}px`, 'text-anchor': 'middle'}, tbody.root);
+  tbody.head = Object.assign({x:0, 'font-weight': 'bold', fill: 'crimson', 'text-anchor': 'start'}, tbody.head);
+  tbody.row = Object.assign({x: 0.5*dx}, tbody.row);
+  return Object.assign(def, o, {svg, tcaption, table, tstrip, thead, tbody});
 };
 
-function table(nam, dat, x=0, y=0, dx=0, dy=0, opt={}) {
+function table(dat, x=0, y=0, dx=0, dy=0, o={}) {
   var nr = dat.length, nc = nr>0? dat[0].length:0;
-  var x0 = x, y0 = y, opt = defaults(nc, nr, x, y, dx, dy, opt);
-  var w = (nc+1)*dx, h = (nr+1)*dy, y = y+dy+opt.title.height;
-  var gv = tstrip(Math.floor(nr/2), x, y+dy, dy*2, w, dy, opt.tstrip);
-  gv += thead(opt.head, x, y, dx, opt.thead.to, opt.thead.tho);
+  var x0 = x, y0 = y, o = defaults(nc, nr, x, y, dx, dy, o);
+  var w = (nc+1)*dx, h = (nr+1)*dy, ch = o.caption? dy+o.tcaption.height:0;
+  var gv = tstrip(Math.floor(nr/2), x, (y+=ch)+dy, dy*2, w, dy, o.tstrip);
+  gv += thead(o.head, x, y, dx, o.thead);
   for(var i=0, y=y+dy; i<nr; i++, y+=dy)
-    gv += tbody(opt.body[i], dat[i], x, y, dx, opt.tbody.to, opt.tbody.tho, opt.tbody.tro);
-  gv = tag('g', gv, ' role="table"', opt.to);
-  gv = title(nam, x, y, h, opt.title)+gv;
-  return svg(gv, x, y, w, h, opt.svg);
+    gv += tbody(o.body[i], dat[i], x, y, dx, o.tbody);
+  gv = tag('g', gv, ' role="table"', o.table);
+  gv = tcaption(o.caption, x0+0.5*w, y0, h, o.tcaption)+gv;
+  return svg(gv, x0, y0, w, h+ch, o.svg);
 };
 module.exports = table;
 
@@ -90,12 +90,14 @@ var data = [
   [1, 2, 3, 4, 5, 6],
 ];
 var opt = {
-  title: 'Hello',
+  caption: 'SHIT',
   head: ['one', 'two', 'three', 'four', 'five', 'six'],
   body: ['row1', 'row2', 'row2', 'row2', 'row2'],
-  tstrip: {to: {x: -4, y: 4, width: 8}},
-  thead: {to: {'font-family': 'Verdana'}}
+  tcaption: {'font-family': 'Verdana'},
+  tstrip: {x: -4, y: 14, width: 8},
+  thead: {root: {'font-family': 'Verdana'}}
 };
-var svgs = table(data, 25, 20, 100, 20, opt);
-var image = require('./image');
-image(svgs, 0, 0, 'svg', 'png').then(console.log);
+var svgs = table(data, 25, 25, 100, 40, opt);
+console.log(svgs);
+// var image = require('./image');
+// image(svgs, 0, 0, 'svg', 'png').then(console.log);
