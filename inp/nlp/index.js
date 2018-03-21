@@ -50,15 +50,6 @@ const EXPRESSION = [
   {c: ['bracket/open', null, 'expression', null, 'bracket/close', null], a: (s, t, i) => token('expression', `(${t[i+1].value})`)},
 ];
 const ORDERBY = [
-  // {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'DESC', 'keyword', 'NULLS FIRST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'} NULLS FIRST`); return t[i]; }},
-  // {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'DESC', 'keyword', 'NULLS LAST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'} NULLS LAST`); return t[i]; }},
-  // {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'ASC', 'keyword', 'NULLS FIRST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS FIRST`); return t[i]; }},
-  // {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'ASC', 'keyword', 'NULLS LAST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS LAST`); return t[i]; }},
-  // {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'DESC'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'}`); return t[i]; }},
-  // {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'DESC'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'}`); return t[i]; }},
-  // {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'ASC'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return t[i]; }},
-  // {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'NULLS FIRST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS FIRST`); return t[i]; }},
-  // {c: ['keyword', 'ORDER BY', 'expression', null, 'keyword', 'NULLS LAST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS LAST`); return t[i]; }},
   {c: ['keyword', 'ORDER BY', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return t[i]; }},
   {c: ['expression', null, 'keyword', 'DESC', 'keyword', 'NULLS FIRST'], a: (s, t, i) => { s.orderBy.push(`${t[i].value} ${s.reverse? 'ASC':'DESC'} NULLS FIRST`); return null; }},
   {c: ['expression', null, 'keyword', 'DESC', 'keyword', 'NULLS LAST'], a: (s, t, i) => { s.orderBy.push(`${t[i].value} ${s.reverse? 'ASC':'DESC'} NULLS LAST`); return null; }},
@@ -174,34 +165,14 @@ function process(tkns) {
   return z;
 };
 
-
-// forty five hudred twelve
-// ninety six million million thousand hundred ten
-// thirthy five crore two lakh eithy one thousand
-// one crore four fifty three thousand two seven six
-// one crore four hundred fifty three thousand two seventy six
-// nine four three seven one four five two three six
 async function nlp(db, txt) {
   var wrds = new natural.WordTokenizer().tokenize(txt), tkns = [];
   for(var w of wrds)
     tkns.push({type: 'text', value: w});
-  // console.log('tokens', tkns);
-  // console.log();
   var stg1 = number(tkns);
-  // console.log('stage1', stg1);
-  // console.log();
   var stg2 = unit(stg1);
-  // console.log('stage2', stg2);
-  // console.log();
   var stg3 = reserved(stg2);
-  // console.log('stage3', stg3);
-  // console.log();
   var stg4 = await entity(db, stg3);
-  // console.log('stage4', stg4);
-  // console.log();
-  var sql = process(stg4);
-  // console.log('sql', sql);
-  // console.log();
-  return sql;
+  return process(stg4);
 };
 module.exports = nlp;
