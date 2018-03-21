@@ -49,10 +49,10 @@ function tbody(nam, val, x=0, y=0, dx=0, o={}) {
 };
 
 function defaults(w=0, h=0, x=0, y=0, dx=0, dy=0, o={}) {
-  var fnt = 0.6*Math.min(dx, dy);
+  var fnt = 0.5*Math.min(dx, dy);
   var title = Object.assign({x: 0, y: 0, height: dy, 'font-family': 'Verdana', 'font-size': `${fnt}px`, 'font-weight': 'bold', fill: 'crimson', 'text-anchor': 'middle'}, o.title);
   var table = Object.assign({transform: 'translate(0, 0)', 'font-family': 'Courier', 'font-size': `${fnt}px`, 'text-anchor': 'middle'}, o.table);
-  var strip = Object.assign({x: 0, y: 0, width: w, height: dy, fill: 'papayawhip'}, o.strip);
+  var strip = Object.assign({x: -0.02*w, y: 0.4*dy, width: 1.04*w, height: dy, fill: 'papayawhip'}, o.strip);
   var svg = Object.assign({width: w+2*x, height: title.height+h+2*y}, o.svg);
   var thead = Object.assign({source: 'name'}, o.thead), tbody = Object.assign({}, o.tbody);
   thead.root = Object.assign({y: 0, 'font-weight': 'bold', fill: 'crimson'}, thead.root);
@@ -63,38 +63,34 @@ function defaults(w=0, h=0, x=0, y=0, dx=0, dy=0, o={}) {
   return Object.assign({}, o, {svg, title, table, strip, thead, tbody});
 };
 
-function table(dat, x=30, y=30, dx=100, dy=40, o={}) {
+function table(dat, x=30, y=30, dx=150, dy=40, o={}) {
   var val = dat.value, K = Object.keys(val);
   var nr = K.length, nc = nr>0? (val[K[0]].text||[]).length:0;
   var w = (nc+1)*dx, h = (nr+1)*dy;
   var o = defaults(w, h, x, y, dx, dy, o);
   var ttl = title(dat.title, x+0.5*w, y, o.title);
-  var t = strip(Math.floor(nr/2), x, (y+=o.title.height)+dy, dy*2, w, dy, o.strip);
+  var t = strip(Math.floor(nr/2), x, (y+=o.title.height), dy*2, w, dy, o.strip);
   t += thead(val[o.thead.source].text, x, y, dx, o.thead);
   for(var i=0, y=y+dy; i<nr; i++, y+=dy)
-    t += tbody(val[K[i]].name, val[K[i]].text, x, y, dx, o.tbody);
+    t += tbody(val[K[i]].name||K[i], val[K[i]].text, x, y, dx, o.tbody);
   t = ttl+tag('g', t, ' role="table"', o.table);
   return svg(t, o.svg);
 };
 module.exports = table;
 
 
-var data = [
-  [1, 2, 3, 4, 5, 6],
-  [1, 2, 3, 4, 5, 6],
-  [1, 2, 3, 4, 5, 6],
-  [1, 2, 3, 4, 5, 6],
-  [1, 2, 3, 4, 5, 6],
-];
-var opt = {
-  caption: 'SHIT',
-  head: ['one', 'two', 'three', 'four', 'five', 'six'],
-  body: ['row1', 'row2', 'row2', 'row2', 'row2'],
-  tcaption: {'font-family': 'Courier'},
-  tstrip: {x: -4, y: 14, width: 8},
-  thead: {root: {'font-family': 'Courier'}}
+var data = {
+  title: 'Mirror\'s Edge [Music] - Flight (Ambience)',
+  value: {
+    name: {text: ['one', 'two', 'three', 'four', 'five', 'six']},
+    row1: {text: [1, 2, 3, 4, 5, 6]},
+    row2: {text: [1, 2, 3, 4, 5, 6]},
+    row3: {text: [1, 2, 3, 4, 5, 6]},
+    row4: {text: [1, 2, 3, 4, 5, 6]},
+    row5: {text: [1, 2, 3, 4, 5, 6]},
+  }
 };
-var svgs = table(data, 25, 25, 100, 40, opt);
+var svgs = table(data);
 console.log(svgs);
 // var image = require('./image');
 // image(svgs, 0, 0, 'svg', 'png').then(console.log);
