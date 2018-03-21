@@ -26,7 +26,7 @@ function defaults(w=0, h=0, o={}) {
   return Object.assign({}, o, {ccaption});
 };
 
-function chart(typ, dat, opt) {
+function chart(dat, typ='line', opt={}) {
   chartNum = (chartNum+1)%65536;
   var w = opt.width, h = opt.height;
   var opt = defaults(w, h, opt), ch = opt.ccaption.height;
