@@ -4,7 +4,7 @@ const groups = require('@ifct2017/groups');
 const csv = require('csv');
 const fs = require('fs');
 
-var tsvector = `setweight(to_tsvector('english', "code"), 'A')||`+
+const TSVECTOR = `setweight(to_tsvector('english', "code"), 'A')||`+
   `setweight(to_tsvector('english', "name"), 'B')||`+
   `setweight(to_tsvector('english', "scie"), 'B')||`+
   `setweight(to_tsvector('english', compositions_lang_tags("lang")), 'B')||`+
@@ -40,13 +40,13 @@ function createTable(db, row) {
     ` '[,\\/\\(\\)\\- ]+', ' ', 'g')) $$`+
     ` LANGUAGE SQL IMMUTABLE RETURNS NULL ON NULL INPUT;\n`+
     `CREATE OR REPLACE VIEW "compositions_tsvector" AS `+
-    ` SELECT *, ${tsvector} AS "tsvector" FROM "compositions";`;
+    ` SELECT *, ${TSVECTOR} AS "tsvector" FROM "compositions";`;
   return db.query(z);
 };
 
 function createIndex(db, row) {
   var don = ['code', 'name', 'scie', 'regn'], z = '';
-  z += `CREATE INDEX IF NOT EXISTS "compositions_tsvector_idx" ON "compositions" USING GIN ((${tsvector}));`;
+  z += `CREATE INDEX IF NOT EXISTS "compositions_tsvector_idx" ON "compositions" USING GIN ((${TSVECTOR}));`;
   z += `CREATE INDEX IF NOT EXISTS "compositions_name_idx" ON "compositions" ("name");\n`;
   z += `CREATE INDEX IF NOT EXISTS "compositions_scie_idx" ON "compositions" ("scie");\n`;
   z += `CREATE INDEX IF NOT EXISTS "compositions_lang_idx" ON "compositions" ("lang");\n`;
