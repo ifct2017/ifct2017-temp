@@ -129,7 +129,7 @@ function frmRename(db, ast) {
   ast.from = [expTab('compositions_tsvector')];
 };
 
-function sqlRename(db, ast) {
+function rename(db, ast) {
   var rdy = [];
   if(typeof ast.columns!=='string') rdy.push(lstRename(db, ast.columns));
   if(ast.where) rdy.push(expRename(db, ast, 'where'));
@@ -139,24 +139,24 @@ function sqlRename(db, ast) {
   return Promise.all(rdy).then(() => frmRename(db, ast));
 };
 
-function sqlLimit(ast, val) {
+function limit(ast, val) {
   const lim = ast.limit? ast.limit[1].value : val;
   ast.limit = [{'type': 'number', 'value': (lim>val? val:lim)}];
 };
 
-function sqlUpdate(db, txt, lim) {
+function update(db, txt, lim) {
   txt = commentDel(txt);
   txt = txt.endsWith(';')? txt.slice(0, -1) : txt;
   if(txt.includes(';')) throw new Error('Too many queries');
   const p = new Parser(), ast = p.parse(txt);
   if(ast.type!=='select') throw new Error('Only SELECT query supported');
-  return sqlRename(db, ast).then(() => {
-    sqlLimit(ast, lim);
+  return rename(db, ast).then(() => {
+    limit(ast, lim);
     return astToSQL(ast);
   });
 };
 
-function sql(db, txt) {
-  return sqlUpdate(db, txt, 20);
+function aql(db, txt) {
+  return update(db, txt, 20);
 };
-module.exports = sql;
+module.exports = aql;
