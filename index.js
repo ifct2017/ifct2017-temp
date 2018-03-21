@@ -4,27 +4,13 @@ const express = require('express');
 const http = require('http');
 const pg = require('pg');
 const data = require('./data');
-const sql = require('./sql');
-const nlp = require('./nlp');
-
-function rowsZip(rows) {
-  var z = {};
-  for(var k in rows[0]||{}) {
-    for(var i=0, I=rows.length, y=[]; i<I; i++)
-      y[i] = rows[i][k];
-    z[k] = y;
-  }
-  return z;
-};
+const inp = require('./inp');
 
 function sqlRun(db, txt, col=false) {
   console.log(`AQL: ${txt}`);
-  return sql(db, txt).then((sql) => {
+  return inp.aql(db, txt).then((sql) => {
     console.log(`SQL: ${sql}`);
-    return db.query(sql).then((ans) => {
-      var rows = ans.rows||[];
-      return {ans: col? rowsZip(rows):rows, sql}
-    });
+    return inp.sql(sql);
   });
 };
 
