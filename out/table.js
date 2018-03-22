@@ -67,7 +67,6 @@ function table(dat, x=30, y=30, dx=150, dy=40, o={}) {
   var val = dat.value, K = Object.keys(val);
   var nr = K.length, nc = nr>0? (val[K[0]].text||[]).length:0;
   var w = (nc+1)*dx, h = (nr+1)*dy;
-  console.log(w, h);
   var o = defaults(w, h, x, y, dx, dy, o);
   var ttl = title(dat.title, x+0.5*w, y, o.title);
   var t = strip(Math.floor(nr/2), x, (y+=o.title.height), dy*2, w, dy, o.strip);

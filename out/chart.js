@@ -28,6 +28,7 @@ function defaults(o={}) {
 };
 
 function chart(dat, typ='line', o={}) {
+  console.log(JSON.stringify(dat));
   var o = defaults(o);
   var w = o.chart.width, h = o.chart.height;
   var th = o.title.height, sth = o.subtitle.height;

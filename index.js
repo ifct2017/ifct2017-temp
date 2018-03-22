@@ -20,18 +20,13 @@ async function runSql(db, sql, mod='text') {
   var ans = await inp.sql(db, sql);
   do {
     if(mod==='rows') break;
-    console.log(ans);
     ans = inp.sql.toColumns(ans);
-    console.log(ans);
     if(mod==='columns') break;
     ans = inp.sql.toGroups(ans);
-    console.log(ans);
     if(mod==='groups') break;
     ans = inp.sql.toUnits(ans);
-    console.log(ans);
     if(mod==='units') break;
     ans = inp.sql.toTexts(ans);
-    console.log(ans);
   } while(false);
   return {sql, value: ans};
 };
