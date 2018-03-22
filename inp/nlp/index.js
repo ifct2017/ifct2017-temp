@@ -145,7 +145,6 @@ function process(tkns) {
   tkns = stageRun(WHERE, sta, tkns);
   tkns = stageRun(FROM, sta, tkns);
   tkns = stageRun(COLUMN, sta, tkns, true);
-  console.log('tkns', tkns);
   console.log('columns', sta.columns);
   console.log('columnsUsed', sta.columnsUsed);
   if(sta.having.startsWith('AND ')) sta.having = sta.having.substring(4);
@@ -172,9 +171,13 @@ async function nlp(db, txt) {
   var wrds = new natural.WordTokenizer().tokenize(txt), tkns = [];
   for(var w of wrds)
     tkns.push({type: 'text', value: w});
+  console.log('tkns', tkns);
   var stg1 = number(tkns);
+  console.log('stg1', stg1);
   var stg2 = unit(stg1);
+  console.log('stg2', stg2);
   var stg3 = reserved(stg2);
+  console.log('stg3', stg3);
   var stg4 = await entity(db, stg3);
   return process(stg4);
 };

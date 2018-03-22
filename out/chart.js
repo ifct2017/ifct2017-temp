@@ -27,7 +27,7 @@ function title(txt, x=0, y=0, o={}) {
 };
 
 function defaults(o={}) {
-  var chart = Object.assign({width: 1200, height: 600, chartPadding: {left: 20, right: 60}}, o.chart), h = Math.min(chart.width, chart.height);
+  var chart = Object.assign({width: 1200, height: 600, chartPadding: {left: 20, right: 100}}, o.chart), h = Math.min(chart.width, chart.height);
   var title = Object.assign({x: 0, y: 0, height: 0.08*h, 'font-size': `${0.03*h}px`, 'font-family': 'Verdana', 'font-weight': 'bold', fill: 'crimson', 'text-anchor': 'middle', role: 'caption'}, o.title);
   var subtitle = Object.assign({x: 0, y: 0, height: 0.04*h, 'font-size': `${0.02*h}px`, 'font-family': 'Verdana', 'font-weight': 'bold', fill: 'indianred', 'text-anchor': 'middle'}, o.subtitle);;
   return Object.assign({}, o, {chart, title, subtitle});
@@ -49,7 +49,6 @@ function chart(dat, typ='line', o={}) {
         e.setAttribute('transform', `translate(0, ${th+sth})`);
       for(var e of div.querySelectorAll('svg .ct-label.ct-horizontal'))
         e.setAttribute('transform', `rotate(20, ${e.getAttribute('x')}, ${e.getAttribute('y')}) translate(-10, 0)`);
-      svg.setAttribute('width', h+th+sth+0.1*h);
       svg.setAttribute('height', h+th+sth+0.2*h);
       svg.setAttribute('style', '');
       svg.appendChild(ttl);
