@@ -69,7 +69,8 @@ async function botSelect(db, res) {
 
 async function runBot(db, req) {
   var int = req.result.metadata.intentName;
-  console.log(`BOT: ${int} | ${req.result.resolvedQuery}`);
+  var src = req.originalRequest? req.originalRequest.data.source:req.result.source;
+  console.log(`BOT: ${int} | ${src}`);
   var msg = await INTENT.get(int)(db, req.result);
   return {speech: '', messages: msg, source: 'bot'};
 };
