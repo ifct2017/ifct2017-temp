@@ -134,7 +134,7 @@ function rename(db, ast) {
   if(typeof ast.columns!=='string') rdy.push(lstRename(db, ast.columns));
   if(ast.where) rdy.push(expRename(db, ast, 'where'));
   if(ast.having) rdy.push(expRename(db, ast, 'having'));
-  if(ast.orderby) rdy.push(LstRename(db, ast.orderby));
+  if(ast.orderby) rdy.push(lstRename(db, ast.orderby));
   if(ast.groupby) rdy.push(expRename(db, ast.groupby));
   return Promise.all(rdy).then(() => frmRename(db, ast));
 };
