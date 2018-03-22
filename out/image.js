@@ -9,10 +9,9 @@ const HOSTNAME = 'img42.com';
 const ORIGIN = 'https://img42.com/';
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)';
 */
-const E = process.env;
 const DIR = 'assets';
 const APIKEY = 'AXkWvaOoTaioeXIEvHHKAz';
-const APPURL = E.URL? `https://${E.URL}`:'http://localhost';
+const APPURL = 'https://ifct2017.herokuapp.com';
 const IMGURL = `https://process.filestackapi.com/${APIKEY}/output=format:$tgt/${APPURL}/${DIR}/$fil`;
 /*
 const OPTIONS = {
