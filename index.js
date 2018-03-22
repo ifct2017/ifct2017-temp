@@ -56,16 +56,19 @@ async function botSelect(db, res) {
   var y1 = {type: 0, speech: 'AQL: '+ans.aql};
   var y2 = {type: 0, speech: 'SQL: '+ans.sql};
   var y3 = {type: 0, speech: 'Please check the attached data here. Thanks.'};
-  var z = [y0, y1, y2, y3, {type: 3, imageUrl: tab}], gra = [];
+  var z = [y0, y1, y2, y3, {type: 3, imageUrl: tab}], cht = [];
   for(var k in dat) {
     if(!Array.isArray(dat[k].value)) continue;
     if(typeof dat[k].value[0]!=='number') continue;
     var title = dat[k].name+(dat[k].unit? ` (${dat[k].unit})`:'');
-    gra.push(out.graph({title, subtitle: txt, value: {labels: dat.name.value, series: inp.sql.range(dat[k])}}).then(out.image));
+    cht.push(out.chart({title, subtitle: txt, value: {labels: dat.name.value, series: inp.sql.range(dat[k])}}).then(out.image));
   }
-  var img = await Promise.all(gra);
-  for(var i=0, I=img.length; i<I; i++)
+  console.log(`TABLE: ${tab}`);
+  var img = await Promise.all(cht);
+  for(var i=0, I=img.length; i<I; i++) {
+    console.log(`CHART: ${img[i]}`);
     z.push({type: 3, imageUrl: img[i]});
+  }
   return z;
 };
 
