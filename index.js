@@ -46,6 +46,7 @@ async function runNlp(db, nlp, mod='text') {
 async function botSelect(db, res) {
   var txt = res.resolvedQuery;
   var ans = await runNlp(db, txt), dat = ans.value;
+  console.log('SQL query result obtained.');
   var y0 = {type: 0, speech: 'Let me think. Is this what you meant?'};
   var y1 = {type: 0, speech: 'AQL: '+ans.aql};
   var y2 = {type: 0, speech: 'SQL: '+ans.sql};
@@ -57,6 +58,7 @@ async function botSelect(db, res) {
     var title = dat[k].name+(dat[k].unit? ` (${dat[k].unit})`:'');
     rdy.push(out.chart({title, subtitle: txt, value: {labels: dat.name.value, series: inp.sql.range(dat[k])}}).then(out.image));
   }
+  console.log('Table and charts generated.');
   var url = await Promise.all(rdy);
   for(var i=0, I=url.length; i<I; i++) {
     console.log((i===0? 'TABLE: ':'CHART: ')+url[i]);
