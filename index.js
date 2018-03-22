@@ -18,7 +18,6 @@ var db = new pg.Pool(pgconfig(E.DATABASE_URL+'?ssl=true'));
 async function runSql(db, sql, mod='text') {
   console.log(`SQL: ${sql}`);
   var ans = await inp.sql(db, sql);
-  console.log('inp.sql', ans);
   do {
     if(mod==='rows') break;
     ans = inp.sql.toColumns(ans);
