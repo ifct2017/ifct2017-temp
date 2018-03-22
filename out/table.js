@@ -68,7 +68,7 @@ function table(dat, x=30, y=30, dx=300, dy=40, o={}) {
   for(var i=0; i<nc; i++, x+=dx) {
     var k = K[i], oc = k===man? o.main:o.cell;
     t += column(val[k].name||k, val[k].text, x, y, dy, o.head, oc);
-    if(typeof val[k].value==='string') x += dx;
+    if(typeof val[k].value==='string') x += 2*dx;
   }
   t = ttl+tag('g', t, ' role="table"', o.table);
   return svg(t, o.svg);
