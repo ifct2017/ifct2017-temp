@@ -49,6 +49,7 @@ function chart(dat, typ='line', o={}) {
         e.setAttribute('transform', `translate(0, ${th+sth})`);
       for(var e of div.querySelectorAll('svg .ct-label.ct-horizontal'))
         e.setAttribute('transform', `rotate(20, ${e.getAttribute('x')}, ${e.getAttribute('y')}) translate(-10, 0)`);
+      svg.setAttribute('width', h+th+sth+0.1*h);
       svg.setAttribute('height', h+th+sth+0.2*h);
       svg.setAttribute('style', '');
       svg.appendChild(ttl);

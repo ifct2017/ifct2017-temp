@@ -145,6 +145,9 @@ function process(tkns) {
   tkns = stageRun(WHERE, sta, tkns);
   tkns = stageRun(FROM, sta, tkns);
   tkns = stageRun(COLUMN, sta, tkns, true);
+  console.log('tkns', tkns);
+  console.log('columns', sta.columns);
+  console.log('columnsUsed', sta.columnsUsed);
   if(sta.having.startsWith('AND ')) sta.having = sta.having.substring(4);
   if(sta.where.startsWith('AND ')) sta.where = sta.where.substring(4);
   var i = sta.columns.indexOf(`"*"`);
