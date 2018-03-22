@@ -77,20 +77,3 @@ function table(dat, x=30, y=30, dx=150, dy=40, o={}) {
   return svg(t, o.svg);
 };
 module.exports = table;
-
-
-var data = {
-  title: 'Mirror\'s Edge [Music] - Flight (Ambience)',
-  value: {
-    name: {text: ['one', 'two', 'three', 'four', 'five', 'six']},
-    row1: {text: [1, 2, 3, 4, 5, 6]},
-    row2: {text: [1, 2, 3, 4, 5, 6]},
-    row3: {text: [1, 2, 3, 4, 5, 6]},
-    row4: {text: [1, 2, 3, 4, 5, 6]},
-    row5: {text: [1, 2, 3, 4, 5, 6]},
-  }
-};
-var svgs = table(data);
-console.log(svgs);
-// var image = require('./image');
-// image(svgs, 0, 0, 'svg', 'png').then(console.log);
