@@ -18,34 +18,36 @@ var db = new pg.Pool(pgconfig(E.DATABASE_URL+'?ssl=true'));
 async function runSql(db, sql, mod='text') {
   console.log(`SQL: ${sql}`);
   var ans = await inp.sql(db, sql);
-  if(mod==='rows') return ans;
-  var col = inp.sql.toColumns(ans);
-  if(mod==='columns') return col;
-  var grp = inp.sql.toGroups(col);
-  if(mod==='groups') return grp;
-  var unt = inp.sql.toUnits(grp);
-  if(mod==='units') return unt;
-  var txt = inp.sql.toTexts(unt);
-  return txt;
+  do {
+    if(mod==='rows') break;
+    ans = inp.sql.toColumns(ans);
+    if(mod==='columns') break;
+    ans = inp.sql.toGroups(ans);
+    if(mod==='groups') break;
+    ans = inp.sql.toUnits(ans);
+    if(mod==='units') break;
+    ans = inp.sql.toTexts(ans);
+  } while(false);
+  return {sql, value: ans};
 };
 
 async function runAql(db, aql, mod='text') {
   console.log(`AQL: ${aql}`);
   var sql = await inp.aql(db, aql);
-  return runSql(db, sql, mod);
+  return Object.assign({aql}, runSql(db, sql, mod));
 };
 
 async function runNlp(db, nlp, mod='text') {
   console.log(`NLP: ${nlp}`);
   var aql = await inp.nlp(db, nlp);
-  return runAql(db, aql, mod);
+  return Object.assign({nlp}, runAql(db, aql, mod));
 };
 
 async function botSelect(db, res) {
   var txt = res.resolvedQuery;
-  var dat = await runNlp(db, txt);
+  var ans = await runNlp(db, txt), dat = ans.value;
   var tab = await out.image(out.table({title: txt, value: dat}));
-  var y = `Is this what you meant?\nAQL: ${aql}\nSQL: ${sql}\n`;
+  var y = `Is this what you meant?\nAQL: ${ans.aql}\nSQL: ${ans.sql}\n`;
   y += `Please check the attached data here. Thanks.`;
   var z = [{type: 0, speech: y}, {type: 3, imageUrl: tab}], gra = [];
   for(var k in dat) {
