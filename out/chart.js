@@ -7,6 +7,12 @@ const FUNCTION = new Map([
   ['pie', Chartist.Pie],
 ]);
 
+function strChunk(txt, len=1, sep=' ') {
+  for(var i=0, I=txt.length, z=''; i<I; i+=len)
+    z += txt.substr(i, len)+sep;
+  return z;
+};
+
 function tag(nam, cnt='', att={}) {
   var z = document.createElement(nam);
   for(var k in att)
@@ -21,7 +27,7 @@ function title(txt, x=0, y=0, o={}) {
 };
 
 function defaults(o={}) {
-  var chart = Object.assign({width: 1200, height: 600}, o.chart), h = Math.min(chart.width, chart.height);
+  var chart = Object.assign({width: 1200, height: 600, axisX: {labelInterpolationFnc: (v) => strChunk(v, 10)}}, o.chart), h = Math.min(chart.width, chart.height);
   var title = Object.assign({x: 0, y: 0, height: 0.08*h, 'font-size': `${0.03*h}px`, 'font-family': 'Verdana', 'font-weight': 'bold', fill: 'crimson', 'text-anchor': 'middle', role: 'caption'}, o.title);
   var subtitle = Object.assign({x: 0, y: 0, height: 0.04*h, 'font-size': `${0.02*h}px`, 'font-family': 'Verdana', 'font-weight': 'bold', fill: 'indianred', 'text-anchor': 'middle'}, o.subtitle);;
   return Object.assign({}, o, {chart, title, subtitle});
