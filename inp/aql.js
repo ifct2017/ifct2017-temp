@@ -128,6 +128,15 @@ function frmRename(db, ast) {
   ast.from = [table('compositions_tsvector')];
 };
 
+function asSet(ast) {
+  var type = 'select', from = [{table: 't', as: null}];
+  for(var col of ast) {
+    if(col.expr.type==='column_ref') continue;
+    var sql = astToSQL({type, from, columns: [col]});
+    col.as = sql.substring(7, sql.length-9).replace(/([\'\"])/g, '$1$1');
+  }
+};
+
 function rename(db, ast) {
   var rdy = [];
   if(typeof ast.columns!=='string') rdy.push(lstRename(db, ast.columns));
@@ -135,7 +144,7 @@ function rename(db, ast) {
   if(ast.having) rdy.push(expRename(db, ast, 'having'));
   if(ast.orderby) rdy.push(lstRename(db, ast.orderby));
   if(ast.groupby) rdy.push(lstRename(db, ast.groupby));
-  return Promise.all(rdy).then(() => frmRename(db, ast));
+  return Promise.all(rdy).then(() => frmRename(db, ast)).then(() => asSet(ast.columns));
 };
 
 function limit(ast, val) {
