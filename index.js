@@ -14,10 +14,6 @@ const E = process.env;
 var X = express();
 var server = http.createServer(X);
 var db = new pg.Pool(pgconfig(E.DATABASE_URL+'?ssl=true'));
-var nlp = ` show food where highest protein is found`;
-inp.nlp(db, nlp).then(console.log);
-
-// process.exit();
 
 async function runSql(db, sql, mod='text') {
   console.log(`SQL: ${sql}`);
@@ -79,15 +75,15 @@ data(db).then(() => console.log('data: ready'));
 
 X.use(bodyParser.json());
 X.use(bodyParser.urlencoded({'extended': true}));
-X.all('/bot', (req, res) => {
+X.all('/bot', (req, res, next) => {
   runBot(db, req.body).then((ans) => {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(ans));
-  });
+  }).catch(next);
 });
-X.all('/sql/:txt', (req, res) => runSql(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans)));
-X.all('/aql/:txt', (req, res) => runAql(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans)));
-X.all('/nlp/:txt', (req, res) => runNlp(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans)));
+X.all('/sql/:txt', (req, res, next) => runSql(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans), next));
+X.all('/aql/:txt', (req, res, next) => runAql(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans), next));
+X.all('/nlp/:txt', (req, res, next) => runNlp(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans), next));
 X.use((err, req, res, next) => {
   res.status(400).send(err.message);
   console.error(err);
