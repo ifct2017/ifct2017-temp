@@ -62,13 +62,14 @@ function defaults(w=0, h=0, x=0, y=0, dx=0, dy=0, o={}) {
 function table(dat, x=30, y=30, dx=200, dy=40, o={}) {
   var val = dat.value, K = Object.keys(val);
   var nc = K.length, nr = nc>0? (val[K[0]].text||[]).length:0;
-  var w = nc*dx, h = (nr+1)*dy, o = defaults(w, h, x, y, dx, dy, o);
+  var w = K.reduce((acc, k) => typeof val[k].value[0]==='string'? acc+3:acc+1, 0)*dx;
+  var h = (nr+1)*dy, o = defaults(w, h, x, y, dx, dy, o);
   var ttl = title(dat.title, x+0.5*w, y, o.title), man = dat.main||'name';
   var t = strip(Math.floor(nr/2), x, (y+=o.title.height)+dy, dy*2, w, dy, o.strip);
   for(var i=0; i<nc; i++, x+=dx) {
-    var k = K[i], oc = k===man? o.main:o.cell;
-    t += column(val[k].name||k, val[k].text, x, y, dy, o.head, oc);
-    if(typeof val[k].value[0]==='string') x += 2*dx;
+    var k = K[i], big = typeof val[k].value[0]==='string';
+    t += column(val[k].name||k, val[k].text, x+=big? 1.5*dx:0, y, dy, o.head, k===man? o.main:o.cell);
+    x += big? 0.5*dx:0;
   }
   t = ttl+tag('g', t, ' role="table"', o.table);
   return svg(t, o.svg);
