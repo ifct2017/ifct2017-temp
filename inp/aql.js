@@ -1,32 +1,32 @@
 const Parser = require('flora-sql-parser').Parser;
 const astToSQL = require('flora-sql-parser').util.astToSQL;
 
-function commentDel(txt) {
+function number(val) {
+  return {type: 'number', value: val};
+};
+
+function column(col) {
+  return {type: 'column_ref', table: null, column: col};
+};
+
+function table(tab, as=null) {
+  return {db: null, table: tab, as};
+};
+
+function uncomment(txt) {
   txt = txt.replace(/\/\*.*?\*\//g, '');
   txt = txt.replace(/--.*/gm, '');
   return txt.trim();
 };
 
-function expNum(val) {
-  return {type: 'number', value: val};
-};
-
-function expCol(col) {
-  return {type: 'column_ref', table: null, column: col};
-};
-
-function expTab(tab, as=null) {
-  return {db: null, table: tab, as};
-};
-
-function colCodeOne(db, txt) {
+function codeOne(db, txt) {
   if(txt.trim()==='*') return Promise.resolve('*');
   var sql = `SELECT "code" FROM "columns_tsvector" WHERE "tsvector" @@ plainto_tsquery($1)`+
     ` ORDER BY ts_rank("tsvector", plainto_tsquery($1), 16) DESC LIMIT 1`;
   return db.query(sql, [txt]).then((ans) => ans.rowCount>0? ans.rows[0].code:null);
 };
 
-function colCodeAll(db, txt) {
+function codeAll(db, txt) {
   if(txt.trim()==='*') return Promise.resolve('*');
   var sql = `SELECT "code" FROM "columns_tsvector" WHERE "tsvector" @@ plainto_tsquery($1)`;
   return db.query(sql, [txt]).then((ans) => {
@@ -36,15 +36,15 @@ function colCodeAll(db, txt) {
   });
 };
 
-function colExpOne(db, txt, as=null, type=null) {
-  return colCodeOne(db, txt).then((ans) => {
-    return [{expr: expCol(ans[0]), as, type}];
+function expOne(db, txt, as=null, type=null) {
+  return codeOne(db, txt).then((ans) => {
+    return [{expr: column(ans[0]), as, type}];
   });
 };
 
-function colExpSum(db, txt, as=null, type=null) {
-  return colCodeAll(db, txt).then((ans) => {
-    if(ans.length===0) return [{expr: expNum(0), as, type}]
+function expSum(db, txt, as=null, type=null) {
+  return codeAll(db, txt).then((ans) => {
+    if(ans.length===0) return [{expr: number(0), as, type}]
     var sql = `SELECT * FROM "table" WHERE (`;
     for(var col of ans)
       sql += `"${col}"+`;
@@ -54,9 +54,9 @@ function colExpSum(db, txt, as=null, type=null) {
   });
 };
 
-function colExpAvg(db, txt, as=null, type=null) {
-  return colCodeAll(db, txt).then((ans) => {
-    if(ans.length===0) return [{expr: expNum(0), as, type}]
+function expAvg(db, txt, as=null, type=null) {
+  return codeAll(db, txt).then((ans) => {
+    if(ans.length===0) return [{expr: number(0), as, type}]
     var sql = `SELECT * FROM "table" WHERE ((`;
     for(var col of ans)
       sql += `"${col}"+`;
@@ -67,32 +67,25 @@ function colExpAvg(db, txt, as=null, type=null) {
   });
 };
 
-function colExpAll(db, txt, as=null, type=null) {
-  return colCodeAll(db, txt).then((ans) => {
+function expAll(db, txt, as=null, type=null) {
+  return codeAll(db, txt).then((ans) => {
     var z = [];
     for(var col of ans)
-      z.push({expr: expCol(col), as: as? `${as}_${col}`:null, type});
+      z.push({expr: column(col), as: as? `${as}_${col}`:null, type});
     return z;
   });
 };
 
-function colExpAny(db, txt, as=null, type=null) {
-  if(txt.startsWith('all:')) return colExpAll(db, txt.substring(4), as, type);
-  if(txt.startsWith('avg:')) return colExpAvg(db, txt.substring(4), as, type);
-  if(txt.startsWith('sum:')) return colExpSum(db, txt.substring(4), as, type);
-  return colExpOne(db, txt, as, type);
-};
-
-function idRename(db, ast) {
-  if(ast.db) ast.db = null;
-  if(ast.table) ast.table = ast.table;
-  if(!ast.column) return Promise.resolve();
-  return columnGet(db, ast.column).then((ans) => ast.column = ans);
+function expAny(db, txt, as=null, type=null) {
+  if(txt.startsWith('all:')) return expAll(db, txt.substring(4), as, type);
+  if(txt.startsWith('avg:')) return expAvg(db, txt.substring(4), as, type);
+  if(txt.startsWith('sum:')) return expSum(db, txt.substring(4), as, type);
+  return expOne(db, txt, as, type);
 };
 
 function expRenameOne(db, ast, k) {
   if(!ast[k].column) return Promise.resolve();
-  return colExpAny(db, ast[k].column).then((ans) => ast[k] = ans[0].expr);
+  return expAny(db, ast[k].column).then((ans) => ast[k] = ans[0].expr);
 };
 
 function expRename(db, ast, k) {
@@ -105,8 +98,9 @@ function expRename(db, ast, k) {
 };
 
 function lstRenameOne(db, ast, i) {
+  if(!ast[i].expr) return expAny(db, ast[i].column).then((ans) => ast.splice(i, 1, ...ans.map((v) => v.expr)))
   if(!ast[i].expr.column) return expRename(db, ast[i], 'expr');
-  return colExpAny(db, ast[i].expr.column, ast[i].as, ast[i].type).then((ans) => ast.splice(i, 1, ...ans));
+  return expAny(db, ast[i].expr.column, ast[i].as, ast[i].type).then((ans) => ast.splice(i, 1, ...ans));
 };
 
 function lstRename(db, ast) {
@@ -131,7 +125,7 @@ function frmRename(db, ast) {
     if(ast.where.right.value===true) { ast.where.right = asu.where; ast.where.right.parentheses = true; }
     else { asu.where.left = ast.where.right; ast.where.right = asu.where; }
   }
-  ast.from = [expTab('compositions_tsvector')];
+  ast.from = [table('compositions_tsvector')];
 };
 
 function rename(db, ast) {
@@ -140,7 +134,7 @@ function rename(db, ast) {
   if(ast.where) rdy.push(expRename(db, ast, 'where'));
   if(ast.having) rdy.push(expRename(db, ast, 'having'));
   if(ast.orderby) rdy.push(lstRename(db, ast.orderby));
-  if(ast.groupby) rdy.push(expRename(db, ast.groupby));
+  if(ast.groupby) rdy.push(lstRename(db, ast.groupby));
   return Promise.all(rdy).then(() => frmRename(db, ast));
 };
 
@@ -150,7 +144,7 @@ function limit(ast, val) {
 };
 
 function update(db, txt, lim) {
-  txt = commentDel(txt);
+  txt = uncomment(txt);
   txt = txt.endsWith(';')? txt.slice(0, -1) : txt;
   if(txt.includes(';')) throw new Error('Too many queries');
   const p = new Parser(), ast = p.parse(txt);
