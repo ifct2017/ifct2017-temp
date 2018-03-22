@@ -8,7 +8,7 @@ const inp = require('./inp');
 const out = require('./out');
 
 const INTENT = new Map([
-  ['query.select', querySelect]
+  ['query.select', botSelect]
 ]);
 const E = process.env;
 var X = express();
