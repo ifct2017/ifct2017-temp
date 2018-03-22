@@ -17,9 +17,9 @@ const OPTIONS = {
   }
 };
 
-function image(txt, xsz, ysz, src, tgt) {
+function image(txt, src='svg', tgt='jpg', w=0, h=0) {
   var hdr = {'Origin': ORIGIN, 'Referrer': ORIGIN, 'User-Agent': USER_AGENT, 'Content-Length': txt.length, 'Content-Type': 'raw'};
-  var opt = {hostname: HOSTNAME, method: 'POST', path: `/api/image?width=${xsz}&height=${ysz}&type=${encodeURIComponent(mime.getType(src))}&checksum=${checksum(txt)}`, headers: hdr};
+  var opt = {hostname: HOSTNAME, method: 'POST', path: `/api/image?width=${w}&height=${h}&type=${encodeURIComponent(mime.getType(src))}&checksum=${checksum(txt)}`, headers: hdr};
   return new Promise((fres, frej) => {
     var req = https.request(opt, (res) => {
       var buf = '';
