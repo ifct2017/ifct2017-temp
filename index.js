@@ -47,23 +47,21 @@ async function botSelect(db, res) {
   var txt = res.resolvedQuery;
   var ans = await runNlp(db, txt), dat = ans.value;
   console.log(ans);
-  var tab = await out.image(out.table({title: txt, value: dat}));
-  console.log(`TABLE: ${tab}`);
   var y0 = {type: 0, speech: 'Let me think. Is this what you meant?'};
   var y1 = {type: 0, speech: 'AQL: '+ans.aql};
   var y2 = {type: 0, speech: 'SQL: '+ans.sql};
   var y3 = {type: 0, speech: 'Please check the attached data here. Thanks.'};
-  var z = [y0, y1, y2, y3, {type: 3, imageUrl: tab}], cht = [];
+  var z = [y0, y1, y2, y3], rdy = [out.image(out.table({title: txt, value: dat}))];
   for(var k in dat) {
     if(!Array.isArray(dat[k].value)) continue;
     if(typeof dat[k].value[0]!=='number') continue;
     var title = dat[k].name+(dat[k].unit? ` (${dat[k].unit})`:'');
-    cht.push(out.chart({title, subtitle: txt, value: {labels: dat.name.value, series: inp.sql.range(dat[k])}}).then(out.image));
+    rdy.push(out.chart({title, subtitle: txt, value: {labels: dat.name.value, series: inp.sql.range(dat[k])}}).then(out.image));
   }
-  var img = await Promise.all(cht);
-  for(var i=0, I=img.length; i<I; i++) {
-    console.log(`CHART: ${img[i]}`);
-    z.push({type: 3, imageUrl: img[i]});
+  var url = await Promise.all(rdy);
+  for(var i=0, I=url.length; i<I; i++) {
+    console.log((i===0? 'TABLE: ':'CHART: ')+url[i]);
+    z.push({type: 3, imageUrl: url[i]});
   }
   return z;
 };
