@@ -32,7 +32,7 @@ function toUnits(ans) {
     if(!Array.isArray(ans[k].value)) continue;
     if(typeof ans[k].value[0]!=='number') continue;
     var max = Math.max.apply(null, ans[k].value);
-    var exp = Math.max(-Math.floor(Math.log10(max+1e-10)/3)*3, 9);
+    var exp = Math.min(-Math.floor(Math.log10(max+1e-10)/3)*3, 9);
     var val = ans[k].value, err = ans[k].error||[], fct = 10**exp;
     for(var i=0, I=val.length; i<I; i++)
       val[i] *= fct;
