@@ -58,8 +58,8 @@ function range(fld) {
   var val = fld.value||[];
   var err = fld.error||[];
   for(var i=0, I=val.length; i<I; i++) {
-    z[0][i] = val[i]-err[i];
-    z[1][i] = val[i]+err[i];
+    z[0][i] = (val[i]||0)-(err[i]||0);
+    z[1][i] = (val[i]||0)+(err[i]||0);
   }
   return z;
 };
