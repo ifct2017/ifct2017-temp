@@ -17,7 +17,17 @@ const OPTIONS = {
   }
 };
 
-function image(txt, src='svg', tgt='jpg', w=1200, h=600) {
+function svgWidth(txt) {
+  var m = txt.match(/width=\"(\d+)\"/);
+  return parseFloat(m[1])||0;
+};
+
+function svgHeight(txt) {
+  var m = txt.match(/height=\"(\d+)\"/);
+  return parseFloat(m[1])||0;
+};
+
+function image(txt, src='svg', tgt='jpg', w=svgWidth(txt), h=svgHeight(txt)) {
   var hdr = {'Origin': ORIGIN, 'Referrer': ORIGIN, 'User-Agent': USER_AGENT, 'Content-Length': txt.length, 'Content-Type': 'raw'};
   var opt = {hostname: HOSTNAME, method: 'POST', path: `/api/image?width=${w}&height=${h}&type=${encodeURIComponent(mime.getType(src))}&checksum=${checksum(txt)}`, headers: hdr};
   return new Promise((fres, frej) => {

@@ -47,9 +47,10 @@ async function botSelect(db, res) {
   var txt = res.resolvedQuery;
   var ans = await runNlp(db, txt), dat = ans.value;
   var tab = await out.image(out.table({title: txt, value: dat}));
-  var y = `Is this what you meant?\nAQL: ${ans.aql}\nSQL: ${ans.sql}\n`;
-  y += `Please check the attached data here. Thanks.`;
-  var z = [{type: 0, speech: y}, {type: 3, imageUrl: tab}], gra = [];
+  var y0 = {type: 0, speech: 'Let me think. Is this what you meant?'};
+  var y1 = {type: 0, speech: `AQL: ${ans.aql}\nSQL: ${ans.sql}\n`};
+  var y2 = {type: 0, speech: 'Please check the attached data here. Thanks.'};
+  var z = [y0, y1, y2, {type: 3, imageUrl: tab}], gra = [];
   for(var k in dat) {
     if(!Array.isArray(dat[k].value)) continue;
     if(typeof dat[k].value[0]!=='number') continue;
