@@ -80,7 +80,7 @@ async function entity(db, tkns) {
   for(var i=0, I=tkns.length; i<I; i++) {
     var j = findLast(tkns, i, 'text');
     if(j<0) rdy.push(tkns[i]);
-    else rdy.push(process(db, tkns.slice(i, j+1)));
+    else rdy.push(process(db, tkns.slice(i, (i=j)+1)));
   }
   return Promise.all(rdy).then((ans) => {
     for(var i=0, I=ans.length, z=[]; i<I; i++) {

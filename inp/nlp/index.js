@@ -30,6 +30,8 @@ const VALUE = [
   {c: ['column', null, 'keyword', 'PER', 'unit', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"*${t[i+2].value/100})`); }},
   {c: ['column', null, 'keyword', 'AS', 'unit', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"/${t[i+1].value})`); }},
   {c: ['column', null, 'keyword', 'IN', 'unit', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"/${t[i+1].value})`); }},
+  {c: ['column', null, 'operator', 'AND', 'column', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`, `"${t[i+2].value}"`); return token('expression', `"${t[i].value}"+"${t[i+2].value}"`); }},
+  {c: ['column', null, 'operator', 'OR', 'column', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`, `"${t[i+2].value}"`); return token('expression', `"${t[i].value}"+"${t[i+2].value}"`); }},
   {c: ['column', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `"${t[i].value}"`); }},
   {c: ['number', null], a: (s, t, i) => token('expression', `${t[i].value}`)},
   {c: ['text', null], a: (s, t, i) => token('expression', `'${t[i].value}'`)},
@@ -67,6 +69,10 @@ const ORDERBY = [
   {c: ['keyword', 'DESC', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'}`); return null; }},
   {c: ['expression', null, 'keyword', 'ASC'], a: (s, t, i) => { s.orderBy.push(`${t[i].value} ${s.reverse? 'DESC':'ASC'}`); return null; }},
   {c: ['keyword', 'ASC', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return null; }},
+  {c: ['operator', '>=', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'}`); return null; }},
+  {c: ['operator', '>', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'}`); return null; }},
+  {c: ['operator', '<=', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return null; }},
+  {c: ['operator', '<', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return null; }},
 ];
 const GROUPBY = [
   {c: ['keyword', 'GROUP BY', 'expression', null], a: (s, t, i) => { s.groupBy.push(`${t[i+1].value}`); return t[i]; }},
@@ -150,8 +156,14 @@ function process(tkns) {
   var i = sta.columns.indexOf(`"*"`);
   if(i>=0) sta.columns[i] = `*`;
   if(sta.columns.length===0 || !sta.columns.includes('*')) {
-    for(var i=0, I=sta.columnsUsed.length; i<I; i++)
-      if(!sta.columns.includes(sta.columnsUsed[i])) sta.columns.push(sta.columnsUsed[i]);
+    for(var ord of sta.orderBy) {
+      var exp = ord.replace(/ (ASC|DESC)$/, '');
+      if(!sta.columns.includes(exp)) sta.columns.push(exp);
+    }
+  }
+  if(sta.columns.length===0 || !sta.columns.includes('*')) {
+    for(var col of sta.columnsUsed)
+      if(!sta.columns.includes(col)) sta.columns.push(col);
   }
   if(!sta.columnsUsed.includes(`"name"`) && !sta.columns.includes(`"name"`)) sta.columns.unshift(`"name"`);
   if(sta.columns.length===0) sta.columns.push(`*`);
@@ -173,6 +185,7 @@ async function nlp(db, txt) {
   var stg2 = unit(stg1);
   var stg3 = reserved(stg2);
   var stg4 = await entity(db, stg3);
+  console.log(stg4);
   return process(stg4);
 };
 module.exports = nlp;
