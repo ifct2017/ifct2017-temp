@@ -59,7 +59,7 @@ function defaults(w=0, h=0, x=0, y=0, dx=0, dy=0, o={}) {
   return Object.assign({}, o, {svg, title, table, strip, head, main, cell});
 };
 
-function table(dat, x=30, y=30, dx=300, dy=40, o={}) {
+function table(dat, x=30, y=30, dx=200, dy=40, o={}) {
   var val = dat.value, K = Object.keys(val);
   var nc = K.length, nr = nc>0? (val[K[0]].text||[]).length:0;
   var w = nc*dx, h = (nr+1)*dy, o = defaults(w, h, x, y, dx, dy, o);
@@ -68,7 +68,7 @@ function table(dat, x=30, y=30, dx=300, dy=40, o={}) {
   for(var i=0; i<nc; i++, x+=dx) {
     var k = K[i], oc = k===man? o.main:o.cell;
     t += column(val[k].name||k, val[k].text, x, y, dy, o.head, oc);
-    if(typeof val[k].value==='string') x += 2*dx;
+    if(typeof val[k].value[0]==='string') x += 2*dx;
   }
   t = ttl+tag('g', t, ' role="table"', o.table);
   return svg(t, o.svg);
