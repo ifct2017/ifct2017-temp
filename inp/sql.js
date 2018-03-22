@@ -21,7 +21,8 @@ function toGroups(ans) {
       continue;
     }
     z[k] = z[k]||{};
-    z[k].name = columns.get(k);
+    if(!k.includes('"')) z[k].name = columns.get(k);
+    else z[k].name = k.replace(/\"(\w+)\"/g, (m, p1) => columns.get(p1));
     z[k].value = ans[k];
   }
   return z;
