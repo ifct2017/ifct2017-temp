@@ -34,13 +34,13 @@ async function runSql(db, sql, mod='text') {
 async function runAql(db, aql, mod='text') {
   console.log(`AQL: ${aql}`);
   var sql = await inp.aql(db, aql);
-  return Object.assign({aql}, runSql(db, sql, mod));
+  return Object.assign({aql}, await runSql(db, sql, mod));
 };
 
 async function runNlp(db, nlp, mod='text') {
   console.log(`NLP: ${nlp}`);
   var aql = await inp.nlp(db, nlp);
-  return Object.assign({nlp}, runAql(db, aql, mod));
+  return Object.assign({nlp}, await runAql(db, aql, mod));
 };
 
 async function botSelect(db, res) {
