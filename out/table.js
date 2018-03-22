@@ -68,8 +68,8 @@ function table(dat, x=30, y=30, dx=200, dy=40, o={}) {
   var t = strip(Math.floor(nr/2), x, (y+=o.title.height)+dy, dy*2, w, dy, o.strip);
   for(var i=0; i<nc; i++, x+=dx) {
     var k = K[i], big = typeof val[k].value[0]==='string';
-    t += column(val[k].name||k, val[k].text, x+=big? 1.5*dx:0, y, dy, o.head, k===man? o.main:o.cell);
-    x += big? 0.5*dx:0;
+    t += column(val[k].name||k, val[k].text, x+=big? dx:0, y, dy, o.head, k===man? o.main:o.cell);
+    x += big? dx:0;
   }
   t = ttl+tag('g', t, ' role="table"', o.table);
   return svg(t, o.svg);
