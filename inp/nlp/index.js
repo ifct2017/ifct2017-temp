@@ -185,7 +185,6 @@ async function nlp(db, txt) {
   var stg2 = unit(stg1);
   var stg3 = reserved(stg2);
   var stg4 = await entity(db, stg3);
-  console.log(stg4);
   return process(stg4);
 };
 module.exports = nlp;
