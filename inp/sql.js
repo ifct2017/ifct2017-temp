@@ -43,7 +43,7 @@ function toUnits(ans) {
   return ans;
 };
 
-function toText(ans) {
+function toTexts(ans) {
   for(var k in ans) {
     var val = ans[k].value||[], err = ans[k].error||[], unt=ans[k].unit||'';
     for(var i=0, I=Math.max(val.length, err.length), txt=[]; i<I; i++)
@@ -69,6 +69,6 @@ function sql(db, txt) {
 sql.toColumns = toColumns;
 sql.toGroups = toGroups;
 sql.toUnits = toUnits;
-sql.toText = toText;
+sql.toText = toTexts;
 sql.range = range;
 module.exports = sql;

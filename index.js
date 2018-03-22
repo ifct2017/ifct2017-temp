@@ -5,49 +5,85 @@ const http = require('http');
 const pg = require('pg');
 const data = require('./data');
 const inp = require('./inp');
+const out = require('./out');
 
-function sqlRun(db, txt, col=false) {
-  console.log(`AQL: ${txt}`);
-  return inp.aql(db, txt).then((sql) => {
-    console.log(`SQL: ${sql}`);
-    return inp.sql(sql);
-  });
-};
-
-function nlpRun(db, txt, col=false) {
-  console.log(`NLP: ${txt}`);
-  return nlp(db, txt).then((aql) => sqlRun(db, aql, col).then((ans) => Object.assign(ans, {aql})));
-};
-
-var E = process.env;
+const INTENT = new Map([
+  ['query.select', querySelect]
+]);
+const E = process.env;
 var X = express();
 var server = http.createServer(X);
 var db = new pg.Pool(pgconfig(E.DATABASE_URL));
-data(db).then(() => console.log('data: ready'));
+
+async function runSql(db, sql, mod='text') {
+  console.log(`SQL: ${sql}`);
+  var ans = await inp.sql(db, sql);
+  if(mod==='rows') return ans;
+  var col = inp.sql.toColumns(ans);
+  if(mod==='columns') return col;
+  var grp = inp.sql.toGroups(col);
+  if(mod==='groups') return grp;
+  var unt = inp.sql.toUnits(grp);
+  if(mod==='units') return unt;
+  var txt = inp.sql.toTexts(unt);
+  return txt;
+};
+
+async function runAql(db, aql, mod='text') {
+  console.log(`AQL: ${aql}`);
+  var sql = await inp.aql(db, aql);
+  return runSql(db, sql, mod);
+};
+
+async function runNlp(db, nlp, mod='text') {
+  console.log(`NLP: ${nlp}`);
+  var aql = await inp.nlp(db, nlp);
+  return runAql(db, aql, mod);
+};
+
+async function botSelect(db, res) {
+  var dat = await runNlp(db, res.resolvedQuery);
+  var tab = await out.image(out.table(dat));
+  var y = `Let me think. Is this what you meant?\nAQL: ${aql}\nSQL: ${sql}\n`;
+  y += `Please check the attached data here. Thanks.`;
+  var z = [{type: 0, speech: y}, {type: 3, imageUrl: tab}], gra = [];
+  for(var k in dat) {
+    if(!Array.isArray(dat[k].value)) continue;
+    if(typeof dat[k].value[0]!=='number') continue;
+    var title = dat[k].name+(dat[k].unit? ` (${dat[k].unit})`:'');
+    gra.push(out.graph({title, subtitle: txt, value: {labels: dat.name.value, series: inp.sql.range(dat[k])}}).then(out.image));
+  }
+  var img = await Promise.all(gra);
+  for(var i=0, I=img.length; i<I; i++)
+    z.push({type: 3, imageUrl: img[i]});
+  return z;
+};
+
+async function bot(db, req) {
+  var int = req.metadata.intentName;
+  console.log(`BOT: ${int} | ${req.result.resolvedQuery}`);
+  var msg = await INTENT.get(int)(db, req.result);
+  return {speech: '', messages: msg, source: 'bot'};
+};
 
 server.listen(E.PORT||80);
 server.on('listening', () => {
   const {port, family, address} = server.address();
   console.log(`server: listening on ${address}:${port} (${family})`);
 });
+data(db).then(() => console.log('data: ready'));
 
 X.use(bodyParser.json());
 X.use(bodyParser.urlencoded({'extended': true}));
-X.use((req, res, next) => {
-  console.log();
-  next();
-});
 X.all('/bot', (req, res) => {
-  console.log('req.headers', req.headers);
-  console.log('req.params', req.params);
-  console.log('req.query', req.query);
-  console.log('req.body', req.body);
-  txt = "I like Indian Food Composition Tables!";
-  res.setHeader('Content-Type', 'application/json');
-  res.send(JSON.stringify({payload: {facebook: {text: txt}}}));
+  bot(db, req.body).then((ans) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify(ans));
+  });
 });
-X.all('/sql/:txt', (req, res) => sqlRun(db, req.params.txt, req.query.mode==='column').then((ans) => res.json(ans)));
-X.all('/nlp/:txt', (req, res) => nlpRun(db, req.params.txt, req.query.mode==='column').then((ans) => res.json(ans)));
+X.all('/sql/:txt', (req, res) => sqlRun(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans)));
+X.all('/aql/:txt', (req, res) => aqlRun(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans)));
+X.all('/nlp/:txt', (req, res) => nlpRun(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans)));
 X.use((err, req, res, next) => {
   res.status(400).send(err.message);
   console.error(err);
