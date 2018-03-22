@@ -5,7 +5,7 @@ const UNIT = new Map([[0, 'g'], [3, 'mg'], [6, 'μg'], [9, 'ng']]);
 function toColumns(ans) {
   for(var i=0, I=ans.length, z={}; i<I; i++) {
     for(var k in ans[i])
-      (z[k]=z[k]||{})[i] = ans[i][k];
+      (z[k]=z[k]||[])[i] = ans[i][k];
   }
   return z;
 };
