@@ -69,6 +69,6 @@ function sql(db, txt) {
 sql.toColumns = toColumns;
 sql.toGroups = toGroups;
 sql.toUnits = toUnits;
-sql.toText = toTexts;
+sql.toTexts = toTexts;
 sql.range = range;
 module.exports = sql;
