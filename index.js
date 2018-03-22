@@ -59,7 +59,7 @@ async function botSelect(db, res) {
   return z;
 };
 
-async function bot(db, req) {
+async function runBot(db, req) {
   var int = req.metadata.intentName;
   console.log(`BOT: ${int} | ${req.result.resolvedQuery}`);
   var msg = await INTENT.get(int)(db, req.result);
@@ -76,14 +76,14 @@ data(db).then(() => console.log('data: ready'));
 X.use(bodyParser.json());
 X.use(bodyParser.urlencoded({'extended': true}));
 X.all('/bot', (req, res) => {
-  bot(db, req.body).then((ans) => {
+  runBot(db, req.body).then((ans) => {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(ans));
   });
 });
-X.all('/sql/:txt', (req, res) => sqlRun(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans)));
-X.all('/aql/:txt', (req, res) => aqlRun(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans)));
-X.all('/nlp/:txt', (req, res) => nlpRun(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans)));
+X.all('/sql/:txt', (req, res) => runSql(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans)));
+X.all('/aql/:txt', (req, res) => runAql(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans)));
+X.all('/nlp/:txt', (req, res) => runNlp(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans)));
 X.use((err, req, res, next) => {
   res.status(400).send(err.message);
   console.error(err);
