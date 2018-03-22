@@ -60,6 +60,7 @@ async function botSelect(db, res) {
 };
 
 async function runBot(db, req) {
+  console.log(req);
   var int = req.metadata.intentName;
   console.log(`BOT: ${int} | ${req.result.resolvedQuery}`);
   var msg = await INTENT.get(int)(db, req.result);
