@@ -6,7 +6,6 @@ const FUNCTION = new Map([
   ['line', Chartist.Line],
   ['pie', Chartist.Pie],
 ]);
-var chartNum = 0;
 
 function tag(nam, cnt='', att={}) {
   var z = document.createElement(nam);
@@ -16,35 +15,36 @@ function tag(nam, cnt='', att={}) {
   return z;
 };
 
-function ccaption(txt, x=0, y=0, o={}) {
+function title(txt, x=0, y=0, o={}) {
   o.x += x; o.y += y;
   return tag('text', txt, o);
 };
 
-function defaults(w=0, h=0, o={}) {
-  var ccaption = Object.assign({x: 0, y: 0, height: 0.08*h, 'font-size': `${0.03*h}px`, 'font-weight': 'bold', fill: 'crimson', 'text-anchor': 'middle', role: 'caption'}, o.ccaption);
-  return Object.assign({}, o, {ccaption});
+function defaults(o={}) {
+  var chart = Object.assign({width: 1200, height: 600}, o.chart), h = Math.min(chart.width, chart.height);
+  var title = Object.assign({x: 0, y: 0, height: 0.08*h, 'font-size': `${0.03*h}px`, 'font-family': 'Verdana', 'font-weight': 'bold', fill: 'crimson', 'text-anchor': 'middle', role: 'caption'}, o.title);
+  var subtitle = Object.assign({x: 0, y: 0, height: 0.04*h, 'font-size': `${0.02*h}px`, 'font-family': 'Verdana', 'font-weight': 'bold', fill: 'indianred', 'text-anchor': 'middle'}, o.subtitle);;
+  return Object.assign({}, o, {chart, title, subtitle});
 };
 
-function chart(dat, typ='line', opt={}) {
-  chartNum = (chartNum+1)%65536;
-  var w = opt.width, h = opt.height;
-  var opt = defaults(w, h, opt), ch = opt.ccaption.height;
+function chart(dat, typ='line', o={}) {
+  var o = defaults(o);
+  var w = o.chart.width, h = o.chart.height;
+  var th = o.title.height, sth = o.subtitle.height;
   var div = document.createElement('div');
   document.querySelector('svg').appendChild(div);
-  div.id = 'c'+chartNum;
-  var cht = new (FUNCTION.get(typ))(div, dat, opt);
+  var cht = new (FUNCTION.get(typ))(div, dat.value, o.chart);
   return new Promise((fres) => {
     cht.on('created', (data) => {
-      if(opt.caption) {
-        var svg = div.querySelector('svg');
-        var cap = ccaption(opt.caption, 0.5*w, ch, opt.ccaption);
-        for(var e of div.querySelectorAll('svg > g'))
-          e.setAttribute('transform', `translate(0, ${ch})`);
-        svg.setAttribute('height', h+ch);
-        svg.setAttribute('style', '');
-        svg.appendChild(cap);
-      }
+      var svg = div.querySelector('svg');
+      var ttl = title(dat.title, 0.5*w, 0.6*th, o.title);
+      var stl = title(dat.subtitle, 0.5*w, th+0.6*sth, o.subtitle);
+      for(var e of div.querySelectorAll('svg > g'))
+        e.setAttribute('transform', `translate(0, ${th+sth})`);
+      svg.setAttribute('height', h+th+sth);
+      svg.setAttribute('style', '');
+      svg.appendChild(ttl);
+      svg.appendChild(stl);
       window.setComputedStyle(div);
       var txt = div.innerHTML;
       div.parentNode.removeChild(div);

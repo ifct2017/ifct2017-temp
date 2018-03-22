@@ -53,6 +53,16 @@ function toText(ans) {
   return ans;
 };
 
+function range(fld) {
+  var z = [[], []];
+  if(fld.value==null) return z;
+  for(var i=0, I=fld.value.length; i<I; i++) {
+    z[0][i] = fld.value[i]-fld.error[i];
+    z[1][i] = fld.value[i]+fld.error[i];
+  }
+  return z;
+};
+
 function sql(db, txt) {
   return db.query(txt).then((ans) => ans.rows||[]);
 };
@@ -60,4 +70,5 @@ sql.toColumns = toColumns;
 sql.toGroups = toGroups;
 sql.toUnits = toUnits;
 sql.toText = toText;
+sql.range = range;
 module.exports = sql;
