@@ -64,7 +64,6 @@ function defaults(w=0, h=0, x=0, y=0, dx=0, dy=0, o={}) {
 };
 
 function table(dat, x=30, y=30, dx=150, dy=40, o={}) {
-  console.log(JSON.stringify(dat));
   var val = dat.value, K = Object.keys(val);
   var nr = K.length, nc = nr>0? (val[K[0]].text||[]).length:0;
   var w = (nc+1)*dx, h = (nr+1)*dy;

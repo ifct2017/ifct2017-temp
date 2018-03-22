@@ -20,13 +20,18 @@ async function runSql(db, sql, mod='text') {
   var ans = await inp.sql(db, sql);
   do {
     if(mod==='rows') break;
+    console.log(ans);
     ans = inp.sql.toColumns(ans);
+    console.log(ans);
     if(mod==='columns') break;
     ans = inp.sql.toGroups(ans);
+    console.log(ans);
     if(mod==='groups') break;
     ans = inp.sql.toUnits(ans);
+    console.log(ans);
     if(mod==='units') break;
     ans = inp.sql.toTexts(ans);
+    console.log(ans);
   } while(false);
   return {sql, value: ans};
 };
@@ -48,9 +53,10 @@ async function botSelect(db, res) {
   var ans = await runNlp(db, txt), dat = ans.value;
   var tab = await out.image(out.table({title: txt, value: dat}));
   var y0 = {type: 0, speech: 'Let me think. Is this what you meant?'};
-  var y1 = {type: 0, speech: `AQL: ${ans.aql}\nSQL: ${ans.sql}\n`};
-  var y2 = {type: 0, speech: 'Please check the attached data here. Thanks.'};
-  var z = [y0, y1, y2, {type: 3, imageUrl: tab}], gra = [];
+  var y1 = {type: 0, speech: 'AQL: '+ans.aql};
+  var y2 = {type: 0, speech: 'SQL: '+ans.sql};
+  var y3 = {type: 0, speech: 'Please check the attached data here. Thanks.'};
+  var z = [y0, y1, y2, y3, {type: 3, imageUrl: tab}], gra = [];
   for(var k in dat) {
     if(!Array.isArray(dat[k].value)) continue;
     if(typeof dat[k].value[0]!=='number') continue;
