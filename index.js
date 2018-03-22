@@ -46,7 +46,6 @@ async function runNlp(db, nlp, mod='text') {
 async function botSelect(db, res) {
   var txt = res.resolvedQuery;
   var ans = await runNlp(db, txt), dat = ans.value;
-  console.log(ans);
   var y0 = {type: 0, speech: 'Let me think. Is this what you meant?'};
   var y1 = {type: 0, speech: 'AQL: '+ans.aql};
   var y2 = {type: 0, speech: 'SQL: '+ans.sql};
@@ -69,7 +68,7 @@ async function botSelect(db, res) {
 async function runBot(db, req) {
   var int = req.result.metadata.intentName;
   var src = req.originalRequest? req.originalRequest.data.source:req.result.source;
-  console.log(`BOT: ${int} | ${src}`);
+  console.log(`BOT: ${src} | ${int}`);
   var msg = await INTENT.get(int)(db, req.result);
   return {speech: '', messages: msg, source: 'bot'};
 };
