@@ -42,8 +42,9 @@ async function runNlp(db, nlp, mod='text') {
 };
 
 async function botSelect(db, res) {
-  var dat = await runNlp(db, res.resolvedQuery);
-  var tab = await out.image(out.table(dat));
+  var txt = res.resolvedQuery;
+  var dat = await runNlp(db, txt);
+  var tab = await out.image(out.table({title: txt, value: dat}));
   var y = `Is this what you meant?\nAQL: ${aql}\nSQL: ${sql}\n`;
   y += `Please check the attached data here. Thanks.`;
   var z = [{type: 0, speech: y}, {type: 3, imageUrl: tab}], gra = [];
