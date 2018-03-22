@@ -13,7 +13,11 @@ const INTENT = new Map([
 const E = process.env;
 var X = express();
 var server = http.createServer(X);
-var db = new pg.Pool(pgconfig(E.DATABASE_URL));
+var db = new pg.Pool(pgconfig(E.DATABASE_URL+'?ssl=true'));
+var nlp = ` show food where highest protein is found`;
+inp.nlp(db, nlp).then(console.log);
+
+// process.exit();
 
 async function runSql(db, sql, mod='text') {
   console.log(`SQL: ${sql}`);

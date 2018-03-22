@@ -38,7 +38,7 @@ function codeAll(db, txt) {
 
 function expOne(db, txt, as=null, type=null) {
   return codeOne(db, txt).then((ans) => {
-    return [{expr: column(ans[0]), as, type}];
+    return [{expr: column(ans), as, type}];
   });
 };
 
