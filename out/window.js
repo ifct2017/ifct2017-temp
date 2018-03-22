@@ -2,8 +2,8 @@ const stylis = require('stylis');
 const fs = require('fs');
 window = require('svgdom');
 
-const CUSTOM = '.ct-label.ct-vertical { font-family: Courier; font-weight: bold; font-size: 14px; text-anchor: middle; }'+
-  '.ct-label.ct-horizontal { font-family: Courier; font-weight: bold; fill: crimson; font-size: 14px; text-anchor: end; }';
+const CUSTOM = '.ct-label.ct-vertical { font-family: Courier; font-weight: bold; font-size: 14px; text-anchor: end; }'+
+  '.ct-label.ct-horizontal { font-family: Courier; font-weight: bold; font-size: 14px; fill: crimson; text-anchor: start; }';
 const CSSPATH = require.resolve('chartist/dist/chartist.min.css');
 const STYLE = CUSTOM+fs.readFileSync(CSSPATH, 'utf8');
 const SELECTOR = [], CONTENT = [];
