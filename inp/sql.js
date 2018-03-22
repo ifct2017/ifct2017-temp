@@ -2,6 +2,10 @@ const columns = require('../data/columns').map;
 
 const UNIT = new Map([[0, 'g'], [3, 'mg'], [6, 'μg'], [9, 'ng']]);
 
+function round(num) {
+  return Math.round(num*1e+12)/1e+12;
+};
+
 function toColumns(ans) {
   for(var i=0, I=ans.length, z={}; i<I; i++) {
     for(var k in ans[i])
@@ -36,9 +40,9 @@ function toUnits(ans) {
     var exp = Math.min(-Math.floor(Math.log10(max+1e-10)/3)*3, 9);
     var val = ans[k].value, err = ans[k].error||[], fct = 10**exp;
     for(var i=0, I=val.length; i<I; i++)
-      val[i] *= fct;
+      val[i] = round(val[i]*fct);
     for(var i=0, I=err.length; i<I; i++)
-      err[i] *= fct;
+      err[i] = round(err[i]*fct);
     ans[k].unit = UNIT.get(exp);
   }
   return ans;
