@@ -27,7 +27,7 @@ const OPTIONS = {
 };
 */
 var id = 0;
-if(!fs.statSync(DIR).isDirectory()) fs.mkdirSync(DIR);
+if(!fs.existsSync(DIR)) fs.mkdirSync(DIR);
 
 /*
 function svgWidth(txt) {
