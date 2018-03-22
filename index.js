@@ -46,7 +46,9 @@ async function runNlp(db, nlp, mod='text') {
 async function botSelect(db, res) {
   var txt = res.resolvedQuery;
   var ans = await runNlp(db, txt), dat = ans.value;
+  console.log(ans);
   var tab = await out.image(out.table({title: txt, value: dat}));
+  console.log(`TABLE: ${tab}`);
   var y0 = {type: 0, speech: 'Let me think. Is this what you meant?'};
   var y1 = {type: 0, speech: 'AQL: '+ans.aql};
   var y2 = {type: 0, speech: 'SQL: '+ans.sql};
@@ -58,7 +60,6 @@ async function botSelect(db, res) {
     var title = dat[k].name+(dat[k].unit? ` (${dat[k].unit})`:'');
     cht.push(out.chart({title, subtitle: txt, value: {labels: dat.name.value, series: inp.sql.range(dat[k])}}).then(out.image));
   }
-  console.log(`TABLE: ${tab}`);
   var img = await Promise.all(cht);
   for(var i=0, I=img.length; i<I; i++) {
     console.log(`CHART: ${img[i]}`);
