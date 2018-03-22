@@ -80,9 +80,7 @@ server.on('listening', () => {
   const {port, family, address} = server.address();
   console.log(`server: listening on ${address}:${port} (${family})`);
 });
-data(db).then(() => console.log('data: ready')).then(() => {
-  botSelect(db, {resolvedQuery: 'show food with high proteins'});
-});
+data(db).then(() => console.log('data: ready'));
 
 X.use(bodyParser.json());
 X.use(bodyParser.urlencoded({'extended': true}));
