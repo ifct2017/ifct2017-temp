@@ -90,6 +90,7 @@ X.all('/bot', (req, res, next) => {
     res.send(JSON.stringify(ans));
   }).catch(next);
 });
+X.all('/bot/select/:txt', (req, res, next) => botSelect(db, {resolvedQuery: req.params.txt}).then((ans) => res.json(ans), next));
 X.all('/sql/:txt', (req, res, next) => runSql(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans), next));
 X.all('/aql/:txt', (req, res, next) => runAql(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans), next));
 X.all('/nlp/:txt', (req, res, next) => runNlp(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans), next));

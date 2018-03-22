@@ -60,7 +60,7 @@ function processAt(db, wrds) {
   return Promise.all([column(db, wrds), row(db, wrds)]).then((ans) => {
     var cl = ans[0]||'', rw = ans[1]||'';
     if(ans[0]==null && ans[1]==null) return null;
-    if(rw.length>cl.length) return {type: 'row', value: rw};
+    if(rw.length>0) return {type: 'row', value: rw};
     return {type: 'column', value: cl};
   });
 };
