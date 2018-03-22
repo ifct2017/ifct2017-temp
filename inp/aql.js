@@ -19,63 +19,68 @@ function expTab(tab, as=null) {
   return {db: null, table: tab, as};
 };
 
-function colCode(db, txt) {
+function colCodeOne(db, txt) {
   if(txt.trim()==='*') return Promise.resolve('*');
   var sql = `SELECT "code" FROM "columns_tsvector" WHERE "tsvector" @@ plainto_tsquery($1)`+
-    ` ORDER BY ts_rank("tsvector", plainto_tsquery($1), 16) DESC`;
+    ` ORDER BY ts_rank("tsvector", plainto_tsquery($1), 16) DESC LIMIT 1`;
+  return db.query(sql, [txt]).then((ans) => ans.rowCount>0? ans.rows[0].code:null);
+};
+
+function colCodeAll(db, txt) {
+  if(txt.trim()==='*') return Promise.resolve('*');
+  var sql = `SELECT "code" FROM "columns_tsvector" WHERE "tsvector" @@ plainto_tsquery($1)`;
   return db.query(sql, [txt]).then((ans) => {
-    var z = [];
-    for(var i=0, I=ans.rowCount; i<I; i++)
+    for(var i=0, I=ans.rowCount, z=[]; i<I; i++)
       z[i] = ans.rows[i].code;
     return z;
   });
 };
 
-function colExpOne(db, txt, as) {
-  return colCode(db, txt).then((ans) => {
-    return [{expr: expCol(ans[0]), as}];
+function colExpOne(db, txt, as=null, type=null) {
+  return colCodeOne(db, txt).then((ans) => {
+    return [{expr: expCol(ans[0]), as, type}];
   });
 };
 
-function colExpSum(db, txt, as) {
-  return colCode(db, txt).then((ans) => {
-    if(ans.length===0) return [{expr: expNum(0), as}]
+function colExpSum(db, txt, as=null, type=null) {
+  return colCodeAll(db, txt).then((ans) => {
+    if(ans.length===0) return [{expr: expNum(0), as, type}]
     var sql = `SELECT * FROM "table" WHERE (`;
     for(var col of ans)
       sql += `"${col}"+`;
     sql = sql.substring(0, sql.length-1)+')';
     var ast = new Parser().parse(sql);
-    return [{expr: ast.where, as}];
+    return [{expr: ast.where, as, type}];
   });
 };
 
-function colExpAvg(db, txt, as) {
-  return colCode(db, txt).then((ans) => {
-    if(ans.length===0) return [{expr: expNum(0), as}]
+function colExpAvg(db, txt, as=null, type=null) {
+  return colCodeAll(db, txt).then((ans) => {
+    if(ans.length===0) return [{expr: expNum(0), as, type}]
     var sql = `SELECT * FROM "table" WHERE ((`;
     for(var col of ans)
       sql += `"${col}"+`;
     sql = sql.substring(0, sql.length-1);
     sql += `)/${ans.length})`;
     var ast = new Parser().parse(sql);
-    return [{expr: ast.where, as}];
+    return [{expr: ast.where, as, type}];
   });
 };
 
-function colExpAll(db, txt, as=null) {
-  return colCode(db, txt).then((ans) => {
+function colExpAll(db, txt, as=null, type=null) {
+  return colCodeAll(db, txt).then((ans) => {
     var z = [];
     for(var col of ans)
-      z.push({expr: expCol(col), as: as? `${as}_${col}`:null});
+      z.push({expr: expCol(col), as: as? `${as}_${col}`:null, type});
     return z;
   });
 };
 
-function colExpAny(db, txt, as) {
-  if(txt.startsWith('all:')) return colExpAll(db, txt.substring(4), as);
-  if(txt.startsWith('avg:')) return colExpAvg(db, txt.substring(4), as);
-  if(txt.startsWith('sum:')) return colExpSum(db, txt.substring(4), as);
-  return colExpOne(db, txt, as);
+function colExpAny(db, txt, as=null, type=null) {
+  if(txt.startsWith('all:')) return colExpAll(db, txt.substring(4), as, type);
+  if(txt.startsWith('avg:')) return colExpAvg(db, txt.substring(4), as, type);
+  if(txt.startsWith('sum:')) return colExpSum(db, txt.substring(4), as, type);
+  return colExpOne(db, txt, as, type);
 };
 
 function idRename(db, ast) {
@@ -101,7 +106,7 @@ function expRename(db, ast, k) {
 
 function lstRenameOne(db, ast, i) {
   if(!ast[i].expr.column) return expRename(db, ast[i], 'expr');
-  return colExpAny(db, ast[i].expr.column, ast[i].as).then((ans) => ast.splice(i, 1, ...ans));
+  return colExpAny(db, ast[i].expr.column, ast[i].as, ast[i].type).then((ans) => ast.splice(i, 1, ...ans));
 };
 
 function lstRename(db, ast) {
