@@ -66,7 +66,8 @@ function table(dat, x=30, y=30, dx=150, dy=40, o={}) {
   var ttl = title(dat.title, x+0.5*w, y, o.title), man = dat.main||'name';
   var t = strip(Math.floor(nr/2), x, (y+=o.title.height)+dy, dy*2, w, dy, o.strip);
   for(var i=0; i<nc; i++, x+=dx) {
-    t += column(val[k].name||k, val[k].text, x, y, dy, o.head, k===man? o.main:o.cell);
+    var k = K[i], oc = k===man? o.main:o.cell;
+    t += column(val[k].name||k, val[k].text, x, y, dy, o.head, oc);
     if(typeof val[k].value==='string') x += dx;
   }
   t = ttl+tag('g', t, ' role="table"', o.table);
