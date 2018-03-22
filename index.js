@@ -80,7 +80,9 @@ server.on('listening', () => {
   const {port, family, address} = server.address();
   console.log(`server: listening on ${address}:${port} (${family})`);
 });
-data(db).then(() => console.log('data: ready'));
+data(db).then(() => console.log('data: ready')).then(() => {
+  botSelect(db, {resolvedQuery: 'show food with high proteins'});
+});
 
 X.use(bodyParser.json());
 X.use(bodyParser.urlencoded({'extended': true}));
@@ -93,6 +95,7 @@ X.all('/bot', (req, res, next) => {
 X.all('/sql/:txt', (req, res, next) => runSql(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans), next));
 X.all('/aql/:txt', (req, res, next) => runAql(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans), next));
 X.all('/nlp/:txt', (req, res, next) => runNlp(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans), next));
+X.use('/assets', express.static('assets'));
 X.use((err, req, res, next) => {
   res.status(400).send(err.message);
   console.error(err);
