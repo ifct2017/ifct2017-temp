@@ -17,6 +17,12 @@ const COLUMN = new Map([
   ['*', '*']
 ]);
 
+function strCount(txt, ch) {
+  for(var i=0, I=txt.length, z=0; i<I; i++)
+    if(txt[i]===ch) z++;
+  return z;
+};
+
 function table(wrds) {
   var stm = natural.PorterStemmer.stem(wrds[0]);
   if(TABLE.has(stm)) return TABLE.get(stm);
@@ -48,7 +54,7 @@ function findLast(tkns, bgn, typ) {
   return z;
 };
 
-function process(db, wrds) {
+function processAt(db, wrds) {
   var tab = table(wrds);
   if(tab!=null) return Promise.resolve({type: 'table', value: tab});
   return Promise.all([column(db, wrds), row(db, wrds)]).then((ans) => {
@@ -59,16 +65,29 @@ function process(db, wrds) {
   });
 };
 
-async function entity(db, tkns) {
-  var z = [];
-  for(var i=0, I=tkns.length; i<I; i++) {
-    var J = findLast(tkns, i, 'text');
-    if(J<0) { z.push(tkns[i]); continue; }
-    var wrds = tkns.slice(i, J+1).map((v) => v.value.toLowerCase());
-    var ent = await process(db, wrds);
-    if(ent!=null) { z.push(ent); i += wrds.length-1; }
+async function process(db, tkns) {
+  var wrds = tkns.map((v) => v.value.toLowerCase());
+  for(var i=0, I=tkns.length, z=[]; i<I; i++) {
+    var ent = await processAt(db, wrds);
+    if(ent!=null) { z.push(ent); i += strCount(ent.value, ' '); }
     else z.push(tkns[i]);
   }
   return z;
+};
+
+async function entity(db, tkns) {
+  var rdy = [];
+  for(var i=0, I=tkns.length; i<I; i++) {
+    var j = findLast(tkns, i, 'text');
+    if(j<0) rdy.push(tkns[i]);
+    else rdy.push(process(db, tkns.slice(i, j+1)));
+  }
+  return Promise.all(rdy).then((ans) => {
+    for(var i=0, I=ans.length, z=[]; i<I; i++) {
+      if(!Array.isArray(ans[i])) z.push(ans[i]);
+      else z.push.apply(z, ans[i]);
+    }
+    return z;
+  });
 };
 module.exports = entity;
