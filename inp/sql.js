@@ -55,10 +55,11 @@ function toTexts(ans) {
 
 function range(fld) {
   var z = [[], []];
-  if(fld.value==null) return z;
-  for(var i=0, I=fld.value.length; i<I; i++) {
-    z[0][i] = fld.value[i]-fld.error[i];
-    z[1][i] = fld.value[i]+fld.error[i];
+  var val = fld.value||[];
+  var err = fld.error||[];
+  for(var i=0, I=val.length; i<I; i++) {
+    z[0][i] = val[i]-err[i];
+    z[1][i] = val[i]+err[i];
   }
   return z;
 };
