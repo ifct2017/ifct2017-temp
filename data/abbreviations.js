@@ -28,6 +28,7 @@ function insert(db, abrs) {
   for(var a of abrs) {
     z += `('${a.code}', '${a.name}'),\n`;
     NAME.set(a.code.replace('.', '').toLowerCase(), a.name);
+    NAME.set(a.code, a.name);
   }
   z = z.substring(0, z.length-2)+`\n`;
   z += `ON CONFLICT ("code") DO NOTHING;`;
