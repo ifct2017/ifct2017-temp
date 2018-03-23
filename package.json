@@ -1,6 +1,6 @@
 {
   "name": "ifct2017",
-  "version": "0.0.629",
+  "version": "0.0.630",
   "description": "Website for Indian Food Composition Tables 2017.",
   "main": "index.js",
   "scripts": {
@@ -14,9 +14,10 @@
   "author": "wolfram77@gmail.com",
   "license": "MIT",
   "dependencies": {
+    "@ifct2017/abbreviations": "^0.1.2",
     "@ifct2017/compositions": "^0.1.11",
     "@ifct2017/descriptions": "^0.1.10",
-    "@ifct2017/groups": "^0.1.1",
+    "@ifct2017/groups": "^0.1.2",
     "body-parser": "^1.18.2",
     "chartist": "^0.11.0",
     "checksum": "^0.1.1",
