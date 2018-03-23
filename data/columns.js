@@ -27,9 +27,9 @@ function createIndex(db) {
 
 function insert(db, cols) {
   var z = `INSERT INTO "columns" ("code", "name", "tags") VALUES\n`;
-  for(var col of cols) {
-    z += `('${col.code}', '${col.name}', '${col.tags}'),\n`;
-    NAME.set(col.code, col.name);
+  for(var c of cols) {
+    z += `('${c.code}', '${c.name}', '${c.tags}'),\n`;
+    NAME.set(c.code, c.name);
   }
   z = z.substring(0, z.length-2)+`\n`;
   z += `ON CONFLICT ("code") DO NOTHING;`;
