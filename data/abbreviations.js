@@ -27,7 +27,7 @@ function insert(db, abrs) {
   var z = `INSERT INTO "abbreviations" ("code", "name") VALUES\n`;
   for(var a of abrs) {
     z += `('${a.code}', '${a.name}'),\n`;
-    NAME.set(a.code, a.name);
+    NAME.set(a.code.replace('.', '').toLowerCase(), a.name);
   }
   z = z.substring(0, z.length-2)+`\n`;
   z += `ON CONFLICT ("code") DO NOTHING;`;
