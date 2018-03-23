@@ -37,7 +37,7 @@ function insert(db, fdts) {
 function data(db) {
   return new Promise((fres) => {
     var fdts = [];
-    var sfdt = fs.createReadStream(frequencydistribution()).pipe(csv.parse({frequencydistribution: true, comment: '#'}));
+    var sfdt = fs.createReadStream(frequencydistribution()).pipe(csv.parse({columns: true, comment: '#'}));
     sfdt.on('data', (val) => fdts.push(val));
     sfdt.on('end', () => {
       createTable(db).then(

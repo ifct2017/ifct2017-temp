@@ -37,7 +37,7 @@ function insert(db, mths) {
 function data(db) {
   return new Promise((fres) => {
     var mths = [];
-    var smth = fs.createReadStream(methods()).pipe(csv.parse({methods: true, comment: '#'}));
+    var smth = fs.createReadStream(methods()).pipe(csv.parse({columns: true, comment: '#'}));
     smth.on('data', (val) => mths.push(val));
     smth.on('end', () => {
       createTable(db).then(
