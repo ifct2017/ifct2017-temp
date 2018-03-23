@@ -69,7 +69,7 @@ function insert(db, grps, dscs, cmps) {
     for(var k in cmp)
       z += `'${cmp[k]}',`;
     var lang = dscs.has(cmp.code)? dscs.get(cmp.code).desc:'';
-    var grup = grps.get(cmp.code[0]).name;
+    var grup = grps.get(cmp.code[0]).grup;
     z += `'${lang}', '${grup}'),\n`;
   }
   z = z.substring(0, z.length-2)+`\n`;

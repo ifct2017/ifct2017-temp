@@ -4,12 +4,12 @@ const fs = require('fs');
 
 const NAME = new Map();
 const TSVECTOR = `setweight(to_tsvector('english', "code"), 'A')||`+
-  `setweight(to_tsvector('english', "name"), 'B')`;
+  `setweight(to_tsvector('english', "grup"), 'B')`;
 
 function createTable(db) {
   var z = `CREATE TABLE IF NOT EXISTS "groups" (`+
     ` "code" TEXT NOT NULL,`+
-    ` "name" TEXT NOT NULL,`+
+    ` "grup" TEXT NOT NULL,`+
     ` "entr" INT NOT NULL,`+
     ` PRIMARY KEY ("code")`+
     `);\n`+
@@ -19,17 +19,17 @@ function createTable(db) {
 };
 
 function createIndex(db) {
-  var z = `CREATE INDEX IF NOT EXISTS "groups_name_idx" ON "groups" ("name");\n`;
+  var z = `CREATE INDEX IF NOT EXISTS "groups_grup_idx" ON "groups" ("grup");\n`;
   z += `CREATE INDEX IF NOT EXISTS "groups_entr_idx" ON "groups" ("entr");\n`;
   z += `CREATE INDEX IF NOT EXISTS "groups_tsvector_idx" ON "groups" USING GIN ((${TSVECTOR}));\n`;
   return db.query(z);
 };
 
 function insert(db, grps) {
-  var z = `INSERT INTO "groups" ("code", "name", "entr") VALUES\n`;
+  var z = `INSERT INTO "groups" ("code", "grup", "entr") VALUES\n`;
   for(var g of grps) {
-    z += `('${g.code}', '${g.name}', '${g.entr}'),\n`;
-    NAME.set(g.code, g.name);
+    z += `('${g.code}', '${g.grup}', '${g.entr}'),\n`;
+    NAME.set(g.code, g.grup);
   }
   z = z.substring(0, z.length-2)+`\n`;
   z += `ON CONFLICT ("code") DO NOTHING;`;

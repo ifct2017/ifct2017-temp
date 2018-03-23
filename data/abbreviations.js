@@ -3,14 +3,14 @@ const csv = require('csv');
 const fs = require('fs');
 
 const NAME = new Map();
-const TSVECTOR = `setweight(to_tsvector('english', "code"), 'A')||`+
-  `setweight(to_tsvector('english', "name"), 'B')`;
+const TSVECTOR = `setweight(to_tsvector('english', "abbr"), 'A')||`+
+  `setweight(to_tsvector('english', "full"), 'B')`;
 
 function createTable(db) {
   var z = `CREATE TABLE IF NOT EXISTS "abbreviations" (`+
-    ` "code" TEXT NOT NULL,`+
-    ` "name" TEXT NOT NULL,`+
-    ` PRIMARY KEY ("code")`+
+    ` "abbr" TEXT NOT NULL,`+
+    ` "full" TEXT NOT NULL,`+
+    ` PRIMARY KEY ("abbr")`+
     `);\n`+
     `CREATE OR REPLACE VIEW "abbreviations_tsvector" AS `+
     ` SELECT *, ${TSVECTOR} AS "tsvector" FROM "abbreviations";\n`;
@@ -18,20 +18,20 @@ function createTable(db) {
 };
 
 function createIndex(db) {
-  var z = `CREATE INDEX IF NOT EXISTS "abbreviations_name_idx" ON "abbreviations" ("name");\n`;
+  var z = `CREATE INDEX IF NOT EXISTS "abbreviations_full_idx" ON "abbreviations" ("full");\n`;
   z += `CREATE INDEX IF NOT EXISTS "abbreviations_tsvector_idx" ON "abbreviations" USING GIN ((${TSVECTOR}));\n`;
   return db.query(z);
 };
 
 function insert(db, abrs) {
-  var z = `INSERT INTO "abbreviations" ("code", "name") VALUES\n`;
+  var z = `INSERT INTO "abbreviations" ("abbr", "full") VALUES\n`;
   for(var a of abrs) {
-    z += `('${a.code}', '${a.name}'),\n`;
-    NAME.set(a.code.replace('.', '').toLowerCase(), a.name);
-    NAME.set(a.code, a.name);
+    z += `('${a.abbr}', '${a.full}'),\n`;
+    NAME.set(a.abbr.replace('.', '').toLowerCase(), a.full);
+    NAME.set(a.abbr, a.full);
   }
   z = z.substring(0, z.length-2)+`\n`;
-  z += `ON CONFLICT ("code") DO NOTHING;`;
+  z += `ON CONFLICT ("abbr") DO NOTHING;`;
   return db.query(z);
 };
 
