@@ -2,6 +2,28 @@ const natural = require('natural');
 
 const LANCASTER = /^(equal|below|small|less|poor|low|above|great|high|rich|more|large|big|boolean).*/;
 const IGNORE = /^(a|an|the|i|he|him|she|her|they|their|as|at|if|in|is|it|of|on|to|by|want|well|than|then|thus|however|ok|okay)$/;
+const OPENBRACKET = new Map([
+  ['bracket start', '('],
+  ['begin bracket', '('],
+  ['bracket open', '('],
+  ['begin', '('],
+  ['start', '('],
+  ['open', '('],
+  ['(', '('],
+  ['[', '['],
+  ['{', '{'],
+]);
+const CLOSEBRACKET = new Map([
+  ['bracket stop', ')'],
+  ['bracket end', ')'],
+  ['bracket close', ')'],
+  ['end', ')'],
+  ['stop', ')'],
+  ['close', ')'],
+  [')', ')'],
+  [']', ']'],
+  ['}', '}'],
+]);
 const UNARYOPERATOR = new Map([
   ['bool not', 'NOT'],
   ['not', 'NOT'],
@@ -698,6 +720,8 @@ function findLast(tkns, bgn, typ) {
 };
 
 function processTxt(txt) {
+  if(OPENBRACKET.has(txt)) return {type: 'bracket/open', value: OPENBRACKET.get(txt)};
+  if(CLOSEBRACKET.has(txt)) return {type: 'bracket/close', value: CLOSEBRACKET.get(txt)};
   if(TERNARYOPERATOR.has(txt)) return {type: 'operator/ternary', value: TERNARYOPERATOR.get(txt)};
   if(BINARYOPERATOR.has(txt)) return {type: 'operator/binary', value: BINARYOPERATOR.get(txt)};
   if(UNARYOPERATOR.has(txt)) return {type: 'operator/unary', value: UNARYOPERATOR.get(txt)};
