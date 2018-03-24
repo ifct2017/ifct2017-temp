@@ -679,9 +679,9 @@ const KEYWORD = new Map([
 ]);
 const STEP = [
   (wrds) => wrds.slice(),
-  (wrds) => wrds.filter((v) => !IGNORE.test(v)),
-  (wrds) => wrds.map(stem),
-  (wrds) => wrds.filter((v) => !IGNORE.test(v)).map(stem)
+  (wrds) => wrds.filter((v) => !IGNORE.test(v)).sort(),
+  (wrds) => wrds.map(stem).sort(),
+  (wrds) => wrds.filter((v) => !IGNORE.test(v)).map(stem).sort()
 ];
 
 function stem(wrd) {
@@ -708,7 +708,7 @@ function processTxt(txt) {
 function process(wrds) {
   var z = null;
   for(var i=0, I=STEP.length; i<I && z==null; i++)
-    z = processTxt(STEP[i](wrds).sort().join(' '));
+    z = processTxt(STEP[i](wrds).join(' '));
   return z;
 };
 

@@ -212,7 +212,6 @@ function tokenize(txt) {
 
 async function nlp(db, txt) {
   var tkns = tokenize(txt);
-  console.log(tkns);
   var stg1 = number(tkns);
   var stg2 = unit(stg1);
   var stg3 = reserved(stg2);
