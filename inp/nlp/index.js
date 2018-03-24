@@ -177,9 +177,9 @@ function process(tkns) {
   if(sta.columns.length===0) sta.columns.push(`*`);
   if(sta.from.length===0) sta.from.push(`"food"`);
   var z = `SELECT ${sta.columns.join(', ')} FROM ${sta.from.join(', ')}`;
-  if(sta.groupBy.length>0) z += ` GROUP BY ${sta.groupBy.join(', ')}`;
-  if(sta.orderBy.length>0) z += ` ORDER BY ${sta.orderBy.join(', ')}`;
   if(sta.where.length>0) z += ` WHERE ${sta.where}`;
+  if(sta.orderBy.length>0) z += ` ORDER BY ${sta.orderBy.join(', ')}`;
+  if(sta.groupBy.length>0) z += ` GROUP BY ${sta.groupBy.join(', ')}`;
   if(sta.having.length>0) z += ` HAVING ${sta.having}`;
   if(sta.limit>0) z += ` LIMIT ${sta.limit}`;
   return z;
