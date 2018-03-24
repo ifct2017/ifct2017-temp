@@ -185,10 +185,34 @@ function process(tkns) {
   return z;
 };
 
+function tokenize(txt) {
+  var quo = null, wrd = false, y = '', z = [];
+  var wrds = new natural.WordPunctTokenizer().tokenize(txt);
+  for(var w of wrds) {
+    if(w.search(/^\w/)===0) {
+      if(quo!=null) y += wrd? ' '+w:w;
+      else z.push(token('text', w));
+      wrd = true;
+    }
+    else {
+      for(var c of w) {
+        if(c==="'" || c==='"' || c==='`') {
+          if(quo==null) quo = c;
+          else if(quo!==c) y += c;
+          else { z.push(token('text', y)); y = ''; qou = null; }
+        }
+        else if(quo!=null) y += c;
+        else if(!/\s/.test(c)) z.push(token('text', c));
+      }
+      wrd = false;
+    }
+  }
+  return z;
+};
+
 async function nlp(db, txt) {
-  var wrds = new natural.WordPunctTokenizer().tokenize(txt), tkns = [];
-  for(var w of wrds)
-    tkns.push({type: 'text', value: w});
+  var tkns = tokenize(txt);
+  console.log(tkns);
   var stg1 = number(tkns);
   var stg2 = unit(stg1);
   var stg3 = reserved(stg2);
