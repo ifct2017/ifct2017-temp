@@ -186,7 +186,7 @@ function process(tkns) {
 };
 
 async function nlp(db, txt) {
-  var wrds = new natural.WordTokenizer().tokenize(txt), tkns = [];
+  var wrds = new natural.WordPunctTokenizer().tokenize(txt), tkns = [];
   for(var w of wrds)
     tkns.push({type: 'text', value: w});
   var stg1 = number(tkns);
