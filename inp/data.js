@@ -1,6 +1,7 @@
 const natural = require('natural');
 
 const IGNORE = /^(a|an|the|i|he|him|she|her|they|their|as|at|if|in|is|it|of|on|to|by|want|well|than|then|thus|however|ok|okay)$/;
+const VALUECOLUMN = new Set(['code', 'name', 'scie', 'lang', 'grup', 'regn']);
 const TABLE = new Map([
   ['compositions_tsvector', 'compositions_tsvector'],
   ['composit', 'compositions_tsvector'],
@@ -49,6 +50,7 @@ const COLUMN = new Map([
   ['*', '*']
 ]);
 
+
 function table(txt) {
   txt = txt.split(' ').filter((v) => !IGNORE.test(v)).map(natural.PorterStemmer.stem).sort().join(' ');
   return TABLE.get(txt);
@@ -80,11 +82,11 @@ function columns(db, txt, srt=false) {
 };
 
 function columnMatch(db, wrds) {
-  var col = COLUMN.get(natural.PorterStemmer.stem(txt));
-  if(col!=null) return Promise.resolve(col);
+  var col = COLUMN.get(natural.PorterStemmer.stem(wrds[0]));
+  if(col!=null) return Promise.resolve({value: col, length: 1});
   for(var i=wrds.length, p=1, sql='', par=[]; i>0; i--, p+=2) {
     sql += `SELECT "code", $${p}::INT AS i FROM "columns_tsvector" WHERE "tsvector" @@ plainto_tsquery($${p+1}) UNION ALL `;
-    par.push(i, wrds.join(' ')); wrds.pop();
+    par.push(i, wrds.slice(0, i).join(' '));
   }
   sql = sql.substring(0, sql.length-11);
   return db.query(sql, par).then((ans) => ans.rowCount>0? {value: ans.rows[0].code, length: ans.rows[0].i}:null);
@@ -105,9 +107,9 @@ function rows(db, txt, srt=false) {
 function rowMatch(db, wrds) {
   for(var i=wrds.length, p=1, sql='', par=[]; i>0; i--, p+=2) {
     sql += `SELECT "code", $${p}::INT AS i FROM "compositions_tsvector" WHERE "tsvector" @@ plainto_tsquery($${p+1}) UNION ALL `;
-    par.push(i, wrds.join(' ')); wrds.pop();
+    par.push(i, wrds.slice(0, i).join(' '));
   }
   sql = sql.substring(0, sql.length-11);
   return db.query(sql, par).then((ans) => ans.rowCount>0? {value: ans.rows[0].code, length: ans.rows[0].i}:null);
 };
-module.exports = {table, tableMatch, column, columns, columnMatch, row, rows, rowMatch};
+module.exports = {table, tableMatch, column, columns, columnMatch, row, rows, rowMatch, VALUECOLUMN};

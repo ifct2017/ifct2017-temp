@@ -1,5 +1,6 @@
 const Parser = require('flora-sql-parser').Parser;
 const astToSQL = require('flora-sql-parser').util.astToSQL;
+const data = require('./data');
 
 function number(val) {
   return {type: 'number', value: val};
@@ -19,32 +20,15 @@ function uncomment(txt) {
   return txt.trim();
 };
 
-function codeOne(db, txt) {
-  if(txt.trim()==='*') return Promise.resolve('*');
-  var sql = `SELECT "code" FROM "columns_tsvector" WHERE "tsvector" @@ plainto_tsquery($1)`+
-    ` ORDER BY ts_rank("tsvector", plainto_tsquery($1), 16) DESC LIMIT 1`;
-  return db.query(sql, [txt]).then((ans) => ans.rowCount>0? ans.rows[0].code:null);
-};
-
-function codeAll(db, txt) {
-  if(txt.trim()==='*') return Promise.resolve('*');
-  var sql = `SELECT "code" FROM "columns_tsvector" WHERE "tsvector" @@ plainto_tsquery($1)`;
-  return db.query(sql, [txt]).then((ans) => {
-    for(var i=0, I=ans.rowCount, z=[]; i<I; i++)
-      z[i] = ans.rows[i].code;
-    return z;
-  });
-};
-
 function expOne(db, txt, as=null, type=null) {
-  return codeOne(db, txt).then((ans) => {
+  return data.column(db, txt).then((ans) => {
     return [{expr: column(ans), as, type}];
   });
 };
 
 function expSum(db, txt, as=null, type=null) {
-  return codeAll(db, txt).then((ans) => {
-    if(ans.length===0) return [{expr: number(0), as, type}]
+  return data.columns(db, txt).then((ans) => {
+    if(ans==null) return [{expr: number(0), as, type}]
     var sql = `SELECT * FROM "table" WHERE (`;
     for(var col of ans)
       sql += `"${col}"+`;
@@ -55,8 +39,8 @@ function expSum(db, txt, as=null, type=null) {
 };
 
 function expAvg(db, txt, as=null, type=null) {
-  return codeAll(db, txt).then((ans) => {
-    if(ans.length===0) return [{expr: number(0), as, type}]
+  return data.columns(db, txt).then((ans) => {
+    if(ans==null) return [{expr: number(0), as, type}]
     var sql = `SELECT * FROM "table" WHERE ((`;
     for(var col of ans)
       sql += `"${col}"+`;
@@ -68,7 +52,7 @@ function expAvg(db, txt, as=null, type=null) {
 };
 
 function expAll(db, txt, as=null, type=null) {
-  return codeAll(db, txt).then((ans) => {
+  return data.columns(db, txt).then((ans) => {
     var z = [];
     for(var col of ans)
       z.push({expr: column(col), as: as? `${as}_${col}`:null, type});
