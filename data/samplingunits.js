@@ -9,7 +9,7 @@ function createTable(db) {
     ` "sno" TEXT NOT NULL,`+
     ` "state" TEXT NOT NULL,`+
     ` "districts" INT NOT NULL,`+
-    ` "Selected" INT NOT NULL,`+
+    ` "selected" INT NOT NULL,`+
     ` PRIMARY KEY ("sno")`+
     `);\n`+
     `CREATE OR REPLACE VIEW "samplingunits_tsvector" AS `+
