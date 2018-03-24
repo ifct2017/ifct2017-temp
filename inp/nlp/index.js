@@ -61,6 +61,10 @@ const ORDERBY = [
   {c: ['keyword', 'DESC', 'expression', null, 'keyword', 'NULLS LAST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'} NULLS LAST`); return null; }},
   {c: ['keyword', 'ASC', 'expression', null, 'keyword', 'NULLS FIRST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS FIRST`); return null; }},
   {c: ['keyword', 'ASC', 'expression', null, 'keyword', 'NULLS LAST'], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS LAST`); return null; }},
+  {c: ['operator', '>=', 'operator', 'IN', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'}`); return null; }},
+  {c: ['operator', '>', 'operator', 'IN', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'}`); return null; }},
+  {c: ['operator', '<=', 'operator', 'IN', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return null; }},
+  {c: ['operator', '<', 'operator', 'IN', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return null; }},
   {c: ['expression', null, 'keyword', 'NULLS FIRST'], a: (s, t, i) => { s.orderBy.push(`${t[i].value} ${s.reverse? 'DESC':'ASC'} NULLS FIRST`); return null; }},
   {c: ['expression', null, 'keyword', 'NULLS LAST'], a: (s, t, i) => { s.orderBy.push(`${t[i].value} ${s.reverse? 'DESC':'ASC'} NULLS LAST`); return null; }},
   {c: ['keyword', 'NULLS FIRST', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'} NULLS FIRST`); return null; }},
@@ -73,6 +77,10 @@ const ORDERBY = [
   {c: ['operator', '>', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'}`); return null; }},
   {c: ['operator', '<=', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return null; }},
   {c: ['operator', '<', 'expression', null], a: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return null; }},
+  {c: ['expression', null, 'operator', '>='], a: (s, t, i) => { s.orderBy.push(`${t[i].value} ${s.reverse? 'ASC':'DESC'}`); return null; }},
+  {c: ['expression', null, 'operator', '>'], a: (s, t, i) => { s.orderBy.push(`${t[i].value} ${s.reverse? 'ASC':'DESC'}`); return null; }},
+  {c: ['expression', null, 'operator', '<='], a: (s, t, i) => { s.orderBy.push(`${t[i].value} ${s.reverse? 'DESC':'ASC'}`); return null; }},
+  {c: ['expression', null, 'operator', '<'], a: (s, t, i) => { s.orderBy.push(`${t[i].value} ${s.reverse? 'DESC':'ASC'}`); return null; }},
 ];
 const GROUPBY = [
   {c: ['keyword', 'GROUP BY', 'expression', null], a: (s, t, i) => { s.groupBy.push(`${t[i+1].value}`); return t[i]; }},
