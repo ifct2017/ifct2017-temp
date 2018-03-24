@@ -19,7 +19,7 @@ function createTable(db) {
 
 function createIndex(db) {
   var z = `CREATE INDEX IF NOT EXISTS "samplingunits_state_idx" ON "samplingunits" ("state");\n`;
-  z += `CREATE INDEX IF NOT EXISTS "samplingunits_districts_idx" ON "samplingunits" ("distrcits");\n`;
+  z += `CREATE INDEX IF NOT EXISTS "samplingunits_districts_idx" ON "samplingunits" ("districts");\n`;
   z += `CREATE INDEX IF NOT EXISTS "samplingunits_selected_idx" ON "samplingunits" ("selected");\n`;
   z += `CREATE INDEX IF NOT EXISTS "samplingunits_tsvector_idx" ON "samplingunits" USING GIN ((${TSVECTOR}));\n`;
   return db.query(z);
