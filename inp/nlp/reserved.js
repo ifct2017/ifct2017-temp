@@ -646,6 +646,7 @@ const KEYWORD = new Map([
   ['with', 'WHERE'],
   ['have', 'WHERE'],
   ['has', 'WHERE'],
+  ['when', 'WHERE'],
   ['where', 'WHERE'],
   ['most', 'ORDER BY'],
   ['least', 'ORDER BY'],
