@@ -2,7 +2,7 @@ const COLUMNS = require('../data').COLUMNS;
 
 const UNIT = new Map([[0, 'g'], [3, 'mg'], [6, 'μg'], [9, 'ng']]);
 const DEFAULTUNIT = new Map([['enerc', 'kcal']]);
-const DEFAULTORDER = ['code', 'name', 'scie', 'lang', 'grup', 'regn'];
+const DEFAULTORDER = ['code', 'name', 'scie', 'lang', 'grup', 'regn', 'tsvector'];
 const DEFAULTEXCLUDE = ['lang', 'tsvector'];
 
 function round(num) {
