@@ -65,7 +65,7 @@ async function botFood(db, res) {
   z.fld.text = z.fld.value; z.val.text = z.val.value;
   var title = ans.value.name.text[0], subtitle = ans.value.scie.text[0];
   var [txt, tab] = await Promise.all([
-    wiki.page(title).then((page) => page.summary()),
+    wiki().page(title).then((page) => page.summary()),
     out.image(out.table({title: ans.value.name.text[0], value: z}))
   ]);
   return [{buttons: [], imageUrl: img, subtitle, title, type: 1}, {speech: txt, type: 0}, {imageUrl: tab, type: 3}];
