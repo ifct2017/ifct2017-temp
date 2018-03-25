@@ -57,6 +57,7 @@ async function botFood(db, res) {
   var ans = await runSql(db, `SELECT * FROM "compositions" WHERE "code"='${cod}'`);
   var z = {fld: {name: 'Field', value: []}, val:{name: 'Value', value:[]}};
   for(var k in ans.value) {
+    if(k==='lang') continue;
     z.fld.value.push(ans.value[k].name);
     z.val.value.push(ans.value[k].text[0]);
   }
