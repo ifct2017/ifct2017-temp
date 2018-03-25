@@ -45,13 +45,13 @@ async function runNlp(db, nlp, mod='text') {
   return Object.assign({nlp}, await runAql(db, aql, mod));
 };
 
-function botAbbreviation(res) {
+async function botAbbreviation(db, res) {
   var txt = res.parameters['abbreviations-code']||'';
   var key = txt.replace(/\./g, '').toLowerCase();
   return `${txt} stands for ${data.ABBREVIATIONS.get(key)}.`;
 };
 
-function botFood(db, res) {
+async function botFood(db, res) {
   var cod = (res.parameters['compositions-code']||'').replace(/[\"\']/g, '');
   var img = `https://unpkg.com/@ifct2017/pictures/${cod}.jpeg`;
   runSql(db, `SELECT * FROM "compositions" WHERE "code"='${cod}'`).then((ans) => {
