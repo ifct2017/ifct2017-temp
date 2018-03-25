@@ -54,7 +54,7 @@ function load(db) {
     db.query('SELECT * FROM "abbreviations";').then((ans) => {
       for(var r of ans.rows||[]) {
         data.ABBREVIATIONS.set(r.abbr, r.full);
-        data.ABBREVIATIONS.set(r.abbr.replace(/\./g, '').toLowerCase(), r.full);
+        data.ABBREVIATIONS.set(r.abbr.replace(/\.\-/g, '').toLowerCase(), r.full);
       }
     }),
     db.query('SELECT * FROM "columns";').then((ans) => {

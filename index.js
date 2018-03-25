@@ -47,7 +47,7 @@ async function runNlp(db, nlp, mod='text') {
 
 async function botAbbreviation(db, res) {
   var txt = res.parameters['abbreviations-code']||'';
-  var key = txt.replace(/\./g, '').toLowerCase();
+  var key = txt.replace(/\.\-/g, '').toLowerCase();
   return `${txt} stands for ${data.ABBREVIATIONS.get(key)}.`;
 };
 
@@ -56,7 +56,7 @@ async function botFood(db, res) {
   var img = `https://unpkg.com/@ifct2017/pictures/${cod}.jpeg`;
   var ans = await runSql(db, `SELECT * FROM "compositions" WHERE "code"='${cod}'`);
   var z = {fld: {name: 'Field', text: []}, val:{name: 'Value', text:[]}};
-  for(var k of ans.value) {
+  for(var k in ans.value) {
     z.fld.text.push(ans.value[k].name);
     z.val.text.push(ans.value[k].text[0]);
   }
