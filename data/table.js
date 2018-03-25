@@ -18,7 +18,7 @@ function read(pth, z=[]) {
 
 function exists(db, tab) {
   var z = `SELECT 1 FROM information_schema.tables WHERE table_name='${tab}';`;
-  return db.query(z, (ans) => ans.rowCount>0);
+  return db.query(z).then((ans) => ans.rowCount>0);
 };
 
 function create(db, tab, fld, pk, tv=null) {

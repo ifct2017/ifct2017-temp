@@ -9,8 +9,8 @@ const samplingunits = require('@ifct2017/samplingunits');
 const compositions = require('./compositions');
 const table = require('./table');
 
-
-function data(db) {
+function setup(db) {
+  console.log(`DATA: starting from scratch`);
   return Promise.all([
     table.setup(db, abbreviations(), 'abbreviations',
       {abbr: 'TEXT NOT NULL', full: 'TEXT NOT NULL'}, 'abbr',
@@ -47,13 +47,44 @@ function data(db) {
     compositions(db)
   ]);
 };
-data.abbreviations = abbreviations;
-data.columns = columns;
-data.compositingcentres = compositingcentres;
-data.compositions = compositions;
-data.frequencydistribution = frequencydistribution;
-data.groups = groups;
-data.methods = methods;
-data.regions = regions;
-data.samplingunits = samplingunits;
+
+function load(db) {
+  console.log(`DATA: becoming a fast reader`);
+  return Promise.all([
+    db.query('SELECT * FROM "abbreviations";').then((ans) => {
+      for(var r of ans.rows||[]) {
+        data.abbreviations.set(r.abbr, r.full);
+        data.abbreviations.set(r.abbr.replace(/\./g, '').toLowerCase(), r.full);
+      }
+    }),
+    db.query('SELECT * FROM "columns";').then((ans) => {
+      for(var r of ans.rows||[])
+        data.columns.set(r.code, r.name);
+    }),
+    db.query('SELECT * FROM "groups";').then((ans) => {
+      for(var r of ans.rows||[])
+        data.groups.set(r.code, r.grup);
+    }),
+    db.query('SELECT * FROM "methods";').then((ans) => {
+      for(var r of ans.rows||[])
+        data.methods.set(r.analyte, r.method+(r.reference? ', ':'')+r.reference);
+    }),
+    db.query('SELECT * FROM "regions";').then((ans) => {
+      for(var r of ans.rows||[])
+        data.regions.set(r.region, r.states);
+    })
+  ]);
+};
+
+function data(db) {
+  return table.exists(db, 'compositions').then((ans) => {
+    var rdy = ans? Promise.resolve():setup(db);
+    return rdy.then(() => load(db));
+  });
+};
+data.abbreviations = new Map();
+data.columns = new Map();
+data.groups = new Map();
+data.methods = new Map();
+data.regions = new Map();
 module.exports = data;

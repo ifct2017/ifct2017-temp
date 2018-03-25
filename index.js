@@ -78,9 +78,9 @@ async function runBot(db, req) {
 server.listen(E.PORT||80);
 server.on('listening', () => {
   const {port, family, address} = server.address();
-  console.log(`server: listening on ${address}:${port} (${family})`);
+  console.log(`SERVER: listening on channel ${address}:${port} (${family})`);
 });
-data(db).then(() => console.log('data: ready'));
+data(db).then(() => console.log('DATA: over construction'));
 
 X.use(bodyParser.json());
 X.use(bodyParser.urlencoded({'extended': true}));
