@@ -69,6 +69,26 @@ function range(fld) {
   return z;
 };
 
+function order(ans, i) {
+  return Object.keys(ans).sort((a, b) => {
+    var va = ans[a].value[i], vb = ans[b].value[i];
+    if(typeof va==='string' || typeof vb==='string') return 0;
+    return va<vb? -1:(va===vb? 0:1);
+  });
+};
+
+function row(ans, i, ord=Object.keys(ans), exc=[]) {
+  var z = {fld: {name: 'Field', value: []}, val:{name: 'Value', value:[]}};
+  for(var k of ord) {
+    if(exc.includes(k)) continue;
+    z.fld.value.push(ans[k].name);
+    z.val.value.push(ans[k].text[0]);
+  }
+  z.fld.text = z.fld.value;
+  z.val.text = z.val.value;
+  return z;
+};
+
 function sql(db, txt) {
   return db.query(txt).then((ans) => ans.rows||[]);
 };
@@ -77,4 +97,6 @@ sql.toGroups = toGroups;
 sql.toUnits = toUnits;
 sql.toTexts = toTexts;
 sql.range = range;
+sql.order = order;
+sql.row = row;
 module.exports = sql;

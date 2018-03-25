@@ -54,16 +54,12 @@ async function botAbbreviation(db, res) {
 async function botFood(db, res) {
   var cod = (res.parameters['compositions-code']||'').replace(/[\"\']/g, '');
   var img = `https://unpkg.com/@ifct2017/pictures/${cod}.jpeg`;
-  var ans = await runSql(db, `SELECT * FROM "compositions" WHERE "code"='${cod}'`);
-  var z = {fld: {name: 'Field', value: []}, val:{name: 'Value', value:[]}};
-  for(var k in ans.value) {
-    if(k==='lang') continue;
-    z.fld.value.push(ans.value[k].name);
-    z.val.value.push(ans.value[k].text[0]);
-  }
-  z.fld.text = z.fld.value; z.val.text = z.val.value;
-  var title = ans.value.name.text[0], subtitle = ans.value.scie.text[0];
-  var tab = await out.image(out.table({title: ans.value.name.text[0], value: z}));
+  var ans = await runSql(db, `SELECT * FROM "compositions" WHERE "code"='${cod}'`, 'groups');
+  var ord = inp.sql.order(ans.value, 0), val = inp.sql.toTexts(inp.sql.toUnits(ans.value));
+  console.log('ord', ord);
+  var title = val.name.text[0], subtitle = val.scie.text[0], row = inp.sql.row(val, 0, ord, ['lang']);
+  console.log('row', row);
+  var tab = await out.image(out.table({title: val.name.text[0], value: row}));
   return [{buttons: [], imageUrl: img, subtitle, title, type: 1}, {imageUrl: tab, type: 3}];
 };
 
