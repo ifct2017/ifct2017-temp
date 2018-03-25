@@ -1,4 +1,4 @@
-const abbreviations = require('./abbreviations');
+const abbreviations = require('@ifct2017/abbreviations');
 const columns = require('./columns');
 const compositingcentres = require('./compositingcentres');
 const compositions = require('./compositions');
@@ -7,9 +7,13 @@ const groups = require('./groups');
 const methods = require('./methods');
 const regions = require('./regions');
 const samplingunits = require('./samplingunits');
+const table = require('./table');
+
 
 function data(db) {
-  return Promise.all([abbreviations(db), columns(db), compositingcentres(db), compositions(db),
+  return Promise.all([
+    table.setup(db, abbreviations(), 'abbreviations', {abbr: 'TEXT NOT NULL', full: 'TEXT NOT NULL'}, 'abbr', {abbr: 'A', full: 'B'}),
+    columns(db), compositingcentres(db), compositions(db),
     frequencydistribution(db), groups(db), methods(db), regions(db), samplingunits(db)]);
 };
 data.abbreviations = abbreviations;

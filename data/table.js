@@ -23,7 +23,7 @@ function exists(db, tab) {
 
 function create(db, tab, fld, pk, tv=null) {
   var z = `CREATE TABLE IF NOT EXISTS "${tab}" (`;
-  for(var k of fld)
+  for(var k in fld)
     if(fld[k]!=null) z += `"${k}" ${fld[k]}, `;
   z += `PRIMARY KEY("${pk}"));\n`;
   if(tv!=null) z += `CREATE OR REPLACE VIEW "${tab}_tsvector" AS SELECT *, ${tv} AS "tsvector" FROM "${tab}";\n`;
@@ -31,7 +31,7 @@ function create(db, tab, fld, pk, tv=null) {
 };
 
 function index(db, tab, fld, pk, tv=null) {
-  var z = tv!=null? `CREATE INDEX IF NOT EXISTS "${tab}_tsvector_idx" ON "${tab}" UNING GIN ((${tv}));\n`:'';
+  var z = tv!=null? `CREATE INDEX IF NOT EXISTS "${tab}_tsvector_idx" ON "${tab}" USING GIN ((${tv}));\n`:'';
   for(var k in fld)
     if(fld[k]!=null && fld[k]!=pk) z += `CREATE INDEX IF NOT EXISTS "${tab}_${k}_idx" ON "${tab}" ("${k}");\n`;
   return db.query(z);
@@ -41,7 +41,7 @@ function insert(db, tab, pk, val) {
   var z = `INSERT INTO "${tab}" (`;
   for(var k in val[0])
     z += `"${k}", `;
-  z = z.substring(0, z.length-2)+' VALUES\n(';
+  z = z.substring(0, z.length-2)+') VALUES\n(';
   for(var i=0, I=val.length; i<I; i++) {
     for(var k in val[i])
       z += `'${val[i][k]}', `;
