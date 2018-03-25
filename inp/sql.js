@@ -1,6 +1,8 @@
 const COLUMNS = require('../data').COLUMNS;
 
 const UNIT = new Map([[0, 'g'], [3, 'mg'], [6, 'μg'], [9, 'ng']]);
+const DEFAULTUNIT = new Map([['enerc', 'kcal']]);
+const DEFAULTORDER = ['code', 'name', 'scie', 'lang', 'grup', 'regn'];
 
 function round(num) {
   return Math.round(num*1e+12)/1e+12;
@@ -32,10 +34,11 @@ function toGroups(ans) {
   return z;
 };
 
-function toUnits(ans) {
+function toUnits(ans, def=DEFAULTUNIT) {
   for(var k in ans) {
     if(!Array.isArray(ans[k].value)) continue;
     if(typeof ans[k].value[0]!=='number' || ans[k].error==null) continue;
+    if(def.has(k)) { ans[k].unit = def.get(k); continue; }
     var max = Math.max.apply(null, ans[k].value);
     var exp = Math.min(-Math.floor(Math.log10(max+1e-10)/3)*3, 9);
     var val = ans[k].value, err = ans[k].error||[], fct = 10**exp;
@@ -69,11 +72,14 @@ function range(fld) {
   return z;
 };
 
-function order(ans, i) {
+function order(ans, i, def=DEFAULTORDER) {
   return Object.keys(ans).sort((a, b) => {
+    var ia = def.indexOf(a)+1, ib = def.indexOf(b)+1;
+    if(ia>0 && ib>0) return ia<ib? -1:1;
+    if(ia>0 || ib>0) return ia>0? -1:1;
     var va = ans[a].value[i], vb = ans[b].value[i];
     if(ans[a].error==null || ans[a].error==null) return 0;
-    return va<vb? -1:(va===vb? 0:1);
+    return va<vb? 1:(va===vb? 0:-1);
   });
 };
 
