@@ -3,6 +3,7 @@ const COLUMNS = require('../data').COLUMNS;
 const UNIT = new Map([[0, 'g'], [3, 'mg'], [6, 'μg'], [9, 'ng']]);
 const DEFAULTUNIT = new Map([['enerc', 'kcal']]);
 const DEFAULTORDER = ['code', 'name', 'scie', 'lang', 'grup', 'regn'];
+const DEFAULTEXCLUDE = ['lang', 'tsvector'];
 
 function round(num) {
   return Math.round(num*1e+12)/1e+12;
@@ -83,7 +84,7 @@ function order(ans, i, def=DEFAULTORDER) {
   });
 };
 
-function row(ans, i, ord=Object.keys(ans), exc=[]) {
+function row(ans, i, ord=Object.keys(ans), exc=DEFAULTEXCLUDE) {
   var z = {fld: {name: 'Field', value: []}, val:{name: 'Value', value:[]}};
   for(var k of ord) {
     if(exc.includes(k)) continue;
