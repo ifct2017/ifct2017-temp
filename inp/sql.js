@@ -1,4 +1,4 @@
-const columns = require('../data').columns;
+const COLUMNS = require('../data').COLUMNS;
 
 const UNIT = new Map([[0, 'g'], [3, 'mg'], [6, 'μg'], [9, 'ng']]);
 
@@ -20,13 +20,13 @@ function toGroups(ans) {
     if(k.endsWith('_e')) {
       var k0 = k.substring(0, k.length-2);
       z[k0] = z[k0]||{};
-      z[k0].name = columns.get(k0);
+      z[k0].name = COLUMNS.get(k0);
       z[k0].error = ans[k];
       continue;
     }
     z[k] = z[k]||{};
-    if(!k.includes('"')) z[k].name = columns.get(k);
-    else z[k].name = k.replace(/\"(\w+)\"/g, (m, p1) => columns.get(p1));
+    if(!k.includes('"')) z[k].name = COLUMNS.get(k);
+    else z[k].name = k.replace(/\"(\w+)\"/g, (m, p1) => COLUMNS.get(p1));
     z[k].value = ans[k];
   }
   return z;

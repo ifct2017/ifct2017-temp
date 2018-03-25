@@ -9,6 +9,7 @@ const out = require('./out');
 
 const INTENT = new Map([
   ['query.abbreviation', botAbbreviation],
+  ['query.food', botFood],
   ['query.select', botSelect],
 ]);
 const E = process.env;
@@ -47,13 +48,28 @@ async function runNlp(db, nlp, mod='text') {
 function botAbbreviation(res) {
   var txt = res.parameters['abbreviations-code']||'';
   var key = txt.replace(/\./g, '').toLowerCase();
-  return `${txt} stands for ${data.abbreviations.get(key)}.`;
+  return `${txt} stands for ${data.ABBREVIATIONS.get(key)}.`;
+};
+
+function botFood(db, res) {
+  var cod = (res.parameters['compositions-code']||'').replace(/[\"\']/g, '');
+  var img = `https://unpkg.com/@ifct2017/pictures/${cod}.jpeg`;
+  runSql(db, `SELECT * FROM "compositions" WHERE "code"='${cod}'`).then((ans) => {
+    var z = {fld: {name: 'Field', text: []}, val:{name: 'Value', text:[]}};
+    for(var k of ans.value) {
+      z.fld.text.push(ans.value[k].name);
+      z.val.text.push(ans.value[k].text[0]);
+    }
+    var title = ans.value.name.text[0], subtitle = ans.value.scie.text[0];
+    var tab = await out.image(out.table({title: ans.value.name.text[0], value: z}));
+    return [{buttons: [], imageUrl: img, subtitle, title, type: 1}, {imageUrl: tab, type: 3}];
+  });
 };
 
 async function botSelect(db, res) {
   var txt = res.resolvedQuery;
   var ans = await runNlp(db, txt), dat = ans.value;
-  console.log('SQL query result obtained.');
+  console.log('BOT.SELECT: SQL query result obtained.');
   var y0 = {type: 0, speech: 'Let me think. Is this what you meant?'};
   var y1 = {type: 0, speech: 'AQL: '+ans.aql};
   var y2 = {type: 0, speech: 'SQL: '+ans.sql};
@@ -65,10 +81,10 @@ async function botSelect(db, res) {
     var title = dat[k].name+(dat[k].unit? ` (${dat[k].unit})`:'');
     rdy.push(out.chart({title, subtitle: txt, value: {labels: dat.name.value, series: inp.sql.range(dat[k])}}).then(out.image));
   }
-  console.log('Table and charts generated.');
+  console.log('BOT.SELECT: Table and charts generated.');
   var url = await Promise.all(rdy);
   for(var i=0, I=url.length; i<I; i++) {
-    console.log((i===0? 'TABLE: ':'CHART: ')+url[i]);
+    console.log('BOT.SELECT: '+(i===0? 'table=':'chart=')+url[i]);
     z.push({type: 3, imageUrl: url[i]});
   }
   return z;
