@@ -1,4 +1,4 @@
-const columns = require('../data/columns').map;
+const columns = require('../data').columns;
 
 const UNIT = new Map([[0, 'g'], [3, 'mg'], [6, 'μg'], [9, 'ng']]);
 
