@@ -8,7 +8,8 @@ const inp = require('./inp');
 const out = require('./out');
 
 const INTENT = new Map([
-  ['query.select', botSelect]
+  ['query.abbreviation', botAbbreviation],
+  ['query.select', botSelect],
 ]);
 const E = process.env;
 var X = express();
@@ -43,6 +44,12 @@ async function runNlp(db, nlp, mod='text') {
   return Object.assign({nlp}, await runAql(db, aql, mod));
 };
 
+function botAbbreviation(res) {
+  var txt = res.parameters['abbreviations-code']||'';
+  var key = txt.replace(/\./g, '').toLowerCase();
+  return `${txt} stands for ${data.abbreviations.get(key)}.`;
+};
+
 async function botSelect(db, res) {
   var txt = res.resolvedQuery;
   var ans = await runNlp(db, txt), dat = ans.value;
@@ -72,6 +79,7 @@ async function runBot(db, req) {
   var src = req.originalRequest? req.originalRequest.data.source:req.result.source;
   console.log(`BOT: ${src} | ${int}`);
   var msg = await INTENT.get(int)(db, req.result);
+  if(typeof msg==='string') return {speech: msg, source: 'bot'};
   return {speech: '', messages: msg, source: 'bot'};
 };
 
@@ -85,10 +93,7 @@ data(db).then(() => console.log('DATA: over construction'));
 X.use(bodyParser.json());
 X.use(bodyParser.urlencoded({'extended': true}));
 X.all('/bot', (req, res, next) => {
-  runBot(db, req.body).then((ans) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify(ans));
-  }).catch(next);
+  runBot(db, req.body).then((ans) => res.json(ans)).catch(next);
 });
 X.all('/bot/select/:txt', (req, res, next) => botSelect(db, {resolvedQuery: req.params.txt}).then((ans) => res.json(ans), next));
 X.all('/sql/:txt', (req, res, next) => runSql(db, req.params.txt, req.query.mode||'').then((ans) => res.json(ans), next));
