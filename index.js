@@ -52,9 +52,9 @@ async function botAbbreviation(db, res) {
 };
 
 async function botFood(db, res) {
-  var cod = (res.parameters['compositions-code']||'').replace(/[\"\']/g, '');
-  var img = `https://unpkg.com/@ifct2017/pictures/${cod}.jpeg`;
-  var ans = await runSql(db, `SELECT * FROM "compositions" WHERE "code"='${cod}'`, 'groups');
+  var txt = (res.parameters['compositions-text']||[]).join(' ').replace(/[^\w ]/g, ' ');
+  var ans = await runSql(db, `SELECT * FROM "compositions" WHERE "tsvector" @@ plainto_tsquery('${txt}')`, 'groups');
+  var img = `https://unpkg.com/@ifct2017/pictures/${ans.value.code.value[0]}.jpeg`;
   var ord = inp.sql.order(ans.value, 0), val = inp.sql.toTexts(inp.sql.toUnits(ans.value));
   var title = val.name.text[0], subtitle = val.scie.text[0], row = inp.sql.row(val, 0, ord, ['lang']);
   var tab = await out.image(out.table({title: val.name.text[0], value: row}));
