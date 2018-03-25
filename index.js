@@ -1,11 +1,12 @@
 const pgconfig = require('pg-connection-string');
 const bodyParser = require('body-parser');
 const express = require('express');
-const http = require('http');
+const wiki = require('wikijs').wiki;
 const pg = require('pg');
 const data = require('./data');
 const inp = require('./inp');
 const out = require('./out');
+const http = require('http');
 
 const INTENT = new Map([
   ['query.abbreviation', botAbbreviation],
@@ -63,8 +64,11 @@ async function botFood(db, res) {
   }
   z.fld.text = z.fld.value; z.val.text = z.val.value;
   var title = ans.value.name.text[0], subtitle = ans.value.scie.text[0];
-  var tab = await out.image(out.table({title: ans.value.name.text[0], value: z}));
-  return [{buttons: [], imageUrl: img, subtitle, title, type: 1}, {imageUrl: tab, type: 3}];
+  var [txt, tab] = await Promise.all([
+    wiki.page(title).then((page) => page.summary()),
+    out.image(out.table({title: ans.value.name.text[0], value: z}))
+  ]);
+  return [{buttons: [], imageUrl: img, subtitle, title, type: 1}, {speech: txt, type: 0}, {imageUrl: tab, type: 3}];
 };
 
 async function botSelect(db, res) {
