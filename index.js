@@ -102,10 +102,7 @@ server.on('listening', () => {
   const {port, family, address} = server.address();
   console.log(`SERVER: listening on channel ${address}:${port} (${family})`);
 });
-data(db).then(() => console.log('DATA: over construction')).then(() => {
-  var res = {parameters:{'compositions-text': 'mango ripe'.split(' ')}};
-  botFood(db, res);
-});
+data(db).then(() => console.log('DATA: over construction'));
 
 X.use(bodyParser.json());
 X.use(bodyParser.urlencoded({'extended': true}));
