@@ -55,11 +55,12 @@ async function botFood(db, res) {
   var cod = (res.parameters['compositions-code']||'').replace(/[\"\']/g, '');
   var img = `https://unpkg.com/@ifct2017/pictures/${cod}.jpeg`;
   var ans = await runSql(db, `SELECT * FROM "compositions" WHERE "code"='${cod}'`);
-  var z = {fld: {name: 'Field', text: []}, val:{name: 'Value', text:[]}};
+  var z = {fld: {name: 'Field', value: []}, val:{name: 'Value', value:[]}};
   for(var k in ans.value) {
-    z.fld.text.push(ans.value[k].name);
-    z.val.text.push(ans.value[k].text[0]);
+    z.fld.value.push(ans.value[k].name);
+    z.val.value.push(ans.value[k].text[0]);
   }
+  z.fld.text = z.fld.value; z.val.text = z.val.value;
   var title = ans.value.name.text[0], subtitle = ans.value.scie.text[0];
   var tab = await out.image(out.table({title: ans.value.name.text[0], value: z}));
   return [{buttons: [], imageUrl: img, subtitle, title, type: 1}, {imageUrl: tab, type: 3}];
