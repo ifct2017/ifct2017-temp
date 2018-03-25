@@ -57,6 +57,7 @@ async function botFood(db, res) {
   var ans = await runSql(db, `SELECT * FROM "compositions" WHERE "code"='${cod}'`, 'groups');
   var ord = inp.sql.order(ans.value, 0), val = inp.sql.toTexts(inp.sql.toUnits(ans.value));
   console.log('ord', ord);
+  console.log('val', val);
   var title = val.name.text[0], subtitle = val.scie.text[0], row = inp.sql.row(val, 0, ord, ['lang']);
   console.log('row', row);
   var tab = await out.image(out.table({title: val.name.text[0], value: row}));

@@ -35,7 +35,7 @@ function toGroups(ans) {
 function toUnits(ans) {
   for(var k in ans) {
     if(!Array.isArray(ans[k].value)) continue;
-    if(typeof ans[k].value[0]!=='number') continue;
+    if(typeof ans[k].value[0]!=='number' || ans[k].error==null) continue;
     var max = Math.max.apply(null, ans[k].value);
     var exp = Math.min(-Math.floor(Math.log10(max+1e-10)/3)*3, 9);
     var val = ans[k].value, err = ans[k].error||[], fct = 10**exp;
@@ -72,7 +72,7 @@ function range(fld) {
 function order(ans, i) {
   return Object.keys(ans).sort((a, b) => {
     var va = ans[a].value[i], vb = ans[b].value[i];
-    if(typeof va==='string' || typeof vb==='string') return 0;
+    if(ans[a].error==null || ans[a].error==null) return 0;
     return va<vb? -1:(va===vb? 0:1);
   });
 };
