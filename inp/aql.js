@@ -23,7 +23,7 @@ function uncomment(txt) {
   return txt.trim();
 };
 
-function columnOne(db, txt) {
+async function columnOne(db, txt) {
   var col = await data.column(db, txt);
   return col!=null? [column(col)]:[];
 };
