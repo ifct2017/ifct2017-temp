@@ -2,16 +2,16 @@ const Parser = require('flora-sql-parser').Parser;
 const astToSQL = require('flora-sql-parser').util.astToSQL;
 const data = require('../data');
 
-function number(val) {
-  return {type: 'number', value: val};
+function number(value) {
+  return {type: 'number', value};
 };
 
-function column(col) {
-  return {type: 'column_ref', table: null, column: col};
+function column(column) {
+  return {type: 'column_ref', table: null, column};
 };
 
-function table(tab, as=null) {
-  return {db: null, table: tab, as};
+function table(table, as=null) {
+  return {db: null, table, as};
 };
 
 function uncomment(txt) {
@@ -131,24 +131,20 @@ function rename(db, ast) {
   return Promise.all(rdy).then(() => frmRename(db, ast)).then(() => asSet(ast.columns));
 };
 
-function limit(ast, val) {
-  const lim = ast.limit? ast.limit[1].value : val;
-  ast.limit = [{'type': 'number', 'value': (lim>val? val:lim)}];
+function limit(ast, max) {
+  const value = Math.max(ast.limit? ast.limit[1].value:max, max);
+  ast.limit = [{type: 'number', value}];
 };
 
-function update(db, txt, lim) {
+function aql(db, txt, lim=20) {
   txt = uncomment(txt);
-  txt = txt.endsWith(';')? txt.slice(0, -1) : txt;
+  txt = txt.endsWith(';')? txt.slice(0, -1):txt;
   if(txt.includes(';')) throw new Error('Too many queries');
-  const p = new Parser(), ast = p.parse(txt);
+  const ast = new Parser().parse(txt);
   if(ast.type!=='select') throw new Error('Only SELECT query supported');
   return rename(db, ast).then(() => {
     limit(ast, lim);
     return astToSQL(ast);
   });
-};
-
-function aql(db, txt) {
-  return update(db, txt, 20);
 };
 module.exports = aql;
