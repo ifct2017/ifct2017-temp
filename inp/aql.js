@@ -62,15 +62,14 @@ function columnAny(db, txt) {
 };
 
 function expressionRename(db, ast, k) {
-  if(typeof ast[k]!=='object') return Promise.resolve();
-  if(typeof ast[k].type==='column_ref') return columnAny(db, ast[k].column).then((ans) => ast[k]=ans[0]);
+  if(ast[k]==null || typeof ast[k]!=='object') return Promise.resolve();
+  if(ast[k].type==='column_ref') return columnAny(db, ast[k].column).then((ans) => ast[k]=ans[0]);
   return Promise.all(Object.keys(ast[k]).map((l) => expressionRename(db, ast[k], l)));
 };
 
 function expressions(db, ast) {
-  if(typeof ast!=='object') return null;
-  if(ast.type==='column_ref') return [columnAny()];
-
+  if(ast.type==='column_ref') return columnAny(db, ast.column);
+  return Promise.all(Object.keys(ast).map((k) => expressionRename(db, ast, k))).then(() => [ast]);
 };
 
 function asExpression(expr) {
@@ -88,9 +87,9 @@ async function columns(db, ast) {
   for(var i=0, I=ast.length, z=[]; i<I; i++) {
     var col = ast[i], exps = y[i];
     for(var exp of exps) {
-      if(exp.type!=='column_ref') z.push({expr: exp, as: as==null? asExpression(exp):as});
+      if(exp.type!=='column_ref') z.push({expr: exp, as: col.as==null? asExpression(exp):col.as});
       else z.push({expr: exp, as: asColumn(exp.column, exps.length, col.as)});
-      if(exp.type!=='column_ref' || !data.VALUECOLUMNS.has(exp.column)) continue;
+      if(exp.type!=='column_ref' || data.VALUECOLUMNS.has(exp.column)) continue;
       z.push({expr: column(exp.column+'_e'), as: asColumn(exp.column+'_e', exps.length, col.as)});
     }
   }
