@@ -5,6 +5,7 @@ const csv = require('csv');
 const fs = require('fs');
 
 const TSVECTOR = `setweight(to_tsvector('english', "code"), 'A')||`+
+  `setweight(to_tsvector('english', left("name", strpos("name", ','))), 'A')||`+
   `setweight(to_tsvector('english', "name"), 'B')||`+
   `setweight(to_tsvector('english', "scie"), 'B')||`+
   `setweight(to_tsvector('english', compositions_lang_tags("lang")), 'B')||`+

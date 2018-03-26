@@ -69,7 +69,7 @@ function tableMatch(wrds) {
 function column(db, txt, srt=false) {
   var col = ALLCOLUMNS.get(natural.PorterStemmer.stem(txt));
   if(col!=null) return Promise.resolve(col);
-  var ord = ' ORDER BY ts_rank("tsvector", plainto_tsquery($1), 2) DESC LIMIT 1', nrm = ' LIMIT 1';
+  var ord = ' ORDER BY ts_rank("tsvector", plainto_tsquery($1), 0) DESC LIMIT 1', nrm = ' LIMIT 1';
   var sql = 'SELECT "code" FROM "columns_tsvector" WHERE "tsvector" @@ plainto_tsquery($1)'+(srt? ord:nrm);
   return db.query(sql, [txt]).then((ans) => ans.rowCount>0? ans.rows[0].code:null);
 };
@@ -77,7 +77,7 @@ function column(db, txt, srt=false) {
 function columns(db, txt, srt=false) {
   var col = ALLCOLUMNS.get(natural.PorterStemmer.stem(txt));
   if(col!=null) return Promise.resolve([col]);
-  var ord = ' ORDER BY ts_rank("tsvector", plainto_tsquery($1), 2) DESC';
+  var ord = ' ORDER BY ts_rank("tsvector", plainto_tsquery($1), 0) DESC';
   var sql = 'SELECT "code" FROM "columns_tsvector" WHERE "tsvector" @@ plainto_tsquery($1)'+(srt? ord:'');
   return db.query(sql, [txt]).then((ans) => ans.rowCount>0? ans.rows.map((v) => v.code):null);
 };
@@ -94,13 +94,13 @@ function columnMatch(db, wrds) {
 };
 
 function row(db, txt, srt=false) {
-  var ord = ' ORDER BY ts_rank("tsvector", plainto_tsquery($1), 2) DESC LIMIT 1', nrm = ' LIMIT 1';
+  var ord = ' ORDER BY ts_rank("tsvector", plainto_tsquery($1), 0) DESC LIMIT 1', nrm = ' LIMIT 1';
   var sql = 'SELECT "code" FROM "compositions_tsvector" WHERE "tsvector" @@ plainto_tsquery($1)'+(srt? ord:nrm);
   return db.query(sql, [txt]).then((ans) => ans.rowCount>0? ans.rows[0].code:null);
 };
 
 function rows(db, txt, srt=false) {
-  var ord = ' ORDER BY ts_rank("tsvector", plainto_tsquery($1), 2) DESC';
+  var ord = ' ORDER BY ts_rank("tsvector", plainto_tsquery($1), 0) DESC';
   var sql = 'SELECT "code" FROM "compositions_tsvector" WHERE "tsvector" @@ plainto_tsquery($1)'+(srt? ord:'');
   return db.query(sql, [txt]).then((ans) => ans.rowCount>0? ans.rows.map((v) => v.code):null);
 };
