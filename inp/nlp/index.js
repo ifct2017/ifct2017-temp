@@ -7,7 +7,7 @@ const T = require('./type');
 
 const NULLORDER = [
   {t: [T.KEYWORD, T.KEYWORD, T.ORDINAL], v: [/SELECT/, /NULL/, /1/], f: (s, t, i) => token(T.KEYWORD, 'NULLS FIRST')},
-  {t: [T.KEYWORD, T.KEYWORD, T.TEXT], v: [/SELECT/, /NULL/, /last/], f: (s, t, i) => token(T.KEYWORD, 'NULLS LAST')},
+  {t: [T.KEYWORD, T.KEYWORD, T.TEXT], v: [/SELECT/, /NULL/, /last|first/i], f: (s, t, i) => token(T.KEYWORD, `NULLS ${t[i+2].value.toUpperCase()}`)},
 ];
 const NUMBER = [
   {t: [T.CARDINAL, T.ORDINAL], v: [null, null], f: (s, t, i) => token(T.CARDINAL, t[i].value/t[i+1].value)},
@@ -32,14 +32,21 @@ const VALUE = [
   {t: [T.KEYWORD], v: [/NULL|TRUE|FALSE/], f: (s, t, i) => token(T.EXPRESSION, t[i].value)},
 ];
 const EXPRESSION = [
-  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION, T.OPERATOR, T.EXPRESSION], v: [null, null, null, /ESCAPE/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value} ESCAPE ${t[i+4].value}`)},
+  {t: [T.OPERATOR, T.BINARY, T.EXPRESSION], v: [null, /\+|\-/, null], f: (s, t, i) => [t[i], token(T.EXPRESSION, `${t[i+1].value}${t[i+2].value}`)]},
+  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /\^/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
+  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /\*\/%/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
+  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /\+\-/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
+  {t: [T.UNARY, T.EXPRESSION], v: [/[^(NOT)]/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value}`)},
+  {t: [T.EXPRESSION, T.UNARY], v: [null, /IS.*/], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value}`)},
+  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /[^\w\s=!<>]+/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
   {t: [T.EXPRESSION, T.TERNARY, T.EXPRESSION, T.OPERATOR, T.EXPRESSION], v: [null, null, null, /AND/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value} AND ${t[i+4].value}`)},
   {t: [T.EXPRESSION, T.TERNARY, T.EXPRESSION, T.EXPRESSION], v: [null, null, null, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value} AND ${t[i+3].value}`)},
-  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION, T.OPERATOR, T.EXPRESSION], v: [null, null, null, /AND/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value} AND ${t[i].value} ${t[i+1].value} ${t[i+4].value}`)},
-  {t: [T.EXPRESSION, T.OPERATOR, T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /AND/, null, null, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+3].value} ${t[i+4].value} AND ${t[i+2].value} ${t[i+3].value} ${t[i+4].value}`)},
+  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION, T.OPERATOR, T.EXPRESSION], v: [null, null, null, /ESCAPE/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value} ESCAPE ${t[i+4].value}`)},
+  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION, T.OPERATOR, T.EXPRESSION], v: [null, null, null, /OR|AND/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value} AND ${t[i].value} ${t[i+1].value} ${t[i+4].value}`)},
+  {t: [T.EXPRESSION, T.OPERATOR, T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /OR|AND/, null, null, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+3].value} ${t[i+4].value} AND ${t[i+2].value} ${t[i+3].value} ${t[i+4].value}`)},
+  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /[^(OR)(AND)]/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
+  {t: [T.UNARY, T.EXPRESSION], v: [null, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value}`)},
   {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, null, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
-  {t: [T.EXPRESSION, T.UNARY], v: [null, null], f: (s, t, i) => token(T.EXPRESSION, `(${t[i].value} ${t[i+1].value})`)},
-  {t: [T.UNARY, T.EXPRESSION], v: [null, null], f: (s, t, i) => token(T.EXPRESSION, `(${t[i].value} ${t[i+1].value})`)},
   {t: [T.EXPRESSION, T.EXPRESSION, T.CLOSE], v: [null, null, null], f: (s, t, i) => [token(T.EXPRESSION, `${t[i].value}, ${t[i+1].value}`), t[i+2]]},
   {t: [T.FUNCTION, T.OPEN, T.EXPRESSION, T.CLOSE], v: [null, null, null, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value}(${t[i+2].value})`)},
   {t: [T.FUNCTION, T.EXPRESSION], v: [null, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value}(${t[i+1].value})`)},
