@@ -1,4 +1,5 @@
 const natural = require('natural');
+const T = require('./type');
 
 const LANCASTER = /^(equal|below|small|less|poor|low|above|great|high|rich|more|large|big|boolean).*/;
 const IGNORE = /^(a|an|the|i|he|him|she|her|they|their|as|at|if|in|is|it|of|on|to|by|want|well|than|then|thus|however|ok|okay)$/;
@@ -720,13 +721,13 @@ function findLast(tkns, bgn, typ) {
 };
 
 function processTxt(txt) {
-  if(OPENBRACKET.has(txt)) return {type: 'bracket/open', value: OPENBRACKET.get(txt)};
-  if(CLOSEBRACKET.has(txt)) return {type: 'bracket/close', value: CLOSEBRACKET.get(txt)};
-  if(TERNARYOPERATOR.has(txt)) return {type: 'operator/ternary', value: TERNARYOPERATOR.get(txt)};
-  if(BINARYOPERATOR.has(txt)) return {type: 'operator/binary', value: BINARYOPERATOR.get(txt)};
-  if(UNARYOPERATOR.has(txt)) return {type: 'operator/unary', value: UNARYOPERATOR.get(txt)};
-  if(FUNCTION.has(txt)) return {type: 'function', value: FUNCTION.get(txt)};
-  if(KEYWORD.has(txt)) return {type: 'keyword', value: KEYWORD.get(txt)};
+  if(OPENBRACKET.has(txt)) return {type: T.OPEN, value: OPENBRACKET.get(txt)};
+  if(CLOSEBRACKET.has(txt)) return {type: T.CLOSE, value: CLOSEBRACKET.get(txt)};
+  if(TERNARYOPERATOR.has(txt)) return {type: T.TERNARY, value: TERNARYOPERATOR.get(txt)};
+  if(BINARYOPERATOR.has(txt)) return {type: T.BINARY, value: BINARYOPERATOR.get(txt)};
+  if(UNARYOPERATOR.has(txt)) return {type: T.UNARY, value: UNARYOPERATOR.get(txt)};
+  if(FUNCTION.has(txt)) return {type: T.FUNCTION, value: FUNCTION.get(txt)};
+  if(KEYWORD.has(txt)) return {type: T.KEYWORD, value: KEYWORD.get(txt)};
   return null;
 };
 
@@ -740,7 +741,7 @@ function process(wrds) {
 function reserved(tkns) {
   var z = [];
   for(var i=0, I=tkns.length; i<I; i++) {
-    var J = findLast(tkns, i, 'text');
+    var J = findLast(tkns, i, T.TEXT);
     if(J<0) { z.push(tkns[i]); continue; }
     var wrds = tkns.slice(i, J+1).map((v) => v.value.toLowerCase());
     for(var j=J; j>=i; j--) {

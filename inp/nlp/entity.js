@@ -1,5 +1,6 @@
 const natural = require('natural');
 const data = require('../../data');
+const T = require('./type');
 
 function match(typ, wrds, mth) {
   var val = wrds.slice(0, mth.length).join(' ');
@@ -15,10 +16,10 @@ function findLast(tkns, bgn, typ) {
 
 function processAt(db, wrds) {
   var tab = data.tableMatch(wrds);
-  if(tab!=null) return Promise.resolve(match('table', wrds, tab));
+  if(tab!=null) return Promise.resolve(match(T.TABLE, wrds, tab));
   return Promise.all([data.columnMatch(db, wrds), data.rowMatch(db, wrds)]).then((ans) => {
-    if(ans[1]!=null) return match('row', wrds, ans[1]);
-    return ans[0]!=null? match('column', wrds, ans[0]):null;
+    if(ans[1]!=null) return match(T.ROW, wrds, ans[1]);
+    return ans[0]!=null? match(T.COLUMN, wrds, ans[0]):null;
   });
 };
 
@@ -35,7 +36,7 @@ async function process(db, tkns) {
 async function entity(db, tkns) {
   var rdy = [];
   for(var i=0, I=tkns.length; i<I; i++) {
-    var j = findLast(tkns, i, 'text');
+    var j = findLast(tkns, i, T.TEXT);
     if(j<0) rdy.push(tkns[i]);
     else rdy.push(process(db, tkns.slice(i, (i=j)+1)));
   }

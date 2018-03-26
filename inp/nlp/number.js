@@ -1,4 +1,5 @@
 const natural = require('natural');
+const T = require('./type');
 
 const DECIMAL = new Set(['dot', 'point', 'decimal']);
 const SPECIAL = new Map([
@@ -168,7 +169,7 @@ function get(s) {
 };
 
 function decimal(s, dec, pre) {
-  var type = s.ord? 'number/ordinal':'number/cardinal', v = get(s);
+  var type = s.ord? T.ORDINAL:T.CARDINAL, v = get(s);
   var value = dec? pre+v*10**(-digitCount(v)):v;
   return {type, value};
 };
@@ -177,11 +178,11 @@ function number(tkns) {
   var dec = false, pre = NaN, p = false, z = [];
   var s = {arr: [], end: false, ord: false, exp: 1};
   for(var tkn of tkns) {
-    var txt = tkn.type==='text'? tkn.value.toLowerCase().replace(/[\s,]/g, ''):null;
+    var txt = tkn.type===T.TEXT? tkn.value.toLowerCase().replace(/[\s,]/g, ''):null;
     if(txt!=null && (p=process(s, txt)) && !s.end) continue;
     if(DECIMAL.has(txt)) { pre = get(s); dec = true; p =true; }
     else if(dec || has(s)) { z.push(decimal(s, dec, pre)); dec = false; pre = NaN; }
-    if(SPECIAL.has(txt)) { z.push({type: 'number/cardinal', value: SPECIAL.get(txt)}); p = true; }
+    if(SPECIAL.has(txt)) { z.push({type: T.CARDINAL, value: SPECIAL.get(txt)}); p = true; }
     if(!p) z.push(tkn);
   }
   return z;

@@ -1,4 +1,5 @@
 const natural = require('natural');
+const T = require('./type');
 
 const MASS = new Map([
   ['attogram', 1e-18],
@@ -51,15 +52,15 @@ function stem(txt) {
 };
 
 function process(txt) {
-  if(MASS.has(txt=stem(txt))) return {type: 'unit/mass', value: MASS.get(txt)};
-  if(MASS.has(txt=txt.toLowerCase())) return {type: 'unit/mass', value: MASS.get(txt)};
+  if(MASS.has(txt=stem(txt))) return {type: T.MASS, value: MASS.get(txt)};
+  if(MASS.has(txt=txt.toLowerCase())) return {type: T.MASS, value: MASS.get(txt)};
   return null;
 };
 
 function unit(tkns) {
   var z = [];
   for(var tkn of tkns) {
-    var txt = tkn.type==='text'? tkn.value:null;
+    var txt = tkn.type===T.MASS? tkn.value:null;
     var unt = txt!=null? process(txt):null;
     z.push(unt!=null? unt:tkn);
   }

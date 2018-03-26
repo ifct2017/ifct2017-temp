@@ -1,0 +1,23 @@
+const TYPE = {
+  TEXT: 0x00,
+  NUMBER: 0x10,
+  CARDINAL: 0x10,
+  ORDINAL: 0x11,
+  UNIT: 0x20,
+  MASS: 0x20,
+  ENTITY: 0x30,
+  TABLE: 0x30,
+  COLUMN: 0x31,
+  ROW: 0x32,
+  BRACKET: 0x40,
+  OPEN: 0x40,
+  CLOSE: 0x41,
+  OPERATOR: 0x50,
+  UNARY: 0x50,
+  BINARY: 0x51,
+  TERNARY: 0x52,
+  FUNCTION: 0x60,
+  KEYWORD: 0x70,
+  EXPRESSION: 0x80,
+};
+module.exports = TYPE;
