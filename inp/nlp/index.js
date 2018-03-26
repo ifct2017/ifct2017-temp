@@ -101,60 +101,54 @@ function token(type, value) {
   return {type, value};
 };
 
-function partMatch(tkn, pat, p) {
-  if(!tkn.type.startsWith(pat.c[p])) return false;
-  return pat.c[p+1]==null || tkn.value.startsWith(pat.c[p+1]);
-};
-
-function patternMatch(tkns, t, pat) {
-  var P = pat.c.length/2;
-  if(t+P>tkns.length) return false;
-  for(var p=0; p<P; p++)
-    if(!partMatch(tkns[t+p], pat, p)) return false;
+function typeMatch(tkns, i, typ) {
+  if(i+typ.length>tkns.length) return false;
+  for(var j=0, J=typ.length; j<J; i++, j++)
+    if(tkns[i].type & typ[j]!==typ[j]) return false;
   return true;
 };
 
-function patternRunOnce(tkns, pat, sta) {
-  for(var t=0, T=tkns.length, z=[]; t<T; t++) {
-    if(!patternMatch(tkns, t, pat)) { z.push(tkns[t]); continue; }
-    console.log(pat);
-    var ans = pat.a(sta, tkns, t);
-    if(ans==null) continue;
-    if(!Array.isArray(ans)) z.push(ans);
-    else z.push.apply(Z, ans);
-  }
-  return z;
+function valueMatch(tkns, i, val) {
+  for(var j=0, J=typ.length; j<J; i++, j++)
+    if(val[j]!=null && !val[j].test(tkns[i].value)) return false;
+  return true;
 };
 
-function patternRun(tkns, pat, sta, rpt=false) {
+function substageRun(sub, sta, tkns, rpt=false) {
+  var z = tkns;
   do {
-    var z = patternRunOnce(tkns, pat, sta);
-    if(z.length>=tkns.length) break;
-    tkns = z;
-  } while(rpt);
+    var tkns = z, z = [];
+    for(var i=0, I=tkns.length; i<I; i++) {
+      var ans = typeMatch(tkns, i, sub.t) && valueMatch(tkns, i, sub.v)? sub.f(sta, tkns, i):tkns[i];
+      if(ans!=null) { if(Array.isArray(ans)) z.push.apply(z, ans); else z.push(ans); }
+    }
+  } while (rpt && z.length<tkns.length);
   return z;
 };
 
-function stageRun(stg, sta, tkns, rpt=false) {
-  for(var pat of stg)
-    var z = patternRun(tkns, pat, sta, rpt);
+function stageRun(stg, sta, tkns, rpt0=false, rpt1=false) {
+  var z = tkns;
+  do {
+    var tkns = z;
+    for(var sub of stg)
+      z = substageRun(sub, sta, tkns, rpt0);
+  } while(rpt1 && z.length<tkns.length);
   return z;
 };
 
 function process(tkns) {
   var sta = {columns: [], from: [], groupBy: [], orderBy: [], where: '', having: '', limit: 0, columnsUsed: [], reverse: false};
   tkns = stageRun(NULLORDER, sta, tkns);
-  tkns = stageRun(NUMBER, sta, tkns, true);
+  tkns = stageRun(NUMBER, sta, tkns);
   tkns = stageRun(LIMIT, sta, tkns);
-  console.log(tkns);
-  tkns = stageRun(VALUE, sta, tkns, true);
-  tkns = stageRun(EXPRESSION, sta, tkns, true);
-  tkns = stageRun(ORDERBY, sta, tkns, true);
+  tkns = stageRun(VALUE, sta, tkns);
+  tkns = stageRun(EXPRESSION, sta, tkns, true, true);
+  tkns = stageRun(ORDERBY, sta, tkns, false, true);
   tkns = stageRun(GROUPBY, sta, tkns, true);
   tkns = stageRun(HAVING, sta, tkns);
   tkns = stageRun(WHERE, sta, tkns);
   tkns = stageRun(FROM, sta, tkns);
-  tkns = stageRun(COLUMN, sta, tkns, true);
+  tkns = stageRun(COLUMN, sta, tkns);
   if(sta.having.startsWith('AND ')) sta.having = sta.having.substring(4);
   if(sta.where.startsWith('AND ')) sta.where = sta.where.substring(4);
   var i = sta.columns.indexOf(`"*"`);
@@ -187,7 +181,7 @@ function tokenize(txt) {
   for(var w of wrds) {
     if(w.search(/^\w/)===0) {
       if(quo!=null) y += wrd? ' '+w:w;
-      else z.push(token('text', w));
+      else z.push(token(T.TEXT, w));
       wrd = true;
     }
     else {
@@ -195,10 +189,10 @@ function tokenize(txt) {
         if(c==="'" || c==='"' || c==='`') {
           if(quo==null) quo = c;
           else if(quo!==c) y += c;
-          else { z.push(token('text', y)); y = ''; qou = null; }
+          else { z.push(token(T.TEXT, y)); y = ''; qou = null; }
         }
         else if(quo!=null) y += c;
-        else if(!/\s/.test(c)) z.push(token('text', c));
+        else if(!/\s/.test(c)) z.push(token(T.TEXT, c));
       }
       wrd = false;
     }
