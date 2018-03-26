@@ -2,10 +2,10 @@ const pgconfig = require('pg-connection-string');
 const bodyParser = require('body-parser');
 const express = require('express');
 const pg = require('pg');
+const http = require('http');
 const data = require('./data');
 const inp = require('./inp');
 const out = require('./out');
-const http = require('http');
 
 const INTENT = new Map([
   ['query.abbreviation', botAbbreviation],
@@ -54,7 +54,7 @@ async function botAbbreviation(db, res) {
 async function botFood(db, res) {
   var txt = (res.parameters['compositions-text']||[]).join(' ').replace(/[^\w ]/g, ' ');
   var sql = `SELECT * FROM "compositions_tsvector" WHERE "tsvector" @@ plainto_tsquery('${txt}')`;
-  var ans = await runSql(db, sql+` ORDER BY ts_rank("tsvector", plainto_tsquery('${txt}'), 16) DESC LIMIT 1`, 'groups');
+  var ans = await runSql(db, sql+` ORDER BY ts_rank("tsvector", plainto_tsquery('${txt}'), 2) DESC LIMIT 1`, 'groups');
   var img = `https://unpkg.com/@ifct2017/pictures/${ans.value.code.value[0]}.jpeg`;
   console.log('BOT.FOOD: image='+img);
   var ord = inp.sql.order(ans.value, 0), val = inp.sql.toTexts(inp.sql.toUnits(ans.value));
