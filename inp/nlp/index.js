@@ -109,7 +109,7 @@ function typeMatch(tkns, i, typ) {
 };
 
 function valueMatch(tkns, i, val) {
-  for(var j=0, J=typ.length; j<J; i++, j++)
+  for(var j=0, J=val.length; j<J; i++, j++)
     if(val[j]!=null && !val[j].test(tkns[i].value)) return false;
   return true;
 };
