@@ -2,6 +2,9 @@ const Parser = require('flora-sql-parser').Parser;
 const astToSQL = require('flora-sql-parser').util.astToSQL;
 const data = require('../data');
 
+const SELECT = 'select';
+const FROMT = [{table: 't', as: null}];
+
 function number(value) {
   return {type: 'number', value};
 };
@@ -92,6 +95,30 @@ function lstRename(db, ast) {
   for(var i=ast.length-1; i>=0; i--)
     rdy.push(lstRenameOne(db, ast, i));
   return Promise.all(rdy);
+};
+
+function asExpression(expr) {
+  var sql = astToSQL({type: SELECT, from: FROMT, columns: [{expr, as: null}]});
+  return sql.substring(7, sql.length-9).replace(/([\'\"])/g, '$1$1');
+};
+
+function asColumn(col, len, as) {
+  var txt = len>1 && as!=null? as+': '+col:as;
+  return txt!=null && col.endsWith('_e')? txt+' error':txt;
+};
+
+async function columns(db, ast) {
+  var y = await ast.map((col) => expressions(db, col.expr));
+  for(var i=0, I=ast.length, z=[]; i<I; i++) {
+    var col = ast[i], exps = y[i];
+    for(var exp of exps) {
+      if(exp.type!=='column_ref') z.push({expr: exp, as: as==null? asExpression(exp):as});
+      else z.push({expr: exp, as: asColumn(exp.column, exps.length, col.as)});
+      if(exp.type!=='column_ref' || !data.VALUECOLUMNS.has(exp.column)) continue;
+      z.push({expr: column(exp.column+'_e'), as: asColumn(exp.column+'_e', exps.length, col.as)});
+    }
+  }
+  return z;
 };
 
 function frmRename(db, ast) {
