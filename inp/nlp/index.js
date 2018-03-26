@@ -24,7 +24,7 @@ const LIMIT = [
 ];
 const VALUE = [
   {c: ['operator', 'ALL', 'keyword', 'TYPE', 'column', null], a: (s, t, i) => token('column', `all: ${t[i+2].value}`)},
-  {c: ['operator', '+', 'keyword', 'TYPE', 'column', null], a: (s, t, i) => token('column', `sum: ${t[i+2].value}`)},
+  {c: ['operator', '+', 'keyword', 'TYPE', 'column', null], a: (s, t, i) => { console.log('hello'); return token('column', `sum: ${t[i+2].value}`);} },
   {c: ['function', 'avg', 'keyword', 'TYPE', 'column', null], a: (s, t, i) => token('column', `avg: ${t[i+2].value}`)},
   {c: ['column', null, 'keyword', 'PER', 'number/cardinal', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"*${t[i+2].value/100})`); }},
   {c: ['column', null, 'keyword', 'PER', 'unit', null], a: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token('expression', `("${t[i].value}"*${t[i+2].value/100})`); }},
@@ -118,31 +118,43 @@ function token(type, value) {
   return {type, value};
 };
 
-function stageRunAt(stg, sta, tkns, i) {
-  stgs: for(var s=0, S=stg.length, T=tkns.length; s<S; s++) {
-    var c = stg[s].c, a = stg[s].a, C = c.length/2;
-    if(i+C>T) continue stgs;
-    for(var j=0; j<C; j++) {
-      if(!tkns[i+j].type.startsWith(c[j*2]) || (c[j*2+1]!=null && !tkns[i+j].value.startsWith(c[j*2+1]))) continue stgs;
-    }
-    return {tokens: a(sta, tkns, i)||[], length: C};
+function partMatch(tkn, pat, p) {
+  if(!tkn.type.startsWith(pat.c[p])) return false;
+  return pat.c[p+1]==null || tkn.value.startsWith(pat.c[p+1]);
+};
+
+function patternMatch(tkns, t, pat) {
+  var P = pat.c.length/2;
+  if(t+P>tkns.length) return false;
+  for(var p=0; p<P; p++)
+    if(!partMatch(tkns[t+p], pat, p)) return false;
+  return true;
+};
+
+function patternRunOnce(tkns, pat, sta) {
+  for(var t=0, T=tkns.length, z=[]; t<T; t++) {
+    if(!patternMatch(tkns, t, pat)) { z.push(tkns[t]); continue; }
+    console.log(pat);
+    var ans = pat.a(sta, tkns, t);
+    if(ans==null) continue;
+    if(!Array.isArray(ans)) z.push(ans);
+    else z.push.apply(Z, ans);
   }
-  return null;
+  return z;
+};
+
+function patternRun(tkns, pat, sta, rpt=false) {
+  do {
+    var z = patternRunOnce(tkns, pat, sta);
+    if(z.length>=tkns.length) break;
+    tkns = z;
+  } while(rpt);
+  return z;
 };
 
 function stageRun(stg, sta, tkns, rpt=false) {
-  do {
-    var del = false, z = [];
-    for(var i=0, I=tkns.length; i<I;) {
-      var ans = stageRunAt(stg, sta, tkns, i);
-      if(ans==null) { z.push(tkns[i++]); continue; }
-      if(!Array.isArray(ans.tokens)) z.push(ans.tokens);
-      else z.push.apply(z, ans.tokens);
-      i += ans.length;
-      del = true;
-    }
-    tkns = z;
-  } while(rpt && del);
+  for(var pat of stg)
+    var z = patternRun(tkns, pat, sta, rpt);
   return z;
 };
 
@@ -151,6 +163,7 @@ function process(tkns) {
   tkns = stageRun(NULLORDER, sta, tkns);
   tkns = stageRun(NUMBER, sta, tkns, true);
   tkns = stageRun(LIMIT, sta, tkns);
+  console.log(tkns);
   tkns = stageRun(VALUE, sta, tkns, true);
   tkns = stageRun(EXPRESSION, sta, tkns, true);
   tkns = stageRun(ORDERBY, sta, tkns, true);
