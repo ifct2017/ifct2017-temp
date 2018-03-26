@@ -111,7 +111,7 @@ function groupBy(db, ast) {
   return Promise.all(ast.map((exp) => expressions(db, exp)));
 };
 
-function frmRename(db, ast) {
+function from(db, ast) {
   var sql = `SELECT * FROM "table" WHERE TRUE AND TRUE`;
   var asu = new Parser().parse(sql);
   if(!ast.where) ast.where = asu.where;
@@ -119,7 +119,7 @@ function frmRename(db, ast) {
   for(var i=0, I=ast.from.length; i<I; i++) {
     ast.from[i].db = null;
     var tab = ast.from[i].table.trim();
-    if(tab.search(/compositions?|foods?/gi)===0) continue;
+    if(data.tableMatch(tab.split(' '))!=null) continue;
     sql = `SELECT * FROM "table" WHERE FALSE OR ("tsvector" != plainto_tsquery('${tab}'))`;
     var asu = new Parser().parse(sql);
     asu.where.right.operator = '@@';
@@ -129,14 +129,14 @@ function frmRename(db, ast) {
   ast.from = [table('compositions_tsvector')];
 };
 
-function rename(db, ast) {
+function process(db, ast) {
   var rdy = [];
-  if(typeof ast.columns!=='string') rdy.push(lstRename(db, ast.columns));
-  if(ast.where) rdy.push(expRename(db, ast, 'where'));
-  if(ast.having) rdy.push(expRename(db, ast, 'having'));
-  if(ast.orderby) rdy.push(lstRename(db, ast.orderby));
-  if(ast.groupby) rdy.push(lstRename(db, ast.groupby));
-  return Promise.all(rdy).then(() => frmRename(db, ast)).then(() => asSet(ast.columns));
+  if(typeof ast.columns!=='string') rdy.push(columns(db, ast.columns).then((ans) => ast.columns = ans));
+  if(ast.where!=null) rdy.push(expressionRename(db, ast, 'where'));
+  if(ast.having!=null) rdy.push(expressionRename(db, ast, 'having'));
+  if(ast.orderby!=null) rdy.push(orderBy(db, ast.orderby).then((ans) => ast.orderby = ans));
+  if(ast.groupby!=null) rdy.push(groupBy(db, ast.groupby).then((ans) => ast.groupby = ans));
+  return Promise.all(rdy).then(() => from(db, ast));
 };
 
 function limit(ast, max) {
@@ -150,7 +150,7 @@ function aql(db, txt, lim=20) {
   if(txt.includes(';')) throw new Error('Too many queries');
   const ast = new Parser().parse(txt);
   if(ast.type!=='select') throw new Error('Only SELECT query supported');
-  return rename(db, ast).then(() => {
+  return process(db, ast).then(() => {
     limit(ast, lim);
     return astToSQL(ast);
   });
