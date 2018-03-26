@@ -68,19 +68,15 @@ const GROUPBY = [
   {t: [T.KEYWORD, T.EXPRESSION], v: [/GROUP BY/, null], f: (s, t, i) => { s.groupBy.push(`${t[i+1].value}`); return t[i]; }},
 ];
 const HAVING = [
-  {t: [T.OPERATOR, T.OPERATOR, T.KEYWORD, T.EXPRESSION], v: [/AND/, /NOT/, /HAVING/, null], f: (s, t, i) => { s.having += `AND (NOT ${t[i+3].value})`; return null; }},
-  {t: [T.OPERATOR, T.OPERATOR, T.KEYWORD, T.EXPRESSION], v: [/OR/, /NOT/, /HAVING/, null], f: (s, t, i) => { s.having += `OR (NOT ${t[i+3].value})`; return null; }},
+  {t: [T.OPERATOR, T.OPERATOR, T.KEYWORD, T.EXPRESSION], v: [/OR|AND/, /NOT/, /HAVING/, null], f: (s, t, i) => { s.having += `${t[i].value} (NOT ${t[i+3].value})`; return null; }},
   {t: [T.OPERATOR, T.KEYWORD, T.EXPRESSION], v: [/NOT/, /HAVING/, null], f: (s, t, i) => { s.having += `AND (NOT ${t[i+2].value})`; return null; }},
-  {t: [T.OPERATOR, T.KEYWORD, T.EXPRESSION], v: [/AND/, /HAVING/, null], f: (s, t, i) => { s.having += `AND (${t[i+2].value})`; return null; }},
-  {t: [T.OPERATOR, T.KEYWORD, T.EXPRESSION], v: [/OR/, /HAVING/, null], f: (s, t, i) => { s.having += `OR (${t[i+2].value})`; return null; }},
+  {t: [T.OPERATOR, T.KEYWORD, T.EXPRESSION], v: [/OR|AND/, /HAVING/, null], f: (s, t, i) => { s.having += `${t[i].value} (${t[i+2].value})`; return null; }},
   {t: [T.KEYWORD, T.EXPRESSION], v: [/HAVING/, null], f: (s, t, i) => { s.having += `AND (${t[i+1].value})`; return null; }},
 ];
 const WHERE = [
-  {t: [T.OPERATOR, T.OPERATOR, T.KEYWORD, T.EXPRESSION], v: [/AND/, /NOT/, /WHERE/, null], f: (s, t, i) => { s.where += `AND (NOT ${t[i+3].value})`; return null; }},
-  {t: [T.OPERATOR, T.OPERATOR, T.KEYWORD, T.EXPRESSION], v: [/OR/, /NOT/, /WHERE/, null], f: (s, t, i) => { s.where += `OR (NOT ${t[i+3].value})`; return null; }},
+  {t: [T.OPERATOR, T.OPERATOR, T.KEYWORD, T.EXPRESSION], v: [/OR|AND/, /NOT/, /WHERE/, null], f: (s, t, i) => { s.where += `${t[i].value} (NOT ${t[i+3].value})`; return null; }},
   {t: [T.OPERATOR, T.KEYWORD, T.EXPRESSION], v: [/NOT/, /WHERE/, null], f: (s, t, i) => { s.where += `AND (NOT ${t[i+2].value})`; return null; }},
-  {t: [T.OPERATOR, T.KEYWORD, T.EXPRESSION], v: [/AND/, /WHERE/, null], f: (s, t, i) => { s.where += `AND (${t[i+2].value})`; return null; }},
-  {t: [T.OPERATOR, T.KEYWORD, T.EXPRESSION], v: [/OR/, /WHERE/, null], f: (s, t, i) => { s.where += `OR (${t[i+2].value})`; return null; }},
+  {t: [T.OPERATOR, T.KEYWORD, T.EXPRESSION], v: [/OR|AND/, /WHERE/, null], f: (s, t, i) => { s.where += `${t[i].value} (${t[i+2].value})`; return null; }},
   {t: [T.KEYWORD, T.EXPRESSION], v: [/WHERE/, null], f: (s, t, i) => { s.where += `AND (${t[i+1].value})`; return null; }},
 ];
 const FROM = [
@@ -88,10 +84,8 @@ const FROM = [
   {t: [T.ROW], v: [null], f: (s, t, i) => { s.from.push(`"${t[i].value}"`); return null; }},
 ];
 const COLUMN = [
-  {t: [T.KEYWORD, T.KEYWORD, T.EXPRESSION, T.KEYWORD, T.EXPRESSION], v: [/SELECT/, /DISTINCT/, null, /AS/, null], f: (s, t, i) => { s.columns.push(`DISTINCT ${t[i+2].value} AS ${t[i+4].value}`); return t[i]; }},
-  {t: [T.KEYWORD, T.KEYWORD, T.EXPRESSION, T.KEYWORD, T.EXPRESSION], v: [/SELECT/, /ALL/, null, /AS/, null], f: (s, t, i) => { s.columns.push(`ALL ${t[i+2].value} AS ${t[i+4].value}`); return t[i]; }},
-  {t: [T.KEYWORD, T.KEYWORD, T.EXPRESSION], v: [/SELECT/, /DISTINCT/, null], f: (s, t, i) => { s.columns.push(`DISTINCT ${t[i+2].value}`); return t[i]; }},
-  {t: [T.KEYWORD, T.KEYWORD, T.EXPRESSION], v: [/SELECT/, /ALL/, null], f: (s, t, i) => { s.columns.push(`ALL ${t[i+2].value}`); return t[i]; }},
+  {t: [T.KEYWORD, T.KEYWORD, T.EXPRESSION, T.KEYWORD, T.EXPRESSION], v: [/SELECT/, /ALL|DISTINCT/, null, /AS/, null], f: (s, t, i) => { s.columns.push(`${t[i+1].value} ${t[i+2].value} AS ${t[i+4].value}`); return t[i]; }},
+  {t: [T.KEYWORD, T.KEYWORD, T.EXPRESSION], v: [/SELECT/, /ALL|DISTINCT/, null], f: (s, t, i) => { s.columns.push(`${t[i+1].value} ${t[i+2].value}`); return t[i]; }},
   {t: [T.KEYWORD, T.EXPRESSION, T.KEYWORD, T.EXPRESSION], v: [/SELECT/, null, /AS/, null], f: (s, t, i) => { s.columns.push(`${t[i+1].value} AS ${t[i+3].value}`); return t[i]; }},
   {t: [T.KEYWORD, T.EXPRESSION], v: [/SELECT/, null], f: (s, t, i) => { s.columns.push(t[i+1].value); return t[i]; }},
 ];
