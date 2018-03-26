@@ -1,5 +1,5 @@
 const natural = require('natural');
-const data = require('../data');
+const data = require('../../data');
 
 function match(typ, wrds, mth) {
   var val = wrds.slice(0, mth.length).join(' ');

@@ -1,6 +1,6 @@
 const Parser = require('flora-sql-parser').Parser;
 const astToSQL = require('flora-sql-parser').util.astToSQL;
-const data = require('./data');
+const data = require('../data');
 
 function number(val) {
   return {type: 'number', value: val};
