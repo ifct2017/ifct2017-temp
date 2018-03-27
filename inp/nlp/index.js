@@ -181,32 +181,20 @@ function process(tkns) {
 };
 
 function tokenize(txt) {
-  var quo = null, wrd = false, y = '', z = [];
-  var wrds = new natural.WordPunctTokenizer().tokenize(txt);
-  for(var w of wrds) {
-    if(w.search(/^\w/)===0) {
-      if(quo!=null) y += wrd? ' '+w:w;
-      else z.push(token(T.TEXT, w));
-      wrd = true;
-    }
-    else {
-      for(var c of w) {
-        if(c==="'" || c==='"' || c==='`') {
-          if(quo==null) quo = c;
-          else if(quo!==c) y += c;
-          else { z.push(token(T.TEXT, y)); y = ''; qou = null; }
-        }
-        else if(quo!=null) y += c;
-        else if(!/\s/.test(c)) z.push(token(T.TEXT, c));
-      }
-      wrd = false;
-    }
+  var quo = null, y = '', z = [];
+  for(var c of txt) {
+    console.log(c, quo, y);
+    if(quo!=null || /\w/.test(c)) { y += c; continue; }
+    if(y) { z.push(token(T.TEXT, y)); y = ''; }
+    if(/[\'\"\`]/.test(c)) quo = quo==null? c:null;
+    else if(/\S/g.test(c)) z.push(token(T.TEXT, c));
   }
   return z;
 };
 
 async function nlp(db, txt) {
   var tkns = tokenize(txt);
+  console.log(tkns);
   var stg1 = number(tkns);
   var stg2 = unit(stg1);
   var stg3 = reserved(stg2);
