@@ -26,24 +26,27 @@ const VALUE = [
   {t: [T.COLUMN, T.KEYWORD, T.CARDINAL], v: [null, /PER/, null], f: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token(T.EXPRESSION, `("${t[i].value}"*${t[i+2].value/100})`); }},
   {t: [T.COLUMN, T.KEYWORD, T.UNIT], v: [null, /PER/, null], f: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token(T.EXPRESSION, `("${t[i].value}"*${t[i+2].value/100})`); }},
   {t: [T.COLUMN, T.KEYWORD, T.UNIT], v: [null, /AS|IN/, null], f: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token(T.EXPRESSION, `("${t[i].value}"/${t[i+1].value})`); }},
-  {t: [T.COLUMN], v: [null], f: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token(T.EXPRESSION, `"${t[i].value}"`); }},
-  {t: [T.NUMBER], v: [null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value}`)},
-  {t: [T.TEXT], v: [null], f: (s, t, i) => token(T.EXPRESSION, `'${t[i].value}'`)},
-  {t: [T.KEYWORD], v: [/NULL|TRUE|FALSE/], f: (s, t, i) => token(T.EXPRESSION, t[i].value)},
+  {t: [T.COLUMN], v: [null], f: (s, t, i) => { s.columnsUsed.push(`"${t[i].value}"`); return token(T.VALUE, `"${t[i].value}"`); }},
+  {t: [T.NUMBER], v: [null], f: (s, t, i) => token(T.VALUE, `${t[i].value}`)},
+  {t: [T.TEXT], v: [null], f: (s, t, i) => token(T.VALUE, `'${t[i].value}'`)},
+  {t: [T.KEYWORD], v: [/NULL/], f: (s, t, i) => token(T.VALUE, t[i].value)},
+  {t: [T.KEYWORD], v: [/TRUE|FALSE/], f: (s, t, i) => token(T.BOOLEAN, t[i].value)},
 ];
 const EXPRESSION = [
-  {t: [T.OPERATOR, T.BINARY, T.EXPRESSION], v: [null, /\+|\-/, null], f: (s, t, i) => [t[i], token(T.EXPRESSION, `${t[i+1].value}${t[i+2].value}`)]},
-  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /\^/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
-  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /\*\/%/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
-  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /\+\-/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
-  {t: [T.UNARY, T.EXPRESSION], v: [/[^(NOT)]/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value}`)},
-  {t: [T.EXPRESSION, T.UNARY], v: [null, /IS.*/], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value}`)},
-  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /[^\w\s=!<>]+/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
-  {t: [T.EXPRESSION, T.TERNARY, T.EXPRESSION, T.OPERATOR, T.EXPRESSION], v: [null, null, null, /AND/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value} AND ${t[i+4].value}`)},
+  {t: [T.OPERATOR, T.BINARY, T.EXPRESSION], v: [null, /\+|\-/, null], f: (s, t, i) => [t[i], token(T.VALUE, `${t[i+1].value}${t[i+2].value}`)]},
+  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /\^/, null], f: (s, t, i) => token(T.VALUE, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
+  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /\*\/%/, null], f: (s, t, i) => token(T.VALUE, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
+  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /\+\-/, null], f: (s, t, i) => token(T.VALUE, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
+  {t: [T.UNARY, T.EXPRESSION], v: [/[^(NOT)]/, null], f: (s, t, i) => token(T.VALUE, `${t[i].value} ${t[i+1].value}`)},
+  {t: [T.EXPRESSION, T.UNARY], v: [null, /IS.*/], f: (s, t, i) => token(T.BOOLEAN, `${t[i].value} ${t[i+1].value}`)},
+  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /[^\w\s=!<>]+/, null], f: (s, t, i) => token(T.VALUE, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
+  {t: [T.EXPRESSION, T.TERNARY, T.EXPRESSION, T.OPERATOR, T.EXPRESSION], v: [null, null, null, /AND/, null], f: (s, t, i) => token(T.BOOLEAN, `${t[i].value} ${t[i+1].value} ${t[i+2].value} AND ${t[i+4].value}`)},
   {t: [T.EXPRESSION, T.TERNARY, T.EXPRESSION, T.EXPRESSION], v: [null, null, null, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value} AND ${t[i+3].value}`)},
   {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION, T.OPERATOR, T.EXPRESSION], v: [null, null, null, /ESCAPE/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value} ESCAPE ${t[i+4].value}`)},
-  {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION, T.OPERATOR, T.EXPRESSION], v: [null, null, null, /OR|AND/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value} AND ${t[i].value} ${t[i+1].value} ${t[i+4].value}`)},
-  {t: [T.EXPRESSION, T.OPERATOR, T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /OR|AND/, null, null, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+3].value} ${t[i+4].value} AND ${t[i+2].value} ${t[i+3].value} ${t[i+4].value}`)},
+  {t: [T.VALUE, T.BINARY, T.VALUE, T.OPERATOR, T.VALUE, T.OPERATOR], v: [null, null, null, /OR|AND/, null, /OR|AND/], f: (s, t, i) => [token(T.BOOLEAN, `${t[i].value} ${t[i+1].value} ${t[i+2].value} AND ${t[i].value} ${t[i+1].value} ${t[i+4].value}`), t[i+5]]},
+  {t: [T.VALUE, T.OPERATOR, T.VALUE, T.BINARY, T.VALUE, T.OPERATOR], v: [null, /OR|AND/, null, null, null, /OR|AND/], f: (s, t, i) => [token(T.BOOLEAN, `${t[i].value} ${t[i+3].value} ${t[i+4].value} AND ${t[i+2].value} ${t[i+3].value} ${t[i+4].value}`), t[i+5]]},
+  {t: [T.KEYWORD, T.VALUE, T.BINARY, T.VALUE, T.OPERATOR, T.VALUE], v: [null, null, null, null, /OR|AND/, null], f: (s, t, i) => i+6>=t.length? [t[i], token(T.BOOLEAN, `${t[i+1].value} ${t[i+2].value} ${t[i+3].value} AND ${t[i+1].value} ${t[i+2].value} ${t[i+5].value}`)]:t.slice(i, i+6)},
+  {t: [T.KEYWORD, T.VALUE, T.OPERATOR, T.VALUE, T.BINARY, T.VALUE], v: [null, null, /OR|AND/, null, null, null], f: (s, t, i) => i+6>=t.length? [t[i], token(T.BOOLEAN, `${t[i+1].value} ${t[i+4].value} ${t[i+5].value} AND ${t[i+3].value} ${t[i+4].value} ${t[i+4].value}`)]:t.slice(i, i+6)},
   {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /[^(OR)(AND)]/, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
   {t: [T.UNARY, T.EXPRESSION], v: [null, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value}`)},
   {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, null, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
@@ -104,7 +107,7 @@ function token(type, value) {
 function typeMatch(tkns, i, typ) {
   if(i+typ.length>tkns.length) return false;
   for(var j=0, J=typ.length; j<J; i++, j++)
-    if(tkns[i].type & typ[j]!==typ[j]) return false;
+    if((tkns[i].type & 0xF0)!==(typ[j] & 0xF0) || ((typ[j] & 0xF)>0 && tkns[i].type!==typ[j])) return false;
   return true;
 };
 
@@ -119,8 +122,11 @@ function substageRun(sub, sta, tkns, rpt=false) {
   do {
     var tkns = z, z = [];
     for(var i=0, I=tkns.length; i<I; i++) {
-      var ans = typeMatch(tkns, i, sub.t) && valueMatch(tkns, i, sub.v)? sub.f(sta, tkns, i):tkns[i];
-      if(ans!=null) { if(Array.isArray(ans)) z.push.apply(z, ans); else z.push(ans); }
+      if(!typeMatch(tkns, i, sub.t) || !valueMatch(tkns, i, sub.v)) { z.push(tkns[i]); continue; }
+      var ans = sub.f(sta, tkns, i), i = i+sub.t.length-1;
+      if(ans==null) continue;
+      else if(!Array.isArray(ans)) z.push(ans);
+      z.push.apply(z, ans);
     }
   } while (rpt && z.length<tkns.length);
   return z;
@@ -129,9 +135,8 @@ function substageRun(sub, sta, tkns, rpt=false) {
 function stageRun(stg, sta, tkns, rpt0=false, rpt1=false) {
   var z = tkns;
   do {
-    var tkns = z;
     for(var sub of stg)
-      z = substageRun(sub, sta, tkns, rpt0);
+      z = substageRun(sub, sta, tkns=z, rpt0);
   } while(rpt1 && z.length<tkns.length);
   return z;
 };
@@ -206,6 +211,7 @@ async function nlp(db, txt) {
   var stg2 = unit(stg1);
   var stg3 = reserved(stg2);
   var stg4 = await entity(db, stg3);
+  if(stg4.length>0 && (stg4[0].type & 0xF0)!==T.KEYWORD) stg4.unshift(token(T.KEYWORD, 'SELECT'));
   return process(stg4);
 };
 module.exports = nlp;
