@@ -135,9 +135,10 @@ function substageRun(sub, sta, tkns, rpt=false) {
 function stageRun(stg, sta, tkns, rpt0=false, rpt1=false) {
   var z = tkns;
   do {
+    var plen = tkns.length;
     for(var sub of stg)
       z = substageRun(sub, sta, tkns=z, rpt0);
-  } while(rpt1 && z.length<tkns.length);
+  } while(rpt1 && z.length<plen);
   return z;
 };
 
@@ -183,9 +184,8 @@ function process(tkns) {
 function tokenize(txt) {
   var quo = null, y = '', z = [];
   for(var c of txt) {
-    console.log(c, quo, y);
-    if(quo!=null || /\w/.test(c)) { y += c; continue; }
-    if(y) { z.push(token(T.TEXT, y)); y = ''; }
+    if((quo!=null && quo!=c) || /\w/.test(c)) { y += c; continue; }
+    if(y) { z.push(token(quo==c? T.QUOTED:T.TEXT, y)); y = ''; }
     if(/[\'\"\`]/.test(c)) quo = quo==null? c:null;
     else if(/\S/g.test(c)) z.push(token(T.TEXT, c));
   }
@@ -194,12 +194,12 @@ function tokenize(txt) {
 
 async function nlp(db, txt) {
   var tkns = tokenize(txt);
-  console.log(tkns);
-  var stg1 = number(tkns);
-  var stg2 = unit(stg1);
-  var stg3 = reserved(stg2);
-  var stg4 = await entity(db, stg3);
-  if(stg4.length>0 && (stg4[0].type & 0xF0)!==T.KEYWORD) stg4.unshift(token(T.KEYWORD, 'SELECT'));
-  return process(stg4);
+  tkns = number(tkns);
+  tkns = unit(tkns);
+  tkns = reserved(tkns);
+  tkns = await entity(db, tkns);
+  tkns = tkns.filter((v) => v.type!==T.TEXT || !/[~!@#$:,\?\.\|\/\\]/.test(v.value));
+  if(tkns.length>0 && (tkns[0].type & 0xF0)!==T.KEYWORD) tkns.unshift(token(T.KEYWORD, 'SELECT'));
+  return process(tkns);
 };
 module.exports = nlp;

@@ -1,5 +1,7 @@
 const TYPE = {
   TEXT: 0x00,
+  NORMAL: 0x01,
+  QUOTED: 0x02,
   NUMBER: 0x10,
   CARDINAL: 0x11,
   ORDINAL: 0x12,
