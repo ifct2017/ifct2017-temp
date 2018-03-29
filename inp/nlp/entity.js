@@ -18,8 +18,9 @@ function processAt(db, wrds) {
   var tab = data.tableMatch(wrds);
   if(tab!=null) return Promise.resolve(match(T.TABLE, wrds, tab));
   return Promise.all([data.columnMatch(db, wrds), data.rowMatch(db, wrds)]).then((ans) => {
-    if(ans[1]!=null) return match(T.ROW, wrds, ans[1]);
-    return ans[0]!=null? match(T.COLUMN, wrds, ans[0]):null;
+    var ca = ans[0]||[], ra = ans[1]||[];
+    if(ra.length>ca.length) return match(T.ROW, wrds, ans[1]);
+    return ca.length>0? match(T.COLUMN, wrds, ans[0]):null;
   });
 };
 

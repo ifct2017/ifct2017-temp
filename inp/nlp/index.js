@@ -1,4 +1,5 @@
 const natural = require('natural');
+const data = require('../../data');
 const number = require('./number');
 const unit = require('./unit');
 const reserved = require('./reserved');
@@ -169,7 +170,7 @@ function process(tkns) {
     for(var col of sta.columnsUsed)
       if(!sta.columns.includes(col)) sta.columns.push(col);
   }
-  if(sta.columns.length===0) sta.columns.push(`*`);
+  if(data.table(sta.from[0])==='columns_tsvector' && data.columns.includes('*')) data.columns.length = 0;
   if(!sta.columns.includes('*') && !sta.columns.includes(`"name"`)) sta.columns.unshift(`"name"`);
   if(sta.from.length===0) sta.from.push(`"food"`);
   var z = `SELECT ${sta.columns.join(', ')} FROM ${sta.from.join(', ')}`;
