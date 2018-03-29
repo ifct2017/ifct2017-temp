@@ -12,6 +12,7 @@ const INTENT = new Map([
   ['query.rowdesc', botRowDesc],
   ['query.columndesc', botColumnDesc],
   ['query.select', botSelect],
+  ['Default Fallback Intent', botSelect],
 ]);
 const E = process.env;
 var X = express();
