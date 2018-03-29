@@ -1,5 +1,5 @@
 const abbreviations = require('@ifct2017/abbreviations');
-const columns = require('@ifct2017/compositions').columns;
+const columns = require('@ifct2017/columns');
 const compositingcentres = require('@ifct2017/compositingcentres');
 const frequencydistribution = require('@ifct2017/frequencydistribution');
 const groups = require('@ifct2017/groups');
@@ -17,7 +17,7 @@ function create(db) {
       {abbr: 'A', full: 'B'}
     ),
     table.setup(db, columns(), 'columns',
-      {code: 'TEXT NOT NULL', name: 'TEXT NOT NULL', tags: 'TEXT NOT NULL'}, 'code',
+      {code: 'TEXT NOT NULL', name: 'TEXT NOT NULL', tags: 'TEXT NOT NULL', desc: 'TEXT NOT NULL'}, 'code',
       {code: 'A', name: 'B', tags: 'C'}
     ),
     table.setup(db, compositingcentres(), 'compositingcentres', 
