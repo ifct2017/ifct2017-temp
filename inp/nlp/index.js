@@ -172,7 +172,6 @@ function process(tkns) {
   }
   if(data.table(sta.from[0])==='columns_tsvector' && data.columns.includes('*')) data.columns.length = 0;
   if(!sta.columns.includes('*') && !sta.columns.includes(`"name"`)) sta.columns.unshift(`"name"`);
-  if(!sta.columns.includes('*') && !sta.columns.includes(`"code"`)) sta.columns.unshift(`"code"`);
   if(sta.from.length===0) sta.from.push(`"food"`);
   var z = `SELECT ${sta.columns.join(', ')} FROM ${sta.from.join(', ')}`;
   if(sta.where.length>0) z += ` WHERE ${sta.where}`;
