@@ -125,7 +125,9 @@ function from(db, ast) {
     if(ast.where.right.value===true) { ast.where.right = asu.where; ast.where.right.parentheses = true; }
     else { asu.where.left = ast.where.right; ast.where.right = asu.where; }
   }
-  ast.from = [table('compositions_tsvector')];
+  var tab = ast.from.length>0? ast.from[0].table:null;
+  ast.from[0] = table(data.table(tab)||data.table('food'));
+  ast.from.length = 1;
 };
 
 function process(db, ast) {

@@ -169,8 +169,8 @@ function process(tkns) {
     for(var col of sta.columnsUsed)
       if(!sta.columns.includes(col)) sta.columns.push(col);
   }
-  if(!sta.columnsUsed.includes(`"name"`) && !sta.columns.includes(`"name"`)) sta.columns.unshift(`"name"`);
   if(sta.columns.length===0) sta.columns.push(`*`);
+  if(!sta.columns.includes('*') && !sta.columns.includes(`"name"`)) sta.columns.unshift(`"name"`);
   if(sta.from.length===0) sta.from.push(`"food"`);
   var z = `SELECT ${sta.columns.join(', ')} FROM ${sta.from.join(', ')}`;
   if(sta.where.length>0) z += ` WHERE ${sta.where}`;
