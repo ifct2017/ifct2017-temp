@@ -9,8 +9,8 @@ const out = require('./out');
 
 const INTENT = new Map([
   ['query.abbreviation', botAbbreviation],
-  ['query.food', botFood],
-  ['query.info', botInfo],
+  ['query.rowdesc', botRowDesc],
+  ['query.columndesc', botColumnDesc],
   ['query.select', botSelect],
 ]);
 const E = process.env;
@@ -52,7 +52,7 @@ async function botAbbreviation(db, res) {
   return `${txt} stands for ${data.ABBREVIATIONS.get(key)}.`;
 };
 
-async function botFood(db, res) {
+async function botRowDesc(db, res) {
   var txt = (res.parameters['compositions-text']||[]).join(' ').replace(/[^\w ]/g, ' ');
   var sql = `SELECT * FROM "compositions_tsvector" WHERE "tsvector" @@ plainto_tsquery('${txt}')`;
   var ans = await runSql(db, sql+` ORDER BY ts_rank("tsvector", plainto_tsquery('${txt}'), 0) DESC LIMIT 1`, 'groups');
@@ -65,7 +65,7 @@ async function botFood(db, res) {
   return [{buttons: [], imageUrl: img, subtitle, title, type: 1}, {imageUrl: tab, type: 3}];
 };
 
-async function botInfo(db, res) {
+async function botColumnDesc(db, res) {
   var txt = (res.parameters['columns-text']||[]).join(' ').replace(/[^\w ]/g, ' ');
   var sql = `SELECT "desc" FROM "columns_tsvector" WHERE "tsvector" @@ plainto_tsquery('${txt}')`;
   var ans = await runSql(db, sql+` ORDER BY ts_rank("tsvector", plainto_tsquery('${txt}'), 0) DESC LIMIT 1`);
