@@ -3,7 +3,7 @@ const COLUMNS = require('../data').COLUMNS;
 const UNIT = new Map([[0, 'g'], [3, 'mg'], [6, 'μg'], [9, 'ng']]);
 const DEFAULTUNIT = new Map([['enerc', 'kcal']]);
 const DEFAULTORDER = ['code', 'name', 'scie', 'lang', 'grup', 'regn', 'enerc', 'tsvector'];
-const DEFAULTEXCLUDE = ['lang', 'desc', 'tags', 'tsvector'];
+const DEFAULTEXCLUDE = ['lang', 'tags', 'tsvector'];
 
 function round(num) {
   return Math.round(num*1e+12)/1e+12;

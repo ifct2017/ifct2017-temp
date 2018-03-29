@@ -69,8 +69,8 @@ async function botInfo(db, res) {
   var txt = (res.parameters['columns-text']||[]).join(' ').replace(/[^\w ]/g, ' ');
   var sql = `SELECT "desc" FROM "columns_tsvector" WHERE "tsvector" @@ plainto_tsquery('${txt}')`;
   var ans = await runSql(db, sql+` ORDER BY ts_rank("tsvector", plainto_tsquery('${txt}'), 0) DESC LIMIT 1`);
-  console.log('BOT.INFO: desc='+ans.value.desc.value[0]);
-  return (ans.desc.value[0]||'I dont know about it').replace(/\\n/g, '\n');
+  console.log('BOT.INFO: '+ans.value.desc.value[0]);
+  return (ans.value.desc.value[0]||'I dont know about it').replace(/\\n/g, '\n');
 };
 
 async function botSelect(db, res) {
