@@ -17,9 +17,10 @@ function toColumns(ans) {
   return z;
 };
 
-function toGroups(ans) {
+function toGroups(ans, exc=DEFAULTEXCLUDE) {
   var z = {};
   for(var k in ans) {
+    if(exc.includes(k)) continue;
     if(k.endsWith('_e')) {
       var k0 = k.substring(0, k.length-2);
       z[k0] = z[k0]||{};
