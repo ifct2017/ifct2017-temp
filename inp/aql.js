@@ -4,6 +4,7 @@ const data = require('../data');
 
 const SELECT = 'select';
 const FROMT = [{table: 't', as: null}];
+const DEFAULTLIMIT = {'compositions_tsvector': 20};
 
 function number(value) {
   return {type: 'number', value};
@@ -145,14 +146,14 @@ function limit(ast, max) {
   ast.limit = [{type: 'number', value}];
 };
 
-function aql(db, txt, lim=20) {
+function aql(db, txt, lim=DEFAULTLIMIT) {
   txt = uncomment(txt);
   txt = txt.endsWith(';')? txt.slice(0, -1):txt;
   if(txt.includes(';')) throw new Error('Too many queries');
   const ast = new Parser().parse(txt);
   if(ast.type!=='select') throw new Error('Only SELECT query supported');
   return process(db, ast).then(() => {
-    limit(ast, lim);
+    limit(ast, lim[ast.from[0].table]||1000);
     return astToSQL(ast);
   });
 };
