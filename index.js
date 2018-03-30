@@ -59,8 +59,7 @@ async function botRowDesc(db, res) {
   var ans = await runSql(db, sql+` ORDER BY ts_rank("tsvector", plainto_tsquery('${txt}'), 0) DESC LIMIT 1`, 'groups');
   var img = `https://unpkg.com/@ifct2017/pictures/${ans.value.code.value[0]}.jpeg`;
   console.log('BOT.FOOD: image='+img);
-  var ord = inp.sql.order(ans.value, 0), val = inp.sql.toTexts(inp.sql.toUnits(ans.value));
-  val = Object.keys(val).filter((k) => !!val[k].value[0]);
+  var ord = inp.sql.order(ans.value, 0), val = inp.sql.filter(inp.sql.toTexts(inp.sql.toUnits(ans.value)));
   var title = val.name.text[0], subtitle = val.scie.text[0], row = inp.sql.row(val, 0, ord);
   var tab = await out.image(out.table({title: val.name.text[0], value: row}));
   console.log('BOT.FOOD: table='+tab);

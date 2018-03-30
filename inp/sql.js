@@ -74,7 +74,14 @@ function range(fld) {
   return z;
 };
 
-function order(ans, i, def=DEFAULTORDER) {
+function filter(ans, i=0) {
+  var z = {};
+  for(var k of ans)
+    if(ans[k].value[0]) z[k] = ans[k];
+  return z;
+};
+
+function order(ans, i=0, def=DEFAULTORDER) {
   return Object.keys(ans).sort((a, b) => {
     var ia = def.indexOf(a)+1, ib = def.indexOf(b)+1;
     if(ia>0 && ib>0) return ia<ib? -1:1;
@@ -85,7 +92,7 @@ function order(ans, i, def=DEFAULTORDER) {
   });
 };
 
-function row(ans, i, ord=Object.keys(ans), exc=DEFAULTEXCLUDE) {
+function row(ans, i=0, ord=Object.keys(ans), exc=DEFAULTEXCLUDE) {
   var z = {fld: {name: 'Field', value: []}, val:{name: 'Value', value:[]}};
   for(var k of ord) {
     if(exc.includes(k)) continue;
@@ -105,6 +112,7 @@ sql.toGroups = toGroups;
 sql.toUnits = toUnits;
 sql.toTexts = toTexts;
 sql.range = range;
+sql.filter = filter;
 sql.order = order;
 sql.row = row;
 module.exports = sql;
