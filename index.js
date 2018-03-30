@@ -61,7 +61,7 @@ async function botRowDesc(db, res) {
   ans.value = inp.sql.filter(ans.value, 0);
   console.log('BOT.FOOD: image='+img);
   var ord = inp.sql.order(ans.value, 0), val = inp.sql.toTexts(inp.sql.toUnits(ans.value));
-  var title = val.name.text[0], subtitle = val.scie.text[0], row = inp.sql.row(val, 0, ord);
+  var title = val.name.text[0], subtitle = val.scie? val.scie.text[0]:'', row = inp.sql.row(val, 0, ord);
   var tab = await out.image(out.table({title: val.name.text[0], value: row}));
   console.log('BOT.FOOD: table='+tab);
   return [{buttons: [], imageUrl: img, subtitle, title, type: 1}, {imageUrl: tab, type: 3}];
