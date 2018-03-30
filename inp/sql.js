@@ -76,8 +76,8 @@ function range(fld) {
 
 function filter(ans, i=0) {
   var z = {};
-  for(var k of ans)
-    if(ans[k].value[0]) z[k] = ans[k];
+  for(var k in ans)
+    if(ans[k].value[i]) z[k] = ans[k];
   return z;
 };
 
