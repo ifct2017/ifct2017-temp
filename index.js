@@ -104,8 +104,6 @@ async function runBot(db, req) {
   console.log(`BOT: ${src} | ${int}`);
   var msg = await INTENT.get(int)(db, req.result);
   if(typeof msg==='string') return {speech: msg, source: 'bot'};
-  for(var m of msg)
-    m.platform = 'google';
   return {speech: '', messages: msg, source: 'bot'};
 };
 
