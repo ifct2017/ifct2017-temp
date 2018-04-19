@@ -20,6 +20,7 @@ const TABLES = new Map([
   ['area composit', 'compositingcentres_tsvector'],
   ['frequencydistribution_tsvector', 'frequencydistribution_tsvector'],
   ['frequencydistribut', 'frequencydistribution_tsvector'],
+  ['distribut frequenc', 'frequencydistribution_tsvector'],
   ['frequenc', 'frequencydistribution_tsvector'],
   ['distribut', 'frequencydistribution_tsvector'],
   ['groups_tsvector', 'groups_tsvector'],
