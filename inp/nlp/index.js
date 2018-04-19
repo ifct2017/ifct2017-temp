@@ -158,10 +158,8 @@ function process(tkns) {
   tkns = stageRun(GROUPBY, sta, tkns, true);
   tkns = stageRun(HAVING, sta, tkns);
   tkns = stageRun(WHERE, sta, tkns);
-  console.log(tkns);
   tkns = stageRun(FROM, sta, tkns);
   tkns = stageRun(COLUMN, sta, tkns);
-  console.log(tkns);
   if(sta.having.startsWith('AND ')) sta.having = sta.having.substring(4);
   if(sta.where.startsWith('AND ')) sta.where = sta.where.substring(4);
   var i = sta.columns.indexOf(`"*"`);
@@ -204,8 +202,10 @@ async function nlp(db, txt) {
   var tkns = tokenize(txt);
   tkns = number(tkns);
   tkns = unit(tkns);
-  tkns = reserved(tkns);
+  console.log(tkns);
   tkns = await entity(db, tkns);
+  tkns = reserved(tkns);
+  console.log(tkns);
   tkns = tkns.filter((v) => v.type!==T.TEXT || !/[~!@#$:,\?\.\|\/\\]/.test(v.value));
   if(tkns.length>0 && (tkns[0].type & 0xF0)!==T.KEYWORD) tkns.unshift(token(T.KEYWORD, 'SELECT'));
   return process(tkns);

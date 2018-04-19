@@ -26,8 +26,8 @@ NLP:
 = show all columns in methods
 = show all columns in regions
 - SELECT <column>
-x show food code
-x show food name
+= show food code
+= show food name (duplicate name)
 x show scientific name
 x show local name
 x show food group

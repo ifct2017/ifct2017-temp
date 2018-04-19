@@ -84,14 +84,16 @@ function columns(db, txt, srt=false) {
 };
 
 function columnMatch(db, wrds) {
-  var col = ALLCOLUMNS.get(natural.PorterStemmer.stem(wrds[0]));
-  if(col!=null) return Promise.resolve({value: col, length: 1});
   for(var i=wrds.length, p=1, sql='', par=[]; i>0; i--, p+=2) {
     sql += `SELECT "code", $${p}::INT AS i FROM "columns_tsvector" WHERE "tsvector" @@ plainto_tsquery($${p+1}) UNION ALL `;
     par.push(i, wrds.slice(0, i).join(' '));
   }
   sql = sql.substring(0, sql.length-11);
-  return db.query(sql, par).then((ans) => ans.rowCount>0? {value: ans.rows[0].code, length: ans.rows[0].i}:null);
+  return db.query(sql, par).then((ans) => {
+    var col = ALLCOLUMNS.get(natural.PorterStemmer.stem(wrds[0])), ncol = col? 1:0;
+    if(ans.rowCount>0 && ans.rows[0].i>ncol) return {value: ans.rows[0].code, length: ans.rows[0].i};
+    return col? {value: col, length: 1}:null;
+  });
 };
 
 function row(db, txt, srt=false) {
