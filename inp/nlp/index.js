@@ -99,6 +99,7 @@ const COLUMN = [
   {t: [T.KEYWORD, T.KEYWORD, T.EXPRESSION], v: [/SELECT/, /ALL|DISTINCT/, null], f: (s, t, i) => { s.columns.push(`${t[i+1].value} ${t[i+2].value}`); return t[i]; }},
   {t: [T.KEYWORD, T.EXPRESSION, T.KEYWORD, T.EXPRESSION], v: [/SELECT/, null, /AS/, null], f: (s, t, i) => { s.columns.push(`${t[i+1].value} AS ${t[i+3].value}`); return t[i]; }},
   {t: [T.KEYWORD, T.EXPRESSION], v: [/SELECT/, null], f: (s, t, i) => { s.columns.push(t[i+1].value); return t[i]; }},
+  {t: [T.OPERATOR], v: [/ALL/], f: (s, t, i) => { if(i!==t.length-1) return t[i]; s.columns.push('"all"'); return null; }},
 ];
 
 function token(type, value) {
@@ -170,9 +171,9 @@ function process(tkns) {
     for(var col of sta.columnsUsed)
       if(!sta.columns.includes(col)) sta.columns.push(col);
   }
+  if(sta.from.length===0) sta.from.push(`"food"`);
   if(data.table(sta.from[0])==='columns_tsvector' && data.columns.includes('*')) data.columns.length = 0;
   if(!sta.columns.includes('*') && !sta.columns.includes(`"name"`)) sta.columns.unshift(`"name"`);
-  if(sta.from.length===0) sta.from.push(`"food"`);
   var z = `SELECT ${sta.columns.join(', ')} FROM ${sta.from.join(', ')}`;
   if(sta.where.length>0) z += ` WHERE ${sta.where}`;
   if(sta.orderBy.length>0) z += ` ORDER BY ${sta.orderBy.join(', ')}`;

@@ -5,6 +5,18 @@
 Website for [Indian Food Composition Tables 2017].
 
 ```javascript 
+NLP:
+- SELECT *
+= show all
+= show everything
+- SELECT * FROM "food"
+x show food
+x show all compositions
+x show all columns
+x show all frequency distributions
+x show all compositing centres
+- SELECT "food code", "food name", "scientific name", "local name", "food group", "number of regions", "moisture", "water", "protein", "ash", "total fat", "total dietary fiber", ""
+
 ```
 
 

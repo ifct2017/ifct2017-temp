@@ -1,7 +1,7 @@
 const natural = require('natural');
 const setup = require('./setup');
 
-const VALUECOLUMNS = new Set(['code', 'name', 'scie', 'lang', 'grup', 'regn', 'enerc']);
+const VALUECOLUMNS = new Set(['code', 'name', 'scie', 'lang', 'grup', 'regn', 'enerc', '*']);
 const IGNORES = /^(a|an|the|i|he|him|she|her|they|their|as|at|if|in|is|it|of|on|to|by|want|well|than|then|thus|however|ok|okay)$/;
 const TABLES = new Map([
   ['compositions_tsvector', 'compositions_tsvector'],
