@@ -10,7 +10,8 @@ NLP:
 = show all
 = show everything
 - SELECT * FROM "food"
-x show food
+= show all fields in food
+= show all columns in food
 x show all compositions
 x show all columns
 x show all frequency distributions

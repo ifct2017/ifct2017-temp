@@ -91,6 +91,7 @@ const WHERE = [
   {t: [T.KEYWORD, T.EXPRESSION], v: [/WHERE/, null], f: (s, t, i) => { s.where += `AND (${t[i+1].value})`; return null; }},
 ];
 const FROM = [
+  {t: [T.OPERATOR, T.ENTITY, T.OPERATOR], v: [/ALL/, /(field|column)s?/i, null], f: (s, t, i) => { s.columns.push('"all"'); return null; }},
   {t: [T.TABLE], v: [null], f: (s, t, i) => { s.from.push(`"${t[i].value}"`); return null; }},
   {t: [T.ROW], v: [null], f: (s, t, i) => { s.from.push(`"${t[i].value}"`); return null; }},
 ];
@@ -99,6 +100,7 @@ const COLUMN = [
   {t: [T.KEYWORD, T.KEYWORD, T.EXPRESSION], v: [/SELECT/, /ALL|DISTINCT/, null], f: (s, t, i) => { s.columns.push(`${t[i+1].value} ${t[i+2].value}`); return t[i]; }},
   {t: [T.KEYWORD, T.EXPRESSION, T.KEYWORD, T.EXPRESSION], v: [/SELECT/, null, /AS/, null], f: (s, t, i) => { s.columns.push(`${t[i+1].value} AS ${t[i+3].value}`); return t[i]; }},
   {t: [T.KEYWORD, T.EXPRESSION], v: [/SELECT/, null], f: (s, t, i) => { s.columns.push(t[i+1].value); return t[i]; }},
+  {t: [T.OPERATOR, T.OPERATOR], v: [/ALL/, null], f: (s, t, i) => { s.columns.push('"all"'); return null; }},
   {t: [T.OPERATOR], v: [/ALL/], f: (s, t, i) => { if(i!==t.length-1) return t[i]; s.columns.push('"all"'); return null; }},
 ];
 
@@ -155,8 +157,10 @@ function process(tkns) {
   tkns = stageRun(GROUPBY, sta, tkns, true);
   tkns = stageRun(HAVING, sta, tkns);
   tkns = stageRun(WHERE, sta, tkns);
+  console.log(tkns);
   tkns = stageRun(FROM, sta, tkns);
   tkns = stageRun(COLUMN, sta, tkns);
+  console.log(tkns);
   if(sta.having.startsWith('AND ')) sta.having = sta.having.substring(4);
   if(sta.where.startsWith('AND ')) sta.where = sta.where.substring(4);
   var i = sta.columns.indexOf(`"*"`);
