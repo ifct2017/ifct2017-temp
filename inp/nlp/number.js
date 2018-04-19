@@ -175,6 +175,7 @@ function decimal(s, dec, pre) {
 };
 
 function number(tkns) {
+  tkns.push({type: T.TEXT, value: ''});
   var dec = false, pre = NaN, p = false, z = [];
   var s = {arr: [], end: false, ord: false, exp: 1};
   for(var tkn of tkns) {
@@ -185,6 +186,7 @@ function number(tkns) {
     if(SPECIAL.has(txt)) { z.push({type: T.CARDINAL, value: SPECIAL.get(txt)}); p = true; }
     if(!p) z.push(tkn);
   }
+  tkns.pop(); z.pop();
   return z;
 };
 module.exports = number;

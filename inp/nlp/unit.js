@@ -60,7 +60,7 @@ function process(txt) {
 function unit(tkns) {
   var z = [];
   for(var tkn of tkns) {
-    var txt = tkn.type===T.MASS? tkn.value:null;
+    var txt = tkn.type===T.TEXT? tkn.value:null;
     var unt = txt!=null? process(txt):null;
     z.push(unt!=null? unt:tkn);
   }
