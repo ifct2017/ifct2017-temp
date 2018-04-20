@@ -175,8 +175,8 @@ function process(tkns) {
       if(!sta.columns.includes(col)) sta.columns.push(col);
   }
   if(sta.from.length===0) sta.from.push(`"food"`);
-  if(data.table(sta.from[0])!=='compositions_tsvector' && sta.columns.length===0) sta.columns.push('*');
-  if(!sta.columns.includes('*') && !sta.columns.includes(`"name"`)) sta.columns.unshift(`"name"`);
+  if(data.table(sta.from[0])!=='compositions_tsvector') { if(sta.columns.length===0) sta.columns.push('*'); }
+  else if(!sta.columns.includes('*') && !sta.columns.includes(`"name"`)) sta.columns.unshift(`"name"`);
   var z = `SELECT ${sta.columns.join(', ')} FROM ${sta.from.join(', ')}`;
   if(sta.where.length>0) z += ` WHERE ${sta.where}`;
   if(sta.orderBy.length>0) z += ` ORDER BY ${sta.orderBy.join(', ')}`;
