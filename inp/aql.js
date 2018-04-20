@@ -25,7 +25,7 @@ function uncomment(txt) {
 };
 
 async function columnOne(db, txt) {
-  var col = await data.column(db, txt);
+  var col = await data.column(db, txt, true);
   return col!=null? [column(col)]:[];
 };
 

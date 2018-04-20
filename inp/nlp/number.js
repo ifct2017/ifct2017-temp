@@ -144,7 +144,7 @@ function process(s, txt) {
   var l = s.arr.length, has = true, v = NaN;
   if(CARDINAL.has(txt)) v = CARDINAL.get(txt);
   else if(ORDINAL.has(txt)) v = ORDINAL.get(txt);
-  else { v = parseFloat(txt); has = false; }
+  else { v = isNaN(txt)? NaN:parseFloat(txt); has = false; }
   if(Number.isNaN(v)) { s.end = true; return false; }
   if(!has || l===0 || v<100 || v<s.exp) {
     if(s.exp>0) { s.arr[l] = v; s.exp = has && v>=100? v:0; }

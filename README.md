@@ -28,214 +28,214 @@ NLP:
 - SELECT <column>
 = show food code
 = show food name (duplicate name)
-x show scientific name
-x show local name
-x show food group
-x show number of regions
-x show moisture
-x show protein
-x show ash
-x show total fat
-x show total dietary fiber
-x show insoluble dietary fiber
-x show soluble ditary fiber
-x show carbohydrate
-x show energy
-x show thiamine
-x show riboflavin
-x show niacin
-x show pantothenic acid
-x show total b6
-x show biotin
-x show total folates
-x show total ascorbic acid
-x show retinol
-x show ergocalciferol
-x show cholecalciferol
-x show 25-OH-D3
-x show alpha tocopherol
-x show beta tocopherol
-x show gamma tocopherol
-x show delta tocopherol
-x show alpha tocotrienol
-x show beta tocotrienol
-x show gamma tocotrienol
-x show delta tocotrienol
-x show alpha tocopherol equivalent
-x show phylloquinones
-x show menaquinones
-x show tryptophan
-x show lutein
-x show zeaxanthin
-x show beta cryptoxanthin
-x show lycopene
-x show gamma carotene
-x show alpha carotene
-x show beta carotene
-x show total cartenoids
-x show aluminium
-x show arsenic
-x show cadmium
-x show calcium
-x show chromium
-x show cobalt
-x show copper
-x show iron
-x show lead
-x show lithium
-x show magnesium
-x show manganese
-x show mercury
-x show molybdenum
-x show nickel
-x show phosphorous
-x show potassium
-x show selenium
-x show sodium
-x show zinc
-x show total available cho
-x show total starch
-x show fructose
-x show glucose
-x show sucrose
-x show maltose
-x show total free sugars
-x show lactose content
-x show butyric acid
-x show caproic acid
-x show caprylic acid
-x show capric acid
-x show undecanoic acid
-x show lauric acid
-x show myristic acid
-x show pentadecanoic acid
-x show palmitic acid
-x show stearic acid
-x show arachidic acid
-x show behenic acid
-x show lignoceric acid
-x show myristoleic acid
-x show palmitoleic acid
-x show oleic acid
-x show elaidic acid
-x show eicosenoic acid
-x show erucic acid
-x show nervonic acid
-x show linoleic acid
-x show eicosadienoic acid
-x show docosadienoic acid
-x show alpha linolenic acid
-x show eicosatrienoic acid
-x show arachidonic acid
-x show eicosapentaenoic acid
-x show docosapentaenoic acid
-x show docosahexaenoic acid
-x show total saturated fatty acids
-x show total monounsaturated fatty acids
-x show cholesterol
-x show histidine
-x show isoleucine
-x show leucine
-x show lysine
-x show methionine
-x show cysteine
-x show phenylalanine
-x show threonine
-x show valine
-x show alanine
-x show arginine
-x show aspartic acid
-x show glutamic acid
-x show glycine
-x show proline
-x show serine
-x show tyrosine
-x show total oxalate
-x show soluble oxalate
-x show insoluble oxalate
-x show cis aconitic acid
-x show citric acid
-x show hesperdin
-x show fumaric acid
-x show malic acid
-x show quinic acid
-x show succinic acid
-x show tartaric acid
-x show 3 4 dihydroxy benzoic acid
-x show 3 hydroxy benzaldehyde
-x show protocatechuic acid
-x show vanillic acid
-x show gallic acid
-x show cinnamic acid
-x show ortho coumaric acid
-x show para coumaric acid
-x show caffeic acid
-x show chlorogenic acid
-x show ferulic acid
-x show apigenin
-x show apigenin 6 c gluoside
-x show apigenic 7 o neohesperidoside
-x show luteolin
-x show total polyphenols
-x show kaempferol
-x show quercetin
-x show quercetin 3 beta d glucoside
-x show quercetin 3 o rutinoside
-x show quercetin 3 beta galactoside
-x show isorhamnetin
-x show myricetin
-x show resvertrol
-x show hesperetin
-x show naringenin
-x show daidzein
-x show genistein
-x show - epicatechin
-x show - epigallo catechin
-x show - epigallo catechin 3 gallate
-x show + catechin
-x show - gallocatechin gallate
-x show - gallocatechin
-x show syringic acid
-x show sinapinic acid
-x show ellagic acid
-x show raffinose
-x show stachyose
-x show verbascose
-x show ajugose
-x show campesterol
-x show stigmasterol
-x show beta sitosterol
-x show phytate
-x show total saponin
-x show total vitamin b
-x show total vitamin d
-x show total vitamin k
-x show tocopherols
-x show tocotrienols
-x show essential amino acids
-x show conditionally essential amino acids
-x show non essential amino acids
-x show total amino acids
-x show total organic acids
-x show total unsaturated fatty acids
-x show essential fatty acids
-x show cis omega 3 fatty acids
-x show cis omega 6 fatty acids
-x show cis omega 9 fatty acids
-x show cis monounsaturated fatty acids
-x show trans fatty acids
-x show oligosaccharides
-x show phytosterols
-x show essential quantity minerals
-x show essential trace minerals
-x show possibly essential trace minerals
-x show non essential trace minerals
-x show toxic minerals
-x show total carotenes
-x show total xanthophylls
-x show beta carotene equivalents
-x show total vitamin a
-x show total vitamins
+= show scientific name
+= show local name
+= show food group
+= show number of regions
+= show moisture
+= show protein
+= show ash
+= show total fat
+= show total dietary fiber
+= show insoluble dietary fiber
+= show soluble ditary fiber
+= show carbohydrate
+= show energy
+= show thiamine
+= show riboflavin
+= show niacin
+= show pantothenic acid
+= show total b6
+= show biotin
+= show total folates
+= show total ascorbic acid
+= show retinol
+= show ergocalciferol
+= show cholecalciferol
+= show 25-OH-D3
+= show alpha tocopherol
+= show beta tocopherol
+= show gamma tocopherol
+= show delta tocopherol
+= show alpha tocotrienol
+= show beta tocotrienol
+= show gamma tocotrienol
+= show delta tocotrienol
+= show alpha tocopherol equivalent
+= show phylloquinones
+= show menaquinones
+= show tryptophan
+= show lutein
+= show zeaxanthin
+= show beta cryptoxanthin
+= show lycopene
+= show gamma carotene
+= show alpha carotene
+= show beta carotene
+= show total carotenoids
+= show aluminium
+= show arsenic
+= show cadmium
+= show calcium
+= show chromium
+= show cobalt
+= show copper
+= show iron
+= show lead
+= show lithium
+= show magnesium
+= show manganese
+= show mercury
+= show molybdenum
+= show nickel
+= show phosphorous
+= show potassium
+= show selenium
+= show sodium
+= show zinc
+= show total available cho
+= show total starch
+= show fructose
+= show glucose
+= show sucrose
+= show maltose
+= show total free sugars
+= show lactose content
+= show butyric acid
+= show caproic acid
+= show caprylic acid
+= show capric acid
+= show undecanoic acid
+= show lauric acid
+= show myristic acid
+= show pentadecanoic acid
+= show palmitic acid
+= show stearic acid
+= show arachidic acid
+= show behenic acid
+= show lignoceric acid
+= show myristoleic acid
+= show palmitoleic acid
+= show oleic acid
+= show elaidic acid
+= show eicosenoic acid
+= show erucic acid
+= show nervonic acid
+= show linoleic acid
+= show eicosadienoic acid
+= show docosadienoic acid
+= show alpha linolenic acid
+= show eicosatrienoic acid
+= show arachidonic acid
+= show eicosapentaenoic acid
+= show docosapentaenoic acid
+= show docosahexaenoic acid
+= show total saturated fatty acids
+= show total monounsaturated fatty acids
+= show cholesterol
+= show histidine
+= show isoleucine
+= show leucine
+= show lysine
+= show methionine
+= show cysteine
+= show phenylalanine
+= show threonine
+= show valine
+= show alanine
+= show arginine
+= show aspartic acid
+= show glutamic acid
+= show glycine
+= show proline
+= show serine
+= show tyrosine
+= show total oxalate
+= show soluble oxalate
+= show insoluble oxalate
+= show cis aconitic acid
+= show citric acid
+= show hesperdin
+= show fumaric acid
+= show malic acid
+= show quinic acid
+= show succinic acid
+= show tartaric acid
+= show 3 4 dihydroxy benzoic acid (comma?)
+= show 3 hydroxy benzaldehyde
+= show protocatechuic acid
+= show vanillic acid
+= show gallic acid
+= show cinnamic acid
+= show ortho coumaric acid
+= show para coumaric acid
+= show caffeic acid
+= show chlorogenic acid
+= show ferulic acid
+= show apigenin
+= show apigenin 6 c gluoside
+= show apigenin 7 o neohesperidoside
+= show luteolin
+= show total polyphenols
+= show kaempferol
+= show quercetin
+= show quercetin 3 beta d glucoside
+= show quercetin 3 o rutinoside
+= show quercetin 3 beta galactoside
+= show isorhamnetin
+= show myricetin
+= show resvertrol
+= show hesperetin
+= show naringenin
+= show daidzein
+= show genistein
+= show - epicatechin
+= show - epigallo catechin
+= show - epigallo catechin 3 gallate
+= show + catechin
+= show - gallocatechin gallate
+= show - gallocatechin
+= show syringic acid
+= show sinapinic acid
+= show ellagic acid
+= show raffinose
+= show stachyose
+= show verbascose
+= show ajugose
+= show campesterol
+= show stigmasterol
+= show beta sitosterol
+= show phytate
+= show total saponin
+= show total vitamin b
+= show total vitamin d
+= show total vitamin k
+= show tocopherols
+= show tocotrienols
+= show essential amino acids
+= show conditionally essential amino acids
+= show non essential amino acids
+= show total amino acids
+= show total organic acids
+= show total unsaturated fatty acids
+= show essential fatty acids
+= show cis omega 3 fatty acids
+= show cis omega 6 fatty acids
+= show cis omega 9 fatty acids
+= show cis monounsaturated fatty acids
+= show trans fatty acids
+= show oligosaccharides
+= show phytosterols
+= show essential quantity minerals
+= show essential trace minerals
+= show possibly essential trace minerals
+= show non essential trace minerals
+= show toxic minerals
+= show total carotenes
+= show total xanthophylls
+= show beta carotene equivalents
+= show total vitamin a
+= show total vitamins
 - SELECT <column> FROM <table>
 = show food code
 - SELECT "food code", "food name", "scientific name", "local name", "food group", "number of regions", "moisture", "water", "protein", "ash", "total fat", "total dietary fiber", ""

@@ -67,7 +67,12 @@ function tableMatch(wrds) {
   return null;
 };
 
+function columnReplace(txt) {
+  return txt.replace(/(^|[^\w]+)vitamin[^\w]+a([^\w]+|$)/gi, '$1vitamin-a$2');
+};
+
 function column(db, txt, srt=false) {
+  txt = columnReplace(txt);
   var col = ALLCOLUMNS.get(natural.PorterStemmer.stem(txt));
   if(col!=null) return Promise.resolve(col);
   var ord = ' ORDER BY ts_rank("tsvector", plainto_tsquery($1), 0) DESC LIMIT 1', nrm = ' LIMIT 1';
@@ -76,6 +81,7 @@ function column(db, txt, srt=false) {
 };
 
 function columns(db, txt, srt=false) {
+  txt = columnReplace(txt);
   var col = ALLCOLUMNS.get(natural.PorterStemmer.stem(txt));
   if(col!=null) return Promise.resolve([col]);
   var ord = ' ORDER BY ts_rank("tsvector", plainto_tsquery($1), 0) DESC';
@@ -86,7 +92,7 @@ function columns(db, txt, srt=false) {
 function columnMatch(db, wrds) {
   for(var i=wrds.length, p=1, sql='', par=[]; i>0; i--, p+=2) {
     sql += `SELECT "code", $${p}::INT AS i FROM "columns_tsvector" WHERE "tsvector" @@ plainto_tsquery($${p+1}) UNION ALL `;
-    par.push(i, wrds.slice(0, i).join(' '));
+    par.push(i, columnReplace(wrds.slice(0, i).join(' ')));
   }
   sql = sql.substring(0, sql.length-11);
   return db.query(sql, par).then((ans) => {
