@@ -13,11 +13,11 @@ function match(typ, wrds, mth) {
   return {token: {type: typ, value: val}, length: mth.length};
 };
 
-function findLast(tkns, bgn, typ) {
+function findLast(tkns, bgn) {
   var z = -1;
   for(var i=bgn, I=tkns.length; i<I; z=i++) {
     var th = tkns[i].type&0xF0, tv = tkns[i].value;
-    if(th!==T.TEXT && th!==T.NUMBER && !/^[\(\)\+\-\.\:]+$/.test(tv)) break;
+    if(th!==T.TEXT && th!==T.NUMBER && !/^[\.\:]+$/.test(tv)) break;
   }
   return z;
 };
@@ -45,7 +45,7 @@ async function process(db, tkns) {
 async function entity(db, tkns) {
   var rdy = [];
   for(var i=0, I=tkns.length; i<I; i++) {
-    var j = findLast(tkns, i, T.ORDINAL);
+    var j = findLast(tkns, i);
     if(j<0) rdy.push(tkns[i]);
     else rdy.push(process(db, tkns.slice(i, (i=j)+1)));
   }

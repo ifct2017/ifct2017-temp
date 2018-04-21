@@ -236,10 +236,7 @@ NLP:
 = show beta carotene equivalents
 = show total vitamin a
 = show total vitamins
-- SELECT <column> FROM <table>
-= show food code
-- SELECT "food code", "food name", "scientific name", "local name", "food group", "number of regions", "moisture", "water", "protein", "ash", "total fat", "total dietary fiber", ""
-
+- SELECT FROM <table> WHERE <condition>
 ```
 
 

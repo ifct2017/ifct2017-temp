@@ -2,7 +2,7 @@ const natural = require('natural');
 const T = require('./type');
 
 const LANCASTER = /^(equal|below|small|less|poor|low|above|great|high|rich|more|large|big|boolean).*/;
-const IGNORE = /^(a|an|the|i|he|him|she|her|they|their|as|at|if|in|is|it|of|on|to|by|want|well|than|then|thus|however|ok|okay)$/;
+const IGNORE = /^(an|the|i|he|him|she|her|they|their|as|at|if|in|is|it|of|on|to|by|want|well|than|then|thus|however|ok|okay)$/;
 const OPENBRACKET = new Map([
   ['bracket curli start', '{'],
   ['begin bracket curli', '{'],
@@ -780,8 +780,8 @@ const KEYWORD = new Map([
 ]);
 const STEP = [
   (wrds) => wrds.slice(),
-  (wrds) => wrds.filter((v) => !IGNORE.test(v)).sort(),
   (wrds) => wrds.map(stem).sort(),
+  (wrds) => wrds.filter((v) => !IGNORE.test(v)).sort(),
   (wrds) => wrds.filter((v) => !IGNORE.test(v)).map(stem).sort()
 ];
 

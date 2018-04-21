@@ -67,7 +67,7 @@ function tableMatch(wrds) {
 };
 
 function columnReplace(txt) {
-  return txt.replace(/(^|[^\w]+)vitamin[^\w]+a([^\w]+|$)/gi, '$1vitamin-a$2');
+  return txt.replace(/(^|.*\W)vitamin[^\w]+a(\W.*|$)/gi, '$1vitamin-a$2');
 };
 
 function column(db, txt, srt=false) {
@@ -95,6 +95,8 @@ function columnMatch(db, wrds) {
   }
   sql = sql.substring(0, sql.length-11);
   return db.query(sql, par).then((ans) => {
+    console.log(par);
+    console.log(ans.rows);
     var col = ALLCOLUMNS.get(natural.PorterStemmer.stem(wrds[0])), ncol = col? 1:0;
     if(ans.rowCount>0 && ans.rows[0].i>ncol) return {value: ans.rows[0].code, length: ans.rows[0].i};
     return col? {value: col, length: 1}:null;

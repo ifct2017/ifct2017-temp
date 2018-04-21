@@ -207,8 +207,8 @@ async function nlp(db, txt) {
   tkns = unit(tkns);
   console.log(tkns);
   tkns = reserved(tkns);
-  tkns = await entity(db, tkns);
   console.log(tkns);
+  tkns = await entity(db, tkns);
   tkns = tkns.filter((v) => v.type!==T.TEXT || !/[~!@#$:,\?\.\|\/\\]/.test(v.value));
   if(tkns.length>0 && (tkns[0].type & 0xF0)!==T.KEYWORD) tkns.unshift(token(T.KEYWORD, 'SELECT'));
   return process(tkns);
