@@ -238,7 +238,7 @@ NLP:
 = show total vitamins
 - SELECT FROM <table> WHERE <condition>
 = show food where toxic minerals is more than catechin and catechin is less than or equal to epigallo catechin plus aluminium minus available carbohydrate
-= show food where toxic minerals is more than catechin and catechin is less than or equal to epigallo catechin plus aluminium minus available carbohydrate or vitamin b3 into vitamin b2 greater than total oxalates
+= show food where (toxic minerals is more than catechin) and (catechin is less than or equal to epigallo catechin plus aluminium minus available carbohydrate) or (vitamin b3 plus two) into vitamin b2 greater than total oxalates
 ```
 
 
