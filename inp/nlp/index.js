@@ -44,8 +44,8 @@ const EXPRESSION = [
   {t: [T.EXPRESSION, T.TERNARY, T.EXPRESSION, T.OPERATOR, T.EXPRESSION], v: [null, null, null, /AND/, null], f: (s, t, i) => token(T.BOOLEAN, `${t[i].value} ${t[i+1].value} ${t[i+2].value} AND ${t[i+4].value}`)},
   {t: [T.EXPRESSION, T.TERNARY, T.EXPRESSION, T.EXPRESSION], v: [null, null, null, null], f: (s, t, i) => token(T.BOOLEAN, `${t[i].value} ${t[i+1].value} ${t[i+2].value} AND ${t[i+3].value}`)},
   {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION, T.OPERATOR, T.EXPRESSION], v: [null, null, null, /ESCAPE/, null], f: (s, t, i) => token(T.BOOLEAN, `${t[i].value} ${t[i+1].value} ${t[i+2].value} ESCAPE ${t[i+4].value}`)},
-  {t: [T.VALUE, T.BINARY, T.VALUE, T.OPERATOR, T.VALUE, T.OPERATOR], v: [null, null, null, /OR|AND/, null, /OR|AND/], f: (s, t, i) => [token(T.BOOLEAN, `${t[i].value} ${t[i+1].value} ${t[i+2].value} AND ${t[i].value} ${t[i+1].value} ${t[i+4].value}`), t[i+5]]},
-  {t: [T.VALUE, T.OPERATOR, T.VALUE, T.BINARY, T.VALUE, T.OPERATOR], v: [null, /OR|AND/, null, null, null, /OR|AND/], f: (s, t, i) => [token(T.BOOLEAN, `${t[i].value} ${t[i+3].value} ${t[i+4].value} AND ${t[i+2].value} ${t[i+3].value} ${t[i+4].value}`), t[i+5]]},
+  // {t: [T.VALUE, T.BINARY, T.VALUE, T.OPERATOR, T.VALUE, T.OPERATOR], v: [null, null, null, /OR|AND/, null, /OR|AND/], f: (s, t, i) => [token(T.BOOLEAN, `${t[i].value} ${t[i+1].value} ${t[i+2].value} AND ${t[i].value} ${t[i+1].value} ${t[i+4].value}`), t[i+5]]},
+  // {t: [T.VALUE, T.OPERATOR, T.VALUE, T.BINARY, T.VALUE, T.OPERATOR], v: [null, /OR|AND/, null, null, null, /OR|AND/], f: (s, t, i) => [token(T.BOOLEAN, `${t[i].value} ${t[i+3].value} ${t[i+4].value} AND ${t[i+2].value} ${t[i+3].value} ${t[i+4].value}`), t[i+5]]},
   {t: [T.KEYWORD, T.VALUE, T.BINARY, T.VALUE, T.OPERATOR, T.VALUE], v: [null, null, null, null, /OR|AND/, null], f: (s, t, i) => i+6>=t.length? [t[i], token(T.BOOLEAN, `${t[i+1].value} ${t[i+2].value} ${t[i+3].value} AND ${t[i+1].value} ${t[i+2].value} ${t[i+5].value}`)]:t.slice(i, i+6)},
   {t: [T.KEYWORD, T.VALUE, T.OPERATOR, T.VALUE, T.BINARY, T.VALUE], v: [null, null, /OR|AND/, null, null, null], f: (s, t, i) => i+6>=t.length? [t[i], token(T.BOOLEAN, `${t[i+1].value} ${t[i+4].value} ${t[i+5].value} AND ${t[i+3].value} ${t[i+4].value} ${t[i+4].value}`)]:t.slice(i, i+6)},
   {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /[^(OR)(AND)]/, null], f: (s, t, i) => token(T.BOOLEAN, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
@@ -143,8 +143,10 @@ function stageRun(stg, sta, tkns, rpt0=false, rpt1=false) {
   var z = tkns;
   do {
     var plen = tkns.length;
-    for(var sub of stg)
+    for(var sub of stg) {
       z = substageRun(sub, sta, tkns=z, rpt0);
+      if(stg===EXPRESSION) console.log('stageRun', sub, z);
+    }
   } while(rpt1 && z.length<plen);
   return z;
 };
@@ -207,8 +209,8 @@ async function nlp(db, txt) {
   tkns = unit(tkns);
   console.log(tkns);
   tkns = reserved(tkns);
-  console.log(tkns);
   tkns = await entity(db, tkns);
+  console.log(tkns);
   tkns = tkns.filter((v) => v.type!==T.TEXT || !/[~!@#$:,\?\.\|\/\\]/.test(v.value));
   if(tkns.length>0 && (tkns[0].type & 0xF0)!==T.KEYWORD) tkns.unshift(token(T.KEYWORD, 'SELECT'));
   return process(tkns);
