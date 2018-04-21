@@ -50,6 +50,8 @@ const EXPRESSION = [
   {t: [T.KEYWORD, T.VALUE, T.OPERATOR, T.VALUE, T.BINARY, T.VALUE], v: [null, null, /OR|AND/, null, null, null], f: (s, t, i) => i+6>=t.length? [t[i], token(T.BOOLEAN, `${t[i+1].value} ${t[i+4].value} ${t[i+5].value} AND ${t[i+3].value} ${t[i+4].value} ${t[i+4].value}`)]:t.slice(i, i+6)},
   {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /[^(OR)(AND)]/, null], f: (s, t, i) => token(T.BOOLEAN, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
   {t: [T.UNARY, T.EXPRESSION], v: [null, null], f: (s, t, i) => token(T.BOOLEAN, `${t[i].value} ${t[i+1].value}`)},
+  {t: [T.VALUE, T.BINARY, T.VALUE], v: [null, null, null], f: (s, t, i) => { s.columns.push(t[i].value); s.columns.push(t[i+2].value); return null; }},
+  {t: [T.BINARY, T.VALUE], v: [null, null], f: (s, t, i) => { s.columns.push(t[i+1].value); return null; }},
   {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, null, null], f: (s, t, i) => token(T.BOOLEAN, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
   {t: [T.EXPRESSION, T.EXPRESSION, T.CLOSE], v: [null, null, null], f: (s, t, i) => [token(T.EXPRESSION, `${t[i].value}, ${t[i+1].value}`), t[i+2]]},
   {t: [T.FUNCTION, T.OPEN, T.EXPRESSION, T.CLOSE], v: [null, null, null, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value}(${t[i+2].value})`)},
@@ -149,6 +151,7 @@ function stageRun(stg, sta, tkns, rpt0=false, rpt1=false) {
 
 function process(tkns) {
   var sta = {columns: [], from: [], groupBy: [], orderBy: [], where: '', having: '', limit: 0, columnsUsed: [], reverse: false};
+  tkns = tkns.filter((t) => t.type!==T.SEPARATOR);
   tkns = stageRun(NULLORDER, sta, tkns);
   tkns = stageRun(NUMBER, sta, tkns);
   tkns = stageRun(LIMIT, sta, tkns);
