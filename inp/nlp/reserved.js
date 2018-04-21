@@ -49,6 +49,15 @@ const CLOSEBRACKET = new Map([
   [']', ']'],
   ['}', '}'],
 ]);
+const SEPARATOR = new Map([
+  ['comma', ','],
+  ['then', ','],
+  [',', ','],
+  ['semicolon', ';'],
+  [';', ';'],
+  ['colon', ':'],
+  [':', ':'],
+]);
 const UNARYOPERATOR = new Map([
   ['bool not', 'NOT'],
   ['not', 'NOT'],
@@ -791,6 +800,7 @@ function findLast(tkns, bgn, typ) {
 function processTxt(txt) {
   if(OPENBRACKET.has(txt)) return {type: T.OPEN, value: OPENBRACKET.get(txt)};
   if(CLOSEBRACKET.has(txt)) return {type: T.CLOSE, value: CLOSEBRACKET.get(txt)};
+  if(SEPARATOR.has(txt)) return {type: T.SEPARATOR, value: SEPARATOR.get(txt)};
   if(TERNARYOPERATOR.has(txt)) return {type: T.TERNARY, value: TERNARYOPERATOR.get(txt)};
   if(BINARYOPERATOR.has(txt)) return {type: T.BINARY, value: BINARYOPERATOR.get(txt)};
   if(UNARYOPERATOR.has(txt)) return {type: T.UNARY, value: UNARYOPERATOR.get(txt)};
