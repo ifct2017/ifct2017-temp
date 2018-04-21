@@ -92,6 +92,7 @@ const WHERE = [
 ];
 const FROM = [
   {t: [T.OPERATOR, T.ENTITY, T.OPERATOR], v: [/ALL/, /(field|column)s?/i, null], f: (s, t, i) => { s.columns.push('*'); return null; }},
+  {t: [T.ENTITY, T.KEYWORD], v: [/food/i, /GROUP BY/], f: (s, t, i) => { if(i>=t.length-2) { s.columns.push('"food group"'); return null; } s.from.push('"food"'); return t[i+1]; }},
   {t: [T.KEYWORD], v: [/GROUP BY/], f: (s, t, i) => { if(i!==t.length-1 /* && s.groupBy.length===0 */) return t[i]; s.from.push('"groups"'); return null; }},
   {t: [T.TABLE], v: [null], f: (s, t, i) => { s.from.push(`"${t[i].value}"`); return null; }},
   {t: [T.ROW], v: [null], f: (s, t, i) => { s.from.push(`"${t[i].value}"`); return null; }},

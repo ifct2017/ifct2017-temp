@@ -3,9 +3,9 @@ const data = require('../../data');
 const T = require('./type');
 
 const TYPES = [
+  T.TABLE,
   T.COLUMN,
   T.ROW,
-  T.TABLE,
 ];
 
 function match(typ, wrds, mth) {
@@ -21,7 +21,7 @@ function findLast(tkns, bgn, typ) {
 };
 
 function processAt(db, wrds) {
-  var rdy = [data.columnMatch(db, wrds), data.rowMatch(db, wrds), Promise.resolve(data.tableMatch(wrds))];
+  var rdy = [Promise.resolve(data.tableMatch(wrds)), data.columnMatch(db, wrds), data.rowMatch(db, wrds)];
   return Promise.all(rdy).then((ans) => {
     var mi = (ans[1]||[]).length>(ans[0]||[]).length? 1:0;
     mi = (ans[2]||[]).length>(ans[mi]||[]).length? 2:mi;
