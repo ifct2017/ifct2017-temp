@@ -25,7 +25,6 @@ const TABLES = new Map([
   ['distribut', 'frequencydistribution_tsvector'],
   ['groups_tsvector', 'groups_tsvector'],
   ['group', 'groups_tsvector'],
-  ['food group', 'groups_tsvector'],
   ['methods_tsvector', 'methods_tsvector'],
   ['method', 'methods_tsvector'],
   ['analyt method', 'methods_tsvector'],

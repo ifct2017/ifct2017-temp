@@ -15,8 +15,10 @@ function match(typ, wrds, mth) {
 
 function findLast(tkns, bgn, typ) {
   var z = -1;
-  for(var i=bgn, I=tkns.length; i<I; z=i++)
-    if(tkns[i].type>typ) break;
+  for(var i=bgn, I=tkns.length; i<I; z=i++) {
+    var th = tkns[i].type&0xF0, tv = tkns[i].value;
+    if(th!==T.TEXT && th!==T.NUMBER && tv.search(/\w/)>=0) break;
+  }
   return z;
 };
 
