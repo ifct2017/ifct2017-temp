@@ -35,6 +35,12 @@ const VALUE = [
 ];
 // T.VALUE: t[i].type
 const EXPRESSION = [
+  {t: [T.OPEN, T.CLOSE], v: [null, null], f: (s, t, i) => null},
+  {t: [T.EXPRESSION, T.EXPRESSION, T.CLOSE], v: [null, null, null], f: (s, t, i) => [token(T.EXPRESSION, `${t[i].value}, ${t[i+1].value}`), t[i+2]]},
+  {t: [T.FUNCTION], v: [/pi|random/], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value}()`)},
+  {t: [T.FUNCTION, T.OPEN, T.EXPRESSION, T.CLOSE], v: [null, null, null, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value}(${t[i+2].value})`)},
+  {t: [T.FUNCTION, T.EXPRESSION], v: [null, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value}(${t[i+1].value})`)},
+  {t: [T.OPEN, T.EXPRESSION, T.CLOSE], v: [null, null, null], f: (s, t, i) => token(T.EXPRESSION, `(${t[i+1].value})`)},
   {t: [T.OPERATOR, T.BINARY, T.EXPRESSION], v: [null, /\+|\-/, null], f: (s, t, i) => [t[i], token(t[i+2].type, `${t[i+1].value}${t[i+2].value}`)]},
   {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /\^/, null], f: (s, t, i) => token(t[i].type & t[i+2].type, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
   {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /[\*\/%]/, null], f: (s, t, i) => token(t[i].type & t[i+2].type, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
@@ -47,20 +53,15 @@ const EXPRESSION = [
   {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION, T.OPERATOR, T.EXPRESSION], v: [null, null, null, /ESCAPE/, null], f: (s, t, i) => token(T.BOOLEAN, `${t[i].value} ${t[i+1].value} ${t[i+2].value} ESCAPE ${t[i+4].value}`)},
   // {t: [T.VALUE, T.BINARY, T.VALUE, T.OPERATOR, T.VALUE, T.OPERATOR], v: [null, null, null, /OR|AND/, null, /OR|AND/], f: (s, t, i) => [token(T.BOOLEAN, `${t[i].value} ${t[i+1].value} ${t[i+2].value} AND ${t[i].value} ${t[i+1].value} ${t[i+4].value}`), t[i+5]]},
   // {t: [T.VALUE, T.OPERATOR, T.VALUE, T.BINARY, T.VALUE, T.OPERATOR], v: [null, /OR|AND/, null, null, null, /OR|AND/], f: (s, t, i) => [token(T.BOOLEAN, `${t[i].value} ${t[i+3].value} ${t[i+4].value} AND ${t[i+2].value} ${t[i+3].value} ${t[i+4].value}`), t[i+5]]},
-  {t: [T.KEYWORD, T.VALUE, T.BINARY, T.VALUE, T.OPERATOR, T.VALUE], v: [null, null, null, null, /OR|AND/, null], f: (s, t, i) => i+6>=t.length? [t[i], token(T.BOOLEAN, `${t[i+1].value} ${t[i+2].value} ${t[i+3].value} AND ${t[i+1].value} ${t[i+2].value} ${t[i+5].value}`)]:t.slice(i, i+6)},
-  {t: [T.KEYWORD, T.VALUE, T.OPERATOR, T.VALUE, T.BINARY, T.VALUE], v: [null, null, /OR|AND/, null, null, null], f: (s, t, i) => i+6>=t.length? [t[i], token(T.BOOLEAN, `${t[i+1].value} ${t[i+4].value} ${t[i+5].value} AND ${t[i+3].value} ${t[i+4].value} ${t[i+4].value}`)]:t.slice(i, i+6)},
+  {t: [T.KEYWORD, T.VALUE, T.BINARY, T.VALUE, T.OPERATOR, T.VALUE], v: [null, null, /[^(OR)|(AND)]/, null, /OR|AND/, null], f: (s, t, i) => i+6>=t.length? [t[i], token(T.BOOLEAN, `${t[i+1].value} ${t[i+2].value} ${t[i+3].value} AND ${t[i+1].value} ${t[i+2].value} ${t[i+5].value}`)]:t.slice(i, i+6)},
+  {t: [T.KEYWORD, T.VALUE, T.OPERATOR, T.VALUE, T.BINARY, T.VALUE], v: [null, null, /OR|AND/, null, /[^(OR)|(AND)]/, null], f: (s, t, i) => i+6>=t.length? [t[i], token(T.BOOLEAN, `${t[i+1].value} ${t[i+4].value} ${t[i+5].value} AND ${t[i+3].value} ${t[i+4].value} ${t[i+4].value}`)]:t.slice(i, i+6)},
   {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, /[^(OR)(AND)]/, null], f: (s, t, i) => token(T.BOOLEAN, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
   {t: [T.UNARY, T.EXPRESSION], v: [null, null], f: (s, t, i) => token(T.BOOLEAN, `${t[i].value} ${t[i+1].value}`)},
-  {t: [T.VALUE, T.BINARY, T.VALUE], v: [null, /AND/, null], f: (s, t, i) => { s.columns.push(t[i].value); s.columns.push(t[i+2].value); return null; }},
-  {t: [T.BINARY, T.VALUE], v: [/AND/, null], f: (s, t, i) => { s.columns.push(t[i+1].value); return null; }},
+  {t: [T.VALUE, T.BINARY, T.VALUE], v: [null, /AND/, null], f: (s, t, i) => { s.columnsUsed.push(t[i].value, t[i+2].value); return [t[i], t[i+2]]; }},
+  {t: [T.BINARY, T.VALUE], v: [/AND/, null], f: (s, t, i) => { s.columnsUsed.push(t[i+1].value); return t[i+1]; }},
   {t: [T.EXPRESSION, T.BINARY, T.EXPRESSION], v: [null, null, null], f: (s, t, i) => token(T.BOOLEAN, `${t[i].value} ${t[i+1].value} ${t[i+2].value}`)},
-  {t: [T.EXPRESSION, T.EXPRESSION, T.CLOSE], v: [null, null, null], f: (s, t, i) => [token(T.EXPRESSION, `${t[i].value}, ${t[i+1].value}`), t[i+2]]},
-  {t: [T.FUNCTION, T.OPEN, T.EXPRESSION, T.CLOSE], v: [null, null, null, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value}(${t[i+2].value})`)},
-  {t: [T.FUNCTION, T.EXPRESSION], v: [null, null], f: (s, t, i) => token(T.EXPRESSION, `${t[i].value}(${t[i+1].value})`)},
-  {t: [T.OPEN, T.EXPRESSION, T.CLOSE], v: [null, null, null], f: (s, t, i) => token(T.EXPRESSION, `(${t[i+1].value})`)},
 ];
 const ORDERBY = [
-  {t: [T.KEYWORD, T.EXPRESSION], v: [/ORDER BY/, null], f: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return t[i]; }},
   {t: [T.EXPRESSION, T.KEYWORD, T.KEYWORD], v: [null, /DESC/, /NULLS (FIRST|LAST)/], f: (s, t, i) => { s.orderBy.push(`${t[i].value} ${s.reverse? 'ASC':'DESC'} ${t[i+2].value}`); return null; }},
   {t: [T.EXPRESSION, T.KEYWORD, T.KEYWORD], v: [null, /ASC/, /NULLS (FIRST|LAST)/], f: (s, t, i) => { s.orderBy.push(`${t[i].value} ${s.reverse? 'DESC':'ASC'} ${t[i+2].value}`); return null; }},
   {t: [T.KEYWORD, T.EXPRESSION, T.KEYWORD], v: [/DESC/, null, /NULLS (FIRST|LAST)/], f: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'ASC':'DESC'} ${t[i+2].value}`); return null; }},
@@ -77,6 +78,7 @@ const ORDERBY = [
   {t: [T.OPERATOR, T.EXPRESSION], v: [/<|<=/, null], f: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return null; }},
   {t: [T.EXPRESSION, T.OPERATOR], v: [null, />|>=/], f: (s, t, i) => { s.orderBy.push(`${t[i].value} ${s.reverse? 'ASC':'DESC'}`); return null; }},
   {t: [T.EXPRESSION, T.OPERATOR], v: [null, /<|<=/], f: (s, t, i) => { s.orderBy.push(`${t[i].value} ${s.reverse? 'DESC':'ASC'}`); return null; }},
+  {t: [T.KEYWORD, T.EXPRESSION], v: [/ORDER BY/, null], f: (s, t, i) => { s.orderBy.push(`${t[i+1].value} ${s.reverse? 'DESC':'ASC'}`); return t[i]; }},
 ];
 const GROUPBY = [
   {t: [T.KEYWORD, T.EXPRESSION], v: [/GROUP BY/, null], f: (s, t, i) => { s.groupBy.push(`${t[i+1].value}`); return t[i]; }},
@@ -95,7 +97,7 @@ const WHERE = [
 ];
 const FROM = [
   {t: [T.OPERATOR, T.ENTITY, T.OPERATOR], v: [/ALL/, /(field|column)s?/i, null], f: (s, t, i) => { s.columns.push('*'); return null; }},
-  {t: [T.KEYWORD], v: [/GROUP BY/], f: (s, t, i) => { if(i!==t.length-1 /* && s.groupBy.length===0 */) return t[i]; s.from.push('"groups"'); return null; }},
+  {t: [T.KEYWORD], v: [/GROUP BY/], f: (s, t, i) => { if(i!==t.length-1 || s.groupBy.length!==0) return t[i]; s.from.push('"groups"'); return null; }},
   {t: [T.TABLE], v: [null], f: (s, t, i) => { s.from.push(`"${t[i].value}"`); return null; }},
   {t: [T.ROW], v: [null], f: (s, t, i) => { s.from.push(`"${t[i].value}"`); return null; }},
 ];
@@ -144,10 +146,8 @@ function stageRun(stg, sta, tkns, rpt0=false, rpt1=false) {
   var z = tkns;
   do {
     var plen = tkns.length;
-    for(var sub of stg) {
+    for(var sub of stg)
       z = substageRun(sub, sta, tkns=z, rpt0);
-      if(stg===EXPRESSION) console.log('stageRun', sub, z);
-    }
   } while(rpt1 && z.length<plen);
   return z;
 };
@@ -155,6 +155,7 @@ function stageRun(stg, sta, tkns, rpt0=false, rpt1=false) {
 function process(tkns) {
   var sta = {columns: [], from: [], groupBy: [], orderBy: [], where: '', having: '', limit: 0, columnsUsed: [], reverse: false};
   tkns = tkns.filter((t) => t.type!==T.SEPARATOR);
+  if(tkns[0].value!=='SELECT') tkns.unshift(token(T.KEYWORD, 'SELECT'));
   tkns = stageRun(NULLORDER, sta, tkns);
   tkns = stageRun(NUMBER, sta, tkns);
   tkns = stageRun(LIMIT, sta, tkns);
@@ -176,17 +177,19 @@ function process(tkns) {
       if(!sta.columns.includes(exp)) sta.columns.push(exp);
     }
   }
-  if(sta.columns.length===0 || !sta.columns.includes('*')) {
+  if(sta.groupBy.length===0 && (sta.columns.length===0 || !sta.columns.includes('*'))) {
     for(var col of sta.columnsUsed)
       if(!sta.columns.includes(col)) sta.columns.push(col);
   }
+  for(var i=sta.groupBy.length-1; i>=0; i--)
+    sta.columns.unshift(sta.groupBy[i]);
   if(sta.from.length===0) sta.from.push(`"food"`);
   if(data.table(sta.from[0])!=='compositions_tsvector') { if(sta.columns.length===0) sta.columns.push('*'); }
   else if(!sta.columns.includes('*') && !sta.columns.includes(`"name"`)) sta.columns.unshift(`"name"`);
   var z = `SELECT ${sta.columns.join(', ')} FROM ${sta.from.join(', ')}`;
   if(sta.where.length>0) z += ` WHERE ${sta.where}`;
-  if(sta.orderBy.length>0) z += ` ORDER BY ${sta.orderBy.join(', ')}`;
   if(sta.groupBy.length>0) z += ` GROUP BY ${sta.groupBy.join(', ')}`;
+  if(sta.orderBy.length>0) z += ` ORDER BY ${sta.orderBy.join(', ')}`;
   if(sta.having.length>0) z += ` HAVING ${sta.having}`;
   if(sta.limit>0) z += ` LIMIT ${sta.limit}`;
   return z;
@@ -208,10 +211,8 @@ async function nlp(db, txt) {
   var tkns = tokenize(txt);
   tkns = number(tkns);
   tkns = unit(tkns);
-  console.log(tkns);
   tkns = reserved(tkns);
   tkns = await entity(db, tkns);
-  console.log(tkns);
   tkns = tkns.filter((v) => v.type!==T.TEXT || !/[~!@#$:,\?\.\|\/\\]/.test(v.value));
   if(tkns.length>0 && (tkns[0].type & 0xF0)!==T.KEYWORD) tkns.unshift(token(T.KEYWORD, 'SELECT'));
   return process(tkns);
