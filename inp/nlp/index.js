@@ -143,10 +143,8 @@ function stageRun(stg, sta, tkns, rpt0=false, rpt1=false) {
   var z = tkns;
   do {
     var plen = tkns.length;
-    for(var sub of stg) {
+    for(var sub of stg)
       z = substageRun(sub, sta, tkns=z, rpt0);
-      if(stg===EXPRESSION) console.log('stageRun', sub, z);
-    }
   } while(rpt1 && z.length<plen);
   return z;
 };
@@ -207,10 +205,8 @@ async function nlp(db, txt) {
   var tkns = tokenize(txt);
   tkns = number(tkns);
   tkns = unit(tkns);
-  console.log(tkns);
   tkns = reserved(tkns);
   tkns = await entity(db, tkns);
-  console.log(tkns);
   tkns = tkns.filter((v) => v.type!==T.TEXT || !/[~!@#$:,\?\.\|\/\\]/.test(v.value));
   if(tkns.length>0 && (tkns[0].type & 0xF0)!==T.KEYWORD) tkns.unshift(token(T.KEYWORD, 'SELECT'));
   return process(tkns);

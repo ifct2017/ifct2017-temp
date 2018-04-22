@@ -38,7 +38,9 @@ async function runSql(db, sql, mod='text') {
 async function runAql(db, aql, mod='text') {
   console.log(`AQL: ${aql}`);
   var sql = await inp.aql(db, aql);
-  return Object.assign({aql}, await runSql(db, sql, mod));
+  var eql = inp.eql(sql);
+  console.log(`EQL: ${eql}`);
+  return Object.assign({aql, eql}, await runSql(db, sql, mod));
 };
 
 async function runNlp(db, nlp, mod='text') {
