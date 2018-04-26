@@ -107,8 +107,11 @@ async function orderBy(db, ast) {
   return z;
 };
 
-function groupBy(db, ast) {
-  return Promise.all(ast.map((exp) => expressions(db, exp)));
+async function groupBy(db, ast) {
+  var y = await Promise.all(ast.map((exp) => expressions(db, exp)));
+  for(var i=0, I=y.length, z=[]; i<I; i++)
+    z.push.apply(z, y[i]);
+  return z;
 };
 
 function from(db, ast) {

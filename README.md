@@ -238,7 +238,9 @@ NLP:
 = show total vitamins
 - SELECT FROM <table> WHERE <condition>
 = show food where toxic minerals is more than catechin and catechin is less than or equal to epigallo catechin plus aluminium minus available carbohydrate
-= show food where toxic minerals is more than catechin and catechin is less than or equal to epigallo catechin plus aluminium minus available carbohydrate or vitamin b3 into vitamin b2 greater than total oxalates
+= show food where (absolute of (coalesce open vitamin a and vitamin b and vitamin c close) is more than catechin) and (catechin is less than or equal to epigallo catechin plus aluminium minus available carbohydrate) or ((vitamin b3 plus two) into (vitamin b2 plus vitamin b6)) greater than total oxalates order by absolute of open total oxalates plus toxic minerals close in descending order
+= show maximum of vitamin a group by food group having char length of food group higher than ten
+= show maximum of vitamin a group by food group order by char length of food group
 ```
 
 
